@@ -57,7 +57,7 @@ sonar {
     properties {
         property "sonar.projectKey", "sopra-fs24-group-41_sopra-fs24-group-41-server"
         property "sonar.organization", "sopra-fs24-group-41"
-        property "sonar.projectName", "Server"
+        property "sonar.projectName", "sopra-fs24-group-41-server"
         property "sonar.host.url", "https://sonarcloud.io"
     }
 }
