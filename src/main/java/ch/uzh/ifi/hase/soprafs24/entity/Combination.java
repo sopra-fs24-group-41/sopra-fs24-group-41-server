@@ -32,10 +32,6 @@ public class Combination implements Serializable {
         return id;
     }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public Word getResult() {
         return result;
     }

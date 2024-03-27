@@ -39,7 +39,6 @@ public class CombinationServiceTest {
         testWord2.setName("Fire");
 
         testCombination = new Combination();
-        testCombination.setId(1L);
         testCombination.setResult(testResult);
         testCombination.setWord1(testWord1);
         testCombination.setWord1(testWord2);
