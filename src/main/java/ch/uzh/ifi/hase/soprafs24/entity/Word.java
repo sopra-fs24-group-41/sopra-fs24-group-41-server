@@ -14,18 +14,17 @@ public class Word implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @GeneratedValue
-    private Long id;
-
-    @Column(nullable = false, unique = true)
+    @Column()
     private String name;
 
     @OneToMany(mappedBy = "result")
     private List<Combination> combinations;
 
+    public Word() {
+    }
 
-    public Long getId() {
-        return id;
+    public Word(String name) {
+        this.name = name;
     }
 
     public String getName() {

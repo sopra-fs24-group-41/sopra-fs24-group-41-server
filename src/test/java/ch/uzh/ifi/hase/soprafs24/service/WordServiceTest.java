@@ -26,8 +26,7 @@ public class WordServiceTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
 
-        testWord = new Word();
-        testWord.setName("Water");
+        testWord = new Word("Water");
 
         Mockito.when(wordRepository.save(Mockito.any())).thenReturn(testWord);
     }
@@ -38,7 +37,6 @@ public class WordServiceTest {
 
         Word foundWord = wordService.getWordFromString(testWord.getName());
 
-        assertEquals(testWord.getId(), foundWord.getId());
         assertEquals(testWord.getName(), foundWord.getName());
     }
 
