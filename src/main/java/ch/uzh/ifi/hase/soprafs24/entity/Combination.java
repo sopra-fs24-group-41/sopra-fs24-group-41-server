@@ -16,17 +16,26 @@ public class Combination implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "result", nullable = false)
-    private Word result;
-
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "word1", nullable = false)
     private Word word1;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
     @JoinColumn(name = "word2", nullable = false)
     private Word word2;
+
+    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "result", nullable = false)
+    private Word result;
+
+    public Combination() {
+    }
+
+    public Combination(Word word1, Word word2, Word result) {
+        this.word1 = word1;
+        this.word2 = word2;
+        this.result = result;
+    }
 
     public Long getId() {
         return id;
