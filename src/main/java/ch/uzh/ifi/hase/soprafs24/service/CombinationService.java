@@ -13,9 +13,23 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class CombinationService {
     private final CombinationRepository combinationRepository;
+    private final APIService apiService;
+
     @Autowired
-    public CombinationService(@Qualifier("combinationRepository") CombinationRepository combinationRepository) {
+    public CombinationService(@Qualifier("combinationRepository") CombinationRepository combinationRepository, APIService apiService) {
         this.combinationRepository = combinationRepository;
+        this.apiService = apiService;
+    }
+
+    public Combination getCombination(Word word1, Word word2) {
+        Combination combination;
+        try {
+            combination = findCombination(word1, word2);
+        }
+        catch (CombinationNotFoundException e) {
+            combination = createCombination(word1, word2);
+        }
+        return combination;
     }
 
     public Combination findCombination(Word word1, Word word2) {
@@ -27,5 +41,14 @@ public class CombinationService {
             }
         }
         return combination;
+    }
+
+    private Combination createCombination(Word word1, Word word2) {
+        String resultString = apiService.generateCombinationResult(word1.getName(), word2.getName());
+        Word result = new Word(resultString);
+        Combination newCombination = new Combination(word1, word2, result);
+        newCombination = combinationRepository.save(newCombination);
+        combinationRepository.flush();
+        return newCombination;
     }
 }
