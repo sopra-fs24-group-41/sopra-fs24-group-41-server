@@ -7,8 +7,7 @@ import java.time.LocalDateTime;
 
 /**
  * Internal PlayerWord Representation
- * This class composes the internal representation of the playerWords and defines how
- * the playerWords are stored in the database.
+ * This class composes the internal representation of the playerWords and defines how they are stored in the database.
  */
 @Entity
 @Table(name = "PLAYERWORDS")
@@ -19,20 +18,12 @@ public class PlayerWord implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column(name = "player")
-    private long playerId;
-
-    @Id
-    @Column(name = "word")
-    private long wordId;
-
     @ManyToOne
-    @MapsId
     @JoinColumn(name = "player")
     private Player player;
 
+    @Id
     @OneToOne
-    @MapsId
     @JoinColumn(name = "word")
     private Word word;
 
@@ -42,22 +33,6 @@ public class PlayerWord implements Serializable {
     @PrePersist
     void timestamp() {
         this.timestamp = LocalDateTime.now();
-    }
-
-    public long getPlayerId() {
-        return playerId;
-    }
-
-    public void setPlayerId(long playerId) {
-        this.playerId = playerId;
-    }
-
-    public long getWordId() {
-        return wordId;
-    }
-
-    public void setWordId(long wordId) {
-        this.wordId = wordId;
     }
 
     public Player getPlayer() {

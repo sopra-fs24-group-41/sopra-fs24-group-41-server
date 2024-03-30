@@ -37,6 +37,10 @@ public class User implements Serializable {
   @Column(nullable = false)
   private UserStatus status;
 
+  @OneToOne(cascade = CascadeType.ALL)
+  @JoinColumn(name = "playerId")
+  private Player player;
+
   public Long getId() {
     return id;
   }

@@ -3,12 +3,11 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Internal Player Representation
- * This class composes the internal representation of the player and defines how
- * the player is stored in the database.
+ * This class composes the internal representation of the player and defines how the player is stored in the database.
  */
 @Entity
 @Table(name = "PLAYER")
@@ -25,20 +24,24 @@ public class Player implements Serializable {
     private String token;
 
     @Column(nullable = false)
-    private String username;
+    private String name;
 
     @Column
     private long points;
 
-    @OneToMany(mappedBy = "player")
-    private Collection<PlayerWord> availableWords;
+    @OneToOne(mappedBy = "player")
+    private User user;
 
-    @OneToOne(mappedBy = "master")
-    private Lobby ownsLobby;
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    private List<PlayerWord> availableWords;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "ownedLobby")
+    private Lobby ownedLobby;
 
     @ManyToOne
-    @JoinColumn(name = "code")
-    private Lobby inLobby;
+    @JoinColumn(name = "lobby")
+    private Lobby lobby;
 
     public long getId() {
         return id;
@@ -56,12 +59,12 @@ public class Player implements Serializable {
         this.token = token;
     }
 
-    public String getUsername() {
-        return username;
+    public String getName() {
+        return name;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public long getPoints() {
@@ -72,27 +75,35 @@ public class Player implements Serializable {
         this.points = points;
     }
 
-    public Collection<PlayerWord> getAvailableWords() {
+    public List<PlayerWord> getAvailableWords() {
         return availableWords;
     }
 
-    public void setAvailableWords(Collection<PlayerWord> availableWords) {
+    public void setAvailableWords(List<PlayerWord> availableWords) {
         this.availableWords = availableWords;
     }
 
-    public Lobby getOwnsLobby() {
-        return ownsLobby;
+    public Lobby getOwnedLobby() {
+        return ownedLobby;
     }
 
-    public void setOwnsLobby(Lobby ownsLobby) {
-        this.ownsLobby = ownsLobby;
+    public void setOwnedLobby(Lobby ownsLobby) {
+        this.ownedLobby = ownsLobby;
     }
 
-    public Lobby getInLobby() {
-        return inLobby;
+    public Lobby getLobby() {
+        return lobby;
     }
 
-    public void setInLobby(Lobby inLobby) {
-        this.inLobby = inLobby;
+    public void setLobby(Lobby lobby) {
+        this.lobby = lobby;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }
