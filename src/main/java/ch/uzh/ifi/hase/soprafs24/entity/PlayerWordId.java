@@ -7,5 +7,5 @@ import java.io.Serializable;
  */
 public class PlayerWordId implements Serializable {
     private long player;
-    private long word;
+    private String word;
 }
