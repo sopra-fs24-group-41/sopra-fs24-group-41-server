@@ -23,7 +23,7 @@ public class Lobby implements Serializable {
     @Id
     private long code;
 
-    @Column
+    @Column(nullable = false)
     private String name;
 
     @Column(nullable = false)
@@ -32,7 +32,7 @@ public class Lobby implements Serializable {
     @Column
     private LocalDateTime startTime;
 
-    @Column
+    @Column(nullable = false)
     private LobbyStatus status;
 
     @Column
@@ -43,6 +43,15 @@ public class Lobby implements Serializable {
 
     @OneToMany(mappedBy = "lobby", cascade = CascadeType.ALL)
     private List<Player> players;
+
+    public Lobby() {}
+
+    public Lobby(long code, String name) {
+        this.code = code;
+        this.name = name;
+        this.publicAccess = false;
+        this.status = LobbyStatus.PREGAME;
+    }
 
     public long getCode() {
     return code;

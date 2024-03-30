@@ -43,6 +43,14 @@ public class Player implements Serializable {
     @JoinColumn(name = "lobby")
     private Lobby lobby;
 
+    public Player() {}
+
+    public Player(String token, String name, Lobby lobby) {
+        this.token = token;
+        this.name = name;
+        this.lobby = lobby;
+    }
+
     public long getId() {
         return id;
     }
