@@ -7,12 +7,11 @@ import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Collection;
+import java.util.List;
 
 /**
  * Internal Lobby Representation
- * This class composes the internal representation of the lobby and defines how
- * the lobby is stored in the database.
+ * This class composes the internal representation of the lobby and defines how the lobby is stored in the database.
  */
 @Entity
 @Table(name = "LOBBY")
@@ -39,15 +38,11 @@ public class Lobby implements Serializable {
     @Column
     private GameMode mode;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinTable(name = "PLAYER",
-          joinColumns = { @JoinColumn(name = "lobbyCode", referencedColumnName = "code") },
-          inverseJoinColumns = { @JoinColumn(name = "playerId", referencedColumnName = "id") }
-    )
-    private Player master;
+    @OneToOne(mappedBy = "ownedLobby")
+    private Player owner;
 
-    @OneToMany(mappedBy = "id")
-    private Collection<Player> players;
+    @OneToMany(mappedBy = "lobby", cascade = CascadeType.ALL)
+    private List<Player> players;
 
     public long getCode() {
     return code;
@@ -97,19 +92,19 @@ public class Lobby implements Serializable {
     this.mode = mode;
     }
 
-    public Player getMaster() {
-    return master;
+    public Player getOwner() {
+    return owner;
     }
 
-    public void setMaster(Player master) {
-    this.master = master;
+    public void setOwner(Player owner) {
+    this.owner = owner;
     }
 
-    public Collection<Player> getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
-    public void setPlayers(Collection<Player> players) {
+    public void setPlayers(List<Player> players) {
         this.players = players;
     }
 }

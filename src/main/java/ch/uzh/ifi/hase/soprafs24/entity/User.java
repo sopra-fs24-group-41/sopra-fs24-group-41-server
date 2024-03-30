@@ -37,6 +37,10 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "playerId")
+    private Player player;
+
     @Column
     private String profilePicture;
 
@@ -74,6 +78,14 @@ public class User implements Serializable {
 
     public UserStatus getStatus() {
         return status;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
     }
 
     public void setStatus(UserStatus status) {
