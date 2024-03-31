@@ -1,6 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
-public class UserSecretGetDTO {
+public class UserSecretDTO {
 
     private String token;
 
