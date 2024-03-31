@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -43,12 +44,28 @@ public class UserService {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
         newUser.setProfilePicture("");  // for now, the profile picture is empty
-        checkIfUserExists(newUser);
+        checkDuplicateUser(newUser);
         newUser = userRepository.save(newUser);
         userRepository.flush();
 
         log.debug("Created Information for User: {}", newUser);
         return newUser;
+    }
+
+    public User logInUser(User userCredentials) {
+        User userByUsername = userRepository.findByUsername(userCredentials.getUsername());
+
+        if (userByUsername == null) {
+            String errorMessage = "Cannot find this username.";
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+        }
+        if (!Objects.equals(userCredentials.getPassword(), userByUsername.getPassword())) {
+            String errorMessage = "Wrong password";
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, errorMessage);
+        }
+
+        userByUsername.setStatus(UserStatus.ONLINE);
+        return userByUsername;
     }
 
     /**
@@ -61,12 +78,12 @@ public class UserService {
      * @throws org.springframework.web.server.ResponseStatusException
      * @see User
      */
-    private void checkIfUserExists(User userToBeCreated) {
+    private void checkDuplicateUser(User userToBeCreated) {
         User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
 
         String errorMessage = "The username provided is not unique. Therefore, the user could not be created!";
         if (userByUsername != null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format(errorMessage));
+            throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
         }
     }
 }
