@@ -82,4 +82,51 @@ public class UserServiceTest {
         assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
     }
 
+    @Test
+    public void logInUser_validInputs_returnsUser() {
+        userService.createUser(testUser);
+        User userCredentials = testUser;
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+
+        User loggedInUser = userService.logInUser(userCredentials);
+        assertEquals(testUser.getId(), loggedInUser.getId());
+        assertEquals(testUser.getName(), loggedInUser.getName());
+        assertEquals(testUser.getPassword(), loggedInUser.getPassword());
+        assertEquals(testUser.getUsername(), loggedInUser.getUsername());
+    }
+
+    @Test
+    public void logInUser_validCredentials_setsOnlineStatus() {
+        userService.createUser(testUser);
+        User userCredentials = testUser;
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+
+        User loggedInUser = userService.logInUser(userCredentials);
+        assertEquals(loggedInUser.getStatus(), UserStatus.ONLINE);
+    }
+
+    @Test
+    public void logInUser_nonExistingUsername_throwsException() {
+        userService.createUser(testUser);
+        User userCredentials = testUser;
+        userCredentials.setUsername("non_existing_username");
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(null);
+
+        assertThrows(ResponseStatusException.class, () -> userService.logInUser(userCredentials));
+    }
+
+    @Test
+    public void logInUser_wrongPassword_throwsException() {
+        userService.createUser(testUser);
+        User userCredentials = new User();
+        userCredentials.setUsername(testUser.getUsername());
+        userCredentials.setPassword("wrong_password");
+
+        Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
+
+        assertThrows(ResponseStatusException.class, () -> userService.logInUser(userCredentials));
+    }
 }
