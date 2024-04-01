@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserTokenPostDTO;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +25,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -146,6 +148,28 @@ public class UserControllerTest {
         mockMvc.perform(postRequest).andExpect(status().isForbidden());
     }
 
+    @Test
+    public void logOutUser_validToken_success() throws Exception {
+        UserTokenPostDTO userTokenPostDTO = new UserTokenPostDTO();
+        userTokenPostDTO.setToken("1234");
+
+        MockHttpServletRequestBuilder postRequest = post("/logouts").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userTokenPostDTO));
+
+        mockMvc.perform(postRequest).andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void logOutUser_nonExistingToken_throwsException() throws Exception {
+        UserTokenPostDTO userTokenPostDTO = new UserTokenPostDTO();
+        userTokenPostDTO.setToken("1234");
+
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Logging out unsuccessful: Unknown user (invalid token).")).when(userService).logOutUser(any());
+
+        MockHttpServletRequestBuilder postRequest = post("/logouts").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userTokenPostDTO));
+
+        mockMvc.perform(postRequest).andExpect(status().isNotFound());
+    }
+
     /**
      * Helper Method to convert userPostDTO into a JSON string such that the input
      * can be processed
@@ -162,4 +186,5 @@ public class UserControllerTest {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("The request body could not be created.%s", e.toString()));
         }
     }
+
 }
