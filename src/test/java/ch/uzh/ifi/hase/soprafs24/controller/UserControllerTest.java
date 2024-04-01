@@ -48,7 +48,6 @@ public class UserControllerTest {
     public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
         // given
         User user = new User();
-        user.setName("Firstname Lastname");
         user.setUsername("firstname@lastname");
         user.setStatus(UserStatus.OFFLINE);
 
@@ -62,7 +61,7 @@ public class UserControllerTest {
         MockHttpServletRequestBuilder getRequest = get("/users").contentType(MediaType.APPLICATION_JSON);
 
         // then
-        mockMvc.perform(getRequest).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(1))).andExpect(jsonPath("$[0].name", is(user.getName()))).andExpect(jsonPath("$[0].username", is(user.getUsername()))).andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
+        mockMvc.perform(getRequest).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(1))).andExpect(jsonPath("$[0].username", is(user.getUsername()))).andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
     }
 
     @Test
@@ -70,7 +69,6 @@ public class UserControllerTest {
         // given
         User user = new User();
         user.setId(1L);
-        user.setName("John Smith");
         user.setPassword("testPassword1234");
         user.setUsername("testUsername");
         user.setToken("1");
