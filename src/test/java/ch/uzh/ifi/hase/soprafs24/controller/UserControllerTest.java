@@ -102,6 +102,50 @@ public class UserControllerTest {
         mockMvc.perform(postRequest).andExpect(status().isConflict());
     }
 
+    @Test
+    public void logInUser_validInput_returnsUserToken() throws Exception {
+        User user = new User();
+        user.setUsername("username");
+        user.setPassword("password1234");
+        user.setToken("1");
+
+        UserPostDTO userPostDTO = new UserPostDTO();
+        userPostDTO.setUsername("username");
+        userPostDTO.setPassword("password1234");
+
+        given(userService.logInUser(any())).willReturn(user);
+
+        MockHttpServletRequestBuilder postRequest = post("/logins").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userPostDTO));
+
+        mockMvc.perform(postRequest).andExpect(status().isOk()).andExpect(jsonPath("$.token", is(user.getToken())));
+    }
+
+    @Test
+    public void logInUser_nonExistingUsername_throwsException() throws Exception {
+        UserPostDTO userPostDTO = new UserPostDTO();
+        userPostDTO.setUsername("username");
+        userPostDTO.setPassword("password1234");
+
+        given(userService.logInUser(any())).willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find this username."));
+
+        MockHttpServletRequestBuilder postRequest = post("/logins").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userPostDTO));
+
+        mockMvc.perform(postRequest).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void logInUser_wrongPassword_throwsException() throws Exception {
+        UserPostDTO userPostDTO = new UserPostDTO();
+        userPostDTO.setUsername("username");
+        userPostDTO.setPassword("wrong_password");
+
+        given(userService.logInUser(any())).willThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Wrong password"));
+
+        MockHttpServletRequestBuilder postRequest = post("/logins").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userPostDTO));
+
+        mockMvc.perform(postRequest).andExpect(status().isForbidden());
+    }
+
     /**
      * Helper Method to convert userPostDTO into a JSON string such that the input
      * can be processed

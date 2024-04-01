@@ -72,4 +72,50 @@ public class UserServiceIntegrationTest {
         // check that an error is thrown
         assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser2));
     }
+
+    @Test
+    public void logInUser_validCredentials_success() {
+        User testUser = new User();
+        testUser.setUsername("testUsername");
+        testUser.setPassword("testPassword");
+        User createdUser = userService.createUser(testUser);
+
+        User userCredentials = new User();
+        userCredentials.setUsername(testUser.getUsername());
+        userCredentials.setPassword(testUser.getPassword());
+
+        User loggedInUser = userService.logInUser(userCredentials);
+        assertEquals(testUser.getId(), loggedInUser.getId());
+        assertEquals(testUser.getPassword(), loggedInUser.getPassword());
+        assertEquals(testUser.getUsername(), loggedInUser.getUsername());
+        assertEquals(UserStatus.ONLINE, loggedInUser.getStatus());
+    }
+
+    @Test
+    public void logInUser_nonExistingUsername_throwsException() {
+        User testUser = new User();
+        testUser.setUsername("testUsername");
+        testUser.setPassword("testPassword");
+        User createdUser = userService.createUser(testUser);
+
+        User userCredentials = new User();
+        userCredentials.setUsername("non_existing_username");
+        userCredentials.setPassword(testUser.getPassword());
+
+        assertThrows(ResponseStatusException.class, () -> userService.logInUser(userCredentials));
+    }
+
+    @Test
+    public void logInUser_wrongPassword_throwsException() {
+        User testUser = new User();
+        testUser.setUsername("testUsername");
+        testUser.setPassword("testPassword");
+        User createdUser = userService.createUser(testUser);
+
+        User userCredentials = new User();
+        userCredentials.setUsername(testUser.getUsername());
+        userCredentials.setPassword("wrong password");
+
+        assertThrows(ResponseStatusException.class, () -> userService.logInUser(userCredentials));
+    }
 }
