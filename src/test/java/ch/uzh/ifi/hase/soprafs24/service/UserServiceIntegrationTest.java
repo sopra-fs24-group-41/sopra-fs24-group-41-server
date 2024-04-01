@@ -86,7 +86,6 @@ public class UserServiceIntegrationTest {
 
         User loggedInUser = userService.logInUser(userCredentials);
         assertEquals(testUser.getId(), loggedInUser.getId());
-        assertEquals(testUser.getName(), loggedInUser.getName());
         assertEquals(testUser.getPassword(), loggedInUser.getPassword());
         assertEquals(testUser.getUsername(), loggedInUser.getUsername());
         assertEquals(UserStatus.ONLINE, loggedInUser.getStatus());

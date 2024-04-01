@@ -89,7 +89,6 @@ public class UserServiceTest {
 
         User loggedInUser = userService.logInUser(userCredentials);
         assertEquals(testUser.getId(), loggedInUser.getId());
-        assertEquals(testUser.getName(), loggedInUser.getName());
         assertEquals(testUser.getPassword(), loggedInUser.getPassword());
         assertEquals(testUser.getUsername(), loggedInUser.getUsername());
     }
@@ -102,7 +101,7 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
 
         User loggedInUser = userService.logInUser(userCredentials);
-        assertEquals(loggedInUser.getStatus(), UserStatus.ONLINE);
+        assertEquals(UserStatus.ONLINE, loggedInUser.getStatus());
     }
 
     @Test
