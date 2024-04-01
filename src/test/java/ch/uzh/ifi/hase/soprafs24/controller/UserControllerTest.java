@@ -2,7 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginPostDTO;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -74,14 +74,14 @@ public class UserControllerTest {
         user.setToken("1");
         user.setStatus(UserStatus.ONLINE);
 
-        UserPostDTO userPostDTO = new UserPostDTO();
-        userPostDTO.setPassword("testPassword1234");
-        userPostDTO.setUsername("testUsername");
+        UserLoginPostDTO userLoginPostDTO = new UserLoginPostDTO();
+        userLoginPostDTO.setPassword("testPassword1234");
+        userLoginPostDTO.setUsername("testUsername");
 
         given(userService.createUser(Mockito.any())).willReturn(user);
 
         // when/then -> do the request + validate the result
-        MockHttpServletRequestBuilder postRequest = post("/users").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userPostDTO));
+        MockHttpServletRequestBuilder postRequest = post("/users").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userLoginPostDTO));
 
         // then
         mockMvc.perform(postRequest).andExpect(status().isCreated()).andExpect(jsonPath("$.id", is(user.getId().intValue()))).andExpect(jsonPath("$.username", is(user.getUsername()))).andExpect(jsonPath("$.status", is(user.getStatus().toString())));
@@ -89,14 +89,14 @@ public class UserControllerTest {
 
     @Test
     public void createUser_duplicateUser_throwExceptionConflict() throws Exception {
-        UserPostDTO userPostDTO = new UserPostDTO();
-        userPostDTO.setPassword("test_password");
-        userPostDTO.setUsername("duplicate_username");
+        UserLoginPostDTO userLoginPostDTO = new UserLoginPostDTO();
+        userLoginPostDTO.setPassword("test_password");
+        userLoginPostDTO.setUsername("duplicate_username");
 
         given(userService.createUser(any())).willThrow(new ResponseStatusException(HttpStatus.CONFLICT, "The username provided is not unique. Therefore, the user could not be created!"));
 
         // when/then -> do the request + validate the result
-        MockHttpServletRequestBuilder postRequest = post("/users").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userPostDTO));
+        MockHttpServletRequestBuilder postRequest = post("/users").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userLoginPostDTO));
 
         // then
         mockMvc.perform(postRequest).andExpect(status().isConflict());
@@ -109,39 +109,39 @@ public class UserControllerTest {
         user.setPassword("password1234");
         user.setToken("1");
 
-        UserPostDTO userPostDTO = new UserPostDTO();
-        userPostDTO.setUsername("username");
-        userPostDTO.setPassword("password1234");
+        UserLoginPostDTO userLoginPostDTO = new UserLoginPostDTO();
+        userLoginPostDTO.setUsername("username");
+        userLoginPostDTO.setPassword("password1234");
 
         given(userService.logInUser(any())).willReturn(user);
 
-        MockHttpServletRequestBuilder postRequest = post("/logins").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userPostDTO));
+        MockHttpServletRequestBuilder postRequest = post("/logins").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userLoginPostDTO));
 
         mockMvc.perform(postRequest).andExpect(status().isOk()).andExpect(jsonPath("$.token", is(user.getToken())));
     }
 
     @Test
     public void logInUser_nonExistingUsername_throwsException() throws Exception {
-        UserPostDTO userPostDTO = new UserPostDTO();
-        userPostDTO.setUsername("username");
-        userPostDTO.setPassword("password1234");
+        UserLoginPostDTO userLoginPostDTO = new UserLoginPostDTO();
+        userLoginPostDTO.setUsername("username");
+        userLoginPostDTO.setPassword("password1234");
 
         given(userService.logInUser(any())).willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Cannot find this username."));
 
-        MockHttpServletRequestBuilder postRequest = post("/logins").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userPostDTO));
+        MockHttpServletRequestBuilder postRequest = post("/logins").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userLoginPostDTO));
 
         mockMvc.perform(postRequest).andExpect(status().isNotFound());
     }
 
     @Test
     public void logInUser_wrongPassword_throwsException() throws Exception {
-        UserPostDTO userPostDTO = new UserPostDTO();
-        userPostDTO.setUsername("username");
-        userPostDTO.setPassword("wrong_password");
+        UserLoginPostDTO userLoginPostDTO = new UserLoginPostDTO();
+        userLoginPostDTO.setUsername("username");
+        userLoginPostDTO.setPassword("wrong_password");
 
         given(userService.logInUser(any())).willThrow(new ResponseStatusException(HttpStatus.FORBIDDEN, "Wrong password"));
 
-        MockHttpServletRequestBuilder postRequest = post("/logins").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userPostDTO));
+        MockHttpServletRequestBuilder postRequest = post("/logins").contentType(MediaType.APPLICATION_JSON).content(asJsonString(userLoginPostDTO));
 
         mockMvc.perform(postRequest).andExpect(status().isForbidden());
     }
