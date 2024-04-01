@@ -25,8 +25,6 @@ public class User implements Serializable {
     @GeneratedValue
     private Long id;
 
-    private String name;
-
     @Column(nullable = false, unique = true)
     private String username;
 
@@ -48,14 +46,6 @@ public class User implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public String getUsername() {
