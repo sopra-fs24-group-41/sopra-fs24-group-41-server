@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserSecretDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserTokenPostDTO;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -35,4 +36,7 @@ public interface DTOMapper {
 
     @Mapping(source = "token", target = "token")
     UserSecretDTO convertEntityToUserSecretGetDTO(User user);
+
+    @Mapping(source = "token", target = "token")
+    User convertUserTokenPostDTOtoEntity(UserTokenPostDTO userTokenPostDTO);
 }

@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserSecretDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserTokenPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -59,5 +60,13 @@ public class UserController {
         User userCredentials = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userLoginPostDTO);
         User loggedInUser = userService.logInUser(userCredentials);
         return DTOMapper.INSTANCE.convertEntityToUserSecretGetDTO(loggedInUser);
+    }
+
+    @PostMapping("/logouts")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    void logOutUser(@RequestBody UserTokenPostDTO userTokenPostDTO) {
+        User tokenUser = DTOMapper.INSTANCE.convertUserTokenPostDTOtoEntity(userTokenPostDTO);
+        userService.logOutUser(tokenUser.getToken());
     }
 }
