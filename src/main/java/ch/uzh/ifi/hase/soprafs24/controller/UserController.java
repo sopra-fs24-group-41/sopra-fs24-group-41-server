@@ -2,8 +2,9 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserSecretDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserTokenPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -46,8 +47,8 @@ public class UserController {
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
-    public UserGetDTO createUser(@RequestBody UserPostDTO userPostDTO) {
-        User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+    public UserGetDTO createUser(@RequestBody UserLoginPostDTO userLoginPostDTO) {
+        User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userLoginPostDTO);
         User createdUser = userService.createUser(userInput);
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdUser);
     }
@@ -55,9 +56,17 @@ public class UserController {
     @PostMapping("/logins")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public UserSecretDTO logInUser(@RequestBody UserPostDTO userPostDTO) {
-        User userCredentials = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+    public UserSecretDTO logInUser(@RequestBody UserLoginPostDTO userLoginPostDTO) {
+        User userCredentials = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userLoginPostDTO);
         User loggedInUser = userService.logInUser(userCredentials);
         return DTOMapper.INSTANCE.convertEntityToUserSecretGetDTO(loggedInUser);
+    }
+
+    @PostMapping("/logouts")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    void logOutUser(@RequestBody UserTokenPostDTO userTokenPostDTO) {
+        User tokenUser = DTOMapper.INSTANCE.convertUserTokenPostDTOtoEntity(userTokenPostDTO);
+        userService.logOutUser(tokenUser.getToken());
     }
 }

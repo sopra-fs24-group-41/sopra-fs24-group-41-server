@@ -118,4 +118,39 @@ public class UserServiceIntegrationTest {
 
         assertThrows(ResponseStatusException.class, () -> userService.logInUser(userCredentials));
     }
+
+    @Test
+    public void logOutUser_validToken_success() {
+        User testUser = new User();
+        testUser.setUsername("testUsername");
+        testUser.setPassword("testPassword");
+        User createdUser = userService.createUser(testUser);
+        userService.logInUser(testUser);
+
+        User userCredentials = new User();
+        userCredentials.setUsername(testUser.getUsername());
+        userCredentials.setPassword(testUser.getPassword());
+
+        String token = createdUser.getToken();
+
+        userService.logOutUser(token);
+        assertEquals(UserStatus.OFFLINE, createdUser.getStatus());
+    }
+
+    @Test
+    public void logOutUser_nonExistingToken_throwsException() throws Exception {
+        User testUser = new User();
+        testUser.setUsername("testUsername");
+        testUser.setPassword("testPassword");
+        User createdUser = userService.createUser(testUser);
+        userService.logInUser(testUser);
+
+        User userCredentials = new User();
+        userCredentials.setUsername(testUser.getUsername());
+        userCredentials.setPassword(testUser.getPassword());
+
+        String token = createdUser.getToken() + "a";
+
+        assertThrows(ResponseStatusException.class, () -> userService.logOutUser(token));
+    }
 }

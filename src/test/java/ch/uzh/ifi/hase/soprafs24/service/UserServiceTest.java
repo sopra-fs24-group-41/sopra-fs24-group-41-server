@@ -32,6 +32,7 @@ public class UserServiceTest {
         testUser.setId(1L);
         testUser.setPassword("testPassword");
         testUser.setUsername("testUsername");
+        testUser.setToken("1234");
 
         // when -> any object is being save in the userRepository -> return the dummy
         // testUser
@@ -125,5 +126,26 @@ public class UserServiceTest {
         Mockito.when(userRepository.findByUsername(Mockito.any())).thenReturn(testUser);
 
         assertThrows(ResponseStatusException.class, () -> userService.logInUser(userCredentials));
+    }
+
+    @Test
+    public void logOutUser_validToken_success() {
+        testUser.setStatus(UserStatus.ONLINE);
+        String token = testUser.getToken();
+
+        Mockito.when(userRepository.findByToken(Mockito.any())).thenReturn(testUser);
+        userService.logOutUser(token);
+
+        assertEquals(UserStatus.OFFLINE, testUser.getStatus());
+    }
+
+    @Test
+    public void logOutUser_nonExistingToken_throwsException() {
+        testUser.setStatus(UserStatus.ONLINE);
+        String token = testUser.getToken() + "1234";
+
+        Mockito.when(userRepository.findByToken(Mockito.any())).thenReturn(null);
+
+        assertThrows(ResponseStatusException.class, () -> userService.logOutUser(token));
     }
 }
