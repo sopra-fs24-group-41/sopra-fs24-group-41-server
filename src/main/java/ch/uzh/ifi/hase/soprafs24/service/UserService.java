@@ -68,6 +68,17 @@ public class UserService {
         return userByUsername;
     }
 
+    public void logOutUser(String userToken) {
+        User userByToken = userRepository.findByToken(userToken);
+
+        if (userByToken == null) {
+            String errorMessage = "Logging out unsuccessful: Unknown user (invalid token).";
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+        }
+
+        userByToken.setStatus(UserStatus.OFFLINE);
+    }
+
     /**
      * This is a helper method that will check the uniqueness criteria of the
      * username and the name
