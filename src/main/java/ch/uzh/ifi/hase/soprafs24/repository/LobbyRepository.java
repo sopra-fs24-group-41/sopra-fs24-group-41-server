@@ -22,4 +22,6 @@ public interface LobbyRepository extends JpaRepository<Lobby, Long> {
     List<Lobby> findAllByStatus(LobbyStatus status);
 
     Lobby findByPlayersIsContaining(Player player);
+
+    Boolean existsByCode(long code);
 }
