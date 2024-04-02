@@ -1,8 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.repository;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,9 +12,9 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     Player findByToken(String token);
 
-    Player findByUser(User user);
+    Player findByUser_Id(Long user_id);
 
-    Player findByOwnedLobby(Lobby ownedLobby);
+    Player findByOwnedLobby_Code(long ownedLobby_code);
 
-    List<Player> findAllByLobby(Lobby lobby);
+    List<Player> findAllByLobby_Code(long lobby_code);
 }
