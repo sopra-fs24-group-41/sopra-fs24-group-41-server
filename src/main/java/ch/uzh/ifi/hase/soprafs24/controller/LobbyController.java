@@ -1,7 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPostDTO;
@@ -53,11 +52,7 @@ public class LobbyController {
         if (lobbyPostDTO.getAnonymous() != null && !lobbyPostDTO.getAnonymous()) {
             User user = userService.checkToken(lobbyPostDTO.getUserToken());
             Lobby lobby = lobbyService.createLobbyFromUser(user);
-            Player player = lobby.getOwner();
-
-            user.setPlayer(player);
-            player.setUser(user);
-            return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
+            return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(lobby.getOwner());
         }
         else if (lobbyPostDTO.getAnonymous() != null && lobbyPostDTO.getAnonymous()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "creating lobbies as anonymous user not supported");

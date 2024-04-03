@@ -32,7 +32,7 @@ public class LobbyService {
     }
 
     public Lobby createLobbyFromUser(User user) {
-        String lobbyName = user.getUsername() + "'s lobby";
+        String lobbyName = user.getUsername() + "'s Lobby";
         Lobby lobby = new Lobby(generateLobbyCode(), lobbyName);
         Player player = new Player(UUID.randomUUID().toString(), user.getUsername(), lobby);
 
@@ -44,6 +44,8 @@ public class LobbyService {
         lobby.setPublicAccess(true);
 
         Lobby savedLobby = lobbyRepository.saveAndFlush(lobby);
+        user.setPlayer(player);
+        savedLobby.getOwner().setUser(user);
 
         log.debug("created new lobby {}", lobby);
         log.debug("created new player from user {}", player);

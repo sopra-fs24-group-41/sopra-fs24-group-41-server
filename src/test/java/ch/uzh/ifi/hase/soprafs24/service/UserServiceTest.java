@@ -148,4 +148,21 @@ public class UserServiceTest {
 
         assertThrows(ResponseStatusException.class, () -> userService.logOutUser(token));
     }
+
+    @Test
+    public void checkToken_validToken_success() {
+        Mockito.when(userRepository.findByToken(Mockito.any())).thenReturn(testUser);
+
+        User checkedUser = userService.checkToken(testUser.getToken());
+        assertEquals(testUser.getId(), checkedUser.getId());
+        assertEquals(testUser.getPassword(), checkedUser.getPassword());
+        assertEquals(testUser.getUsername(), checkedUser.getUsername());
+    }
+
+    @Test
+    public void checkToken_invalidToken_throwsUnauthorizedException() {
+        Mockito.when(userRepository.findByToken(Mockito.any())).thenReturn(null);
+
+        assertThrows(ResponseStatusException.class, () -> userService.checkToken(Mockito.any()));
+    }
 }
