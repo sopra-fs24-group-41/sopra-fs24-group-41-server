@@ -13,13 +13,10 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class WordServiceTest {
-
     @Mock
     private WordRepository wordRepository;
-
     @InjectMocks
     private WordService wordService;
-
     private Word testWord;
 
     @BeforeEach
@@ -48,4 +45,6 @@ public class WordServiceTest {
 
         assertThrows(WordNotFoundException.class, () -> wordService.getWordFromString(name));
     }
+
+
 }
