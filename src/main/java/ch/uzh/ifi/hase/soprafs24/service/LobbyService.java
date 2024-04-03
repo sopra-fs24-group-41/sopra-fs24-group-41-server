@@ -44,7 +44,7 @@ public class LobbyService {
         lobby.setPublicAccess(true);
 
         Lobby savedLobby = lobbyRepository.saveAndFlush(lobby);
-        user.setPlayer(player);
+        user.setPlayer(savedLobby.getOwner());
         savedLobby.getOwner().setUser(user);
 
         log.debug("created new lobby {}", lobby);

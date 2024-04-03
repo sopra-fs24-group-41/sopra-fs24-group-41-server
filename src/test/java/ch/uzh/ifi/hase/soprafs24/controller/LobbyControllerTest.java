@@ -141,9 +141,6 @@ public class LobbyControllerTest {
         testUser1.setToken("1254");
         testUser1.setId(1L);
 
-        testUser1.setPlayer(testPlayer1);
-        testPlayer1.setUser(testUser1);
-
         testLobby.setOwner(testPlayer1);
         testPlayer1.setOwnedLobby(testLobby);
 
