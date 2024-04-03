@@ -22,33 +22,33 @@ public class CombinationService {
     }
 
     public Combination getCombination(Word word1, Word word2) {
-        Combination combination;
         try {
-            combination = findCombination(word1, word2);
+            return findCombination(word1, word2);
         }
         catch (CombinationNotFoundException e) {
-            combination = createCombination(word1, word2);
+            return createCombination(word1, word2);
         }
-        return combination;
     }
 
     public Combination findCombination(Word word1, Word word2) {
         Combination combination = combinationRepository.findByWord1AndWord2(word1, word2);
-        if (combination == null) {
-            combination = combinationRepository.findByWord1AndWord2(word2, word1);
-            if (combination == null) {
-                throw new CombinationNotFoundException(word1.getName(), word2.getName());
-            }
-        }
-        return combination;
+        if (combination != null) return combination;
+
+        combination = combinationRepository.findByWord1AndWord2(word2, word1);
+        if (combination != null) return combination;
+
+        throw new CombinationNotFoundException(word1.getName(), word2.getName());
     }
 
     private Combination createCombination(Word word1, Word word2) {
-        String resultString = apiService.generateCombinationResult(word1.getName(), word2.getName());
-        Word result = new Word(resultString);
-        Combination newCombination = new Combination(word1, word2, result);
-        newCombination = combinationRepository.save(newCombination);
-        combinationRepository.flush();
-        return newCombination;
+        Word resultWord = generateCombinationResult(word1, word2);
+        Combination newCombination = new Combination(word1, word2, resultWord);
+        return combinationRepository.saveAndFlush(newCombination);
     }
+
+    private Word generateCombinationResult(Word word1, Word word2) {
+        String resultString = apiService.generateCombinationResult(word1.getName(), word2.getName());
+        return new Word(resultString);
+    }
+
 }
