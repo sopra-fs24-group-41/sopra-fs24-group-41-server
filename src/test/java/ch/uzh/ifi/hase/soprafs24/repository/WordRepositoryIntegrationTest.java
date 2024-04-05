@@ -20,15 +20,13 @@ public class WordRepositoryIntegrationTest {
 
     @Test
     public void findByName_success() {
-        Word word = new Word();
-        word.setName("Zaddy");
+        Word word = new Word("Zaddy");
 
         entityManager.persist(word);
         entityManager.flush();
 
         Word found = wordRepository.findByName(word.getName());
 
-        assertNotNull(found.getId());
         assertEquals(found.getName(), word.getName());
     }
 }

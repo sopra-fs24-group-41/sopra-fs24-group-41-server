@@ -79,6 +79,15 @@ public class UserService {
         userByToken.setStatus(UserStatus.OFFLINE);
     }
 
+    public User checkToken(String userToken) {
+        User userByToken = userRepository.findByToken(userToken);
+
+        if (userByToken == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This user token has insufficient access rights");
+        }
+        return userByToken;
+    }
+
     /**
      * This is a helper method that will check the uniqueness criteria of the
      * username and the name
