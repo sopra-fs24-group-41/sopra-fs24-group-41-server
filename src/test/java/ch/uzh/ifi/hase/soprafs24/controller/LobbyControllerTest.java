@@ -152,7 +152,7 @@ public class LobbyControllerTest {
         lobbyPostDTO.setAnonymous(false);
 
         given(userService.checkToken(Mockito.any())).willReturn(testUser1);
-        given(lobbyService.createLobbyFromUser(Mockito.any())).willReturn(testLobby);
+        given(lobbyService.createLobbyFromUser(Mockito.any(), Mockito.any())).willReturn(testLobby);
 
         // when
         MockHttpServletRequestBuilder postRequest = post("/lobbies")

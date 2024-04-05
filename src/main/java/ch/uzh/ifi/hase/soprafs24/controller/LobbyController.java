@@ -58,7 +58,7 @@ public class LobbyController {
             if (user.getPlayer() != null) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "delete or leave your lobby before creating a new one");
             }
-            Lobby lobby = lobbyService.createLobbyFromUser(user);
+            Lobby lobby = lobbyService.createLobbyFromUser(user, lobbyPostDTO.getPublicAccess());
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(lobby.getOwner());
         } else if (lobbyPostDTO.getAnonymous()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "creating lobbies as anonymous user not supported");

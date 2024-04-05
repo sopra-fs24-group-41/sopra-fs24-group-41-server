@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -31,7 +32,7 @@ public class LobbyService {
         return lobbyRepository.findAllByPublicAccess(true);
     }
 
-    public Lobby createLobbyFromUser(User user) {
+    public Lobby createLobbyFromUser(User user, Boolean publicAccess) {
         String lobbyName = user.getUsername() + "'s Lobby";
         Lobby lobby = new Lobby(generateLobbyCode(), lobbyName);
         Player player = new Player(UUID.randomUUID().toString(), user.getUsername(), lobby);
@@ -40,8 +41,7 @@ public class LobbyService {
         player.setLobby(lobby);
         lobby.setOwner(player);
         lobby.setPlayers(List.of(player));
-        // new lobbies are always public, change this behaviour when private lobbies are introduced
-        lobby.setPublicAccess(true);
+        lobby.setPublicAccess(Objects.requireNonNullElse(publicAccess, true));
 
         Lobby savedLobby = lobbyRepository.saveAndFlush(lobby);
         user.setPlayer(savedLobby.getOwner());

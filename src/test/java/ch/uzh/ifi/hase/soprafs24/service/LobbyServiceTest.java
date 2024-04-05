@@ -74,7 +74,7 @@ public class LobbyServiceTest {
 
     @Test
     public void createLobbyByUser_validInputs_success() {
-        Lobby createdLobby = lobbyService.createLobbyFromUser(testUser);
+        Lobby createdLobby = lobbyService.createLobbyFromUser(testUser, true);
 
         // then
         Mockito.verify(lobbyRepository, Mockito.times(1)).saveAndFlush(Mockito.any());

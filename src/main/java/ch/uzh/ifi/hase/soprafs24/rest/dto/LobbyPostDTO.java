@@ -9,6 +9,8 @@ public class LobbyPostDTO {
 
     private Boolean anonymous;
 
+    private Boolean publicAccess;
+
     private String word1;
 
     private String word2;
@@ -35,6 +37,14 @@ public class LobbyPostDTO {
 
     public void setAnonymous(Boolean anonymous) {
         this.anonymous = anonymous;
+    }
+
+    public Boolean getPublicAccess() {
+        return publicAccess;
+    }
+
+    public void setPublicAccess(Boolean publicAccess) {
+        this.publicAccess = publicAccess;
     }
 
     public String getName() {

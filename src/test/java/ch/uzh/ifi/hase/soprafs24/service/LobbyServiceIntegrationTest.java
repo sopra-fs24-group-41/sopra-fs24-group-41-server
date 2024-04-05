@@ -64,7 +64,7 @@ public class LobbyServiceIntegrationTest {
         testLobby.setPlayers(Collections.singletonList(testPlayer));
 
         // when
-        Lobby createdLobby = lobbyService.createLobbyFromUser(testUser);
+        Lobby createdLobby = lobbyService.createLobbyFromUser(testUser, true);
 
         //then
         assertNotNull(createdLobby.getName());
