@@ -2,10 +2,12 @@
 
 ## 25.3-07.04 Week 1 & 2 (Including Easter Break)
 
-**na50r: Rosan Shanmuganathan**
+**na50r - Rosan Shanmuganathan**
 - I worked on the login & registration button [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/59)
 - I worked on the lobby-overview screen [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/60)
-- I am still working on the profile page
+- I worked on the profile page [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/61)
+- While working all these three 'sets of issues' I also came up with a basic structure for the front end, making appropriate folders for appropriate components and CSS elements.
+
 
 **Grizzlytron - Lucas Timothy Leo Bär**
 
