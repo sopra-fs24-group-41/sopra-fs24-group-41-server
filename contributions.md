@@ -15,6 +15,14 @@
 - Also implemented quit functionality with a cool popup that rechecks if a user wants to leave or not.
 - Worked on the design generally. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/62)
 
+**Tmmn - Timon Leupp**
+
+All changes are in this [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/119)
+
+- I worked on the representation of lobbies and their users. I created the JPA entities, repositories and all the related tests. #47 #41 #113
+- I implemented the GET /lobbies endpoint where the client can request a list of all the currently available public lobbies and all the related tests. #118
+- I implemented the functionality where users can authenticate with their token and create a new lobby and wrote all the related tests. #39 #40
+
 ## 08.04 - 14.04 Week 3
 
 ## 15.04 - 21.04 Week 4
