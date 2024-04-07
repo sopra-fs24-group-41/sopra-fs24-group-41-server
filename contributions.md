@@ -1,6 +1,6 @@
 # M2
 
-## 25.3-31.3 Week 1 (No tasks yet)
+## 25.3-07.04 Week 1 & Week 2 (Including Easter Break)
 
 **na50r: Rosan Shanmuganathan**
 - I worked on the login & registration button [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/59)
@@ -14,9 +14,7 @@
 - The third thing you did. [Link to task](https://www.example.com)
 - ...
 
-## 01.04 - 07.04 Week 2 (Easter Break, no mandatory tasks)
-
-** Grizzlytron - Lucas Timothy Leo Bär**
+**Grizzlytron - Lucas Timothy Leo Bär**
 - I worked on the Lobby page, where the different types of users can see the gamemodes and all currently joined players.
 - Also implemented quit functionality with a cool popup that rechecks if a user wants to leave or not.
 - Worked on the design generally. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/62)
