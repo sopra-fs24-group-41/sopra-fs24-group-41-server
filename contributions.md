@@ -1,6 +1,6 @@
 # M2
 
-## 25.3-07.04 Week 1 & Week 2 (Including Easter Break)
+## 25.3-07.04 Week 1 & 2 (Including Easter Break)
 
 **na50r: Rosan Shanmuganathan**
 - I worked on the login & registration button [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/59)
