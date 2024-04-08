@@ -23,6 +23,14 @@ All changes are in this [Pull request](https://github.com/sopra-fs24-group-41/so
 - I implemented the GET /lobbies endpoint where the client can request a list of all the currently available public lobbies and all the related tests. #118
 - I implemented the functionality where users can authenticate with their token and create a new lobby and wrote all the related tests. #39 #40
 
+**Aquamarine-12 - Alexandru-Mihai Hurjui**
+
+Worked on:
+
+- User registration: [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/115)
+- User login: [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/116)
+- User logout: [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/117)
+
 ## 08.04 - 14.04 Week 3
 
 ## 15.04 - 21.04 Week 4
