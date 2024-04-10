@@ -34,7 +34,6 @@ public class LobbyController {
 
     @GetMapping("/lobbies")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public List<LobbyGetDTO> getAllLobbies() {
         List<Lobby> lobbies = lobbyService.getPublicLobbies();
         List<LobbyGetDTO> lobbyGetDTOS = new ArrayList<>();
@@ -47,22 +46,49 @@ public class LobbyController {
 
     @PostMapping("/lobbies")
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
     public PlayerJoinedDTO createLobby(@RequestBody LobbyPostDTO lobbyPostDTO) {
-        if (lobbyPostDTO.getAnonymous() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "only true or false value allowed for anonymous attribute");
-        }
+        validateJoinPostDTO(lobbyPostDTO);
 
-        if (!lobbyPostDTO.getAnonymous()) {
+        if (Boolean.FALSE.equals(lobbyPostDTO.getAnonymous())) {
             User user = userService.checkToken(lobbyPostDTO.getUserToken());
             if (user.getPlayer() != null) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "delete or leave your lobby before creating a new one");
             }
             Lobby lobby = lobbyService.createLobbyFromUser(user, lobbyPostDTO.getPublicAccess());
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(lobby.getOwner());
-        } else if (lobbyPostDTO.getAnonymous()) {
+        } else if (Boolean.TRUE.equals(lobbyPostDTO.getAnonymous())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "creating lobbies as anonymous user not supported");
         }
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "something went wrong in create lobby");
+    }
+
+    @PostMapping("/lobbies/{code}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public PlayerJoinedDTO joinPlayer(@RequestBody LobbyPostDTO lobbyPostDTO, @PathVariable String code) {
+        long lobbyCodeLong;
+        validateJoinPostDTO(lobbyPostDTO);
+        try {
+            lobbyCodeLong = Long.parseLong(code);
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid Lobby Code");
+        }
+
+        if (Boolean.FALSE.equals(lobbyPostDTO.getAnonymous())) {
+            User user = userService.checkToken(lobbyPostDTO.getUserToken());
+            if (user.getPlayer() != null) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "leave your lobby before joining a new one");
+            }
+            Lobby lobby = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
+            return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(lobby.getOwner());
+        } else if (Boolean.TRUE.equals(lobbyPostDTO.getAnonymous())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "creating lobbies as anonymous user not supported");
+        }
+        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "something went wrong in create lobby");
+    }
+
+    private void validateJoinPostDTO(LobbyPostDTO lobbyPostDTO) {
+        if (lobbyPostDTO.getAnonymous() == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "only true or false value allowed for anonymous attribute");
+        }
     }
 }

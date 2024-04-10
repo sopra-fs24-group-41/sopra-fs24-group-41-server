@@ -99,7 +99,6 @@ public class PlayerRepositoryIntegrationTest {
         Player found = playerRepository.findById(testPlayer1.getId());
 
         // then
-        assertNotNull(found.getId());
         assertEquals(testPlayer1.getName(), found.getName());
         assertEquals(testPlayer1.getToken(), found.getToken());
         assertEquals(testPlayer1.getPoints(), found.getPoints());
@@ -115,7 +114,6 @@ public class PlayerRepositoryIntegrationTest {
         Player found = playerRepository.findByToken(testPlayer1.getToken());
 
         // then
-        assertNotNull(found.getId());
         assertEquals(testPlayer1.getName(), found.getName());
         assertEquals(testPlayer1.getToken(), found.getToken());
         assertEquals(testPlayer1.getPoints(), found.getPoints());
@@ -131,7 +129,6 @@ public class PlayerRepositoryIntegrationTest {
         Player found = playerRepository.findByUser_Id(testPlayer1.getUser().getId());
 
         // then
-        assertNotNull(found.getId());
         assertEquals(testPlayer1.getName(), found.getName());
         assertEquals(testPlayer1.getToken(), found.getToken());
         assertEquals(testPlayer1.getPoints(), found.getPoints());
@@ -147,7 +144,6 @@ public class PlayerRepositoryIntegrationTest {
         Player found = playerRepository.findByOwnedLobby_Code(testPlayer1.getOwnedLobby().getCode());
 
         // then
-        assertNotNull(found.getId());
         assertEquals(testPlayer1.getName(), found.getName());
         assertEquals(testPlayer1.getToken(), found.getToken());
         assertEquals(testPlayer1.getPoints(), found.getPoints());

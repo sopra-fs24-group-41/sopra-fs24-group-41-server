@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -61,7 +63,7 @@ public class LobbyServiceIntegrationTest {
         testPlayer.setOwnedLobby(testLobby);
 
         testPlayer.setLobby(testLobby);
-        testLobby.setPlayers(Collections.singletonList(testPlayer));
+        testLobby.setPlayers(new ArrayList<>(Arrays.asList(testPlayer)));
 
         // when
         Lobby createdLobby = lobbyService.createLobbyFromUser(testUser, true);
@@ -71,5 +73,60 @@ public class LobbyServiceIntegrationTest {
         assertEquals(testLobby.getPublicAccess(), createdLobby.getPublicAccess());
         assertNotNull(createdLobby.getStatus());
         assertEquals(testLobby.getOwner().getUser(), createdLobby.getOwner().getUser());
+    }
+
+    @Test
+    public void joinLobbyByUser_validInputs_success() {
+        // given
+        assertNull(lobbyRepository.findByCode(1234));
+
+        Lobby testLobby = new Lobby();
+        testLobby.setPublicAccess(true);
+        testLobby.setMode(GameMode.STANDARD);
+
+        Player testPlayer = new Player("123", "testplayer", null);
+        testPlayer.setPoints(32);
+        // no value for AvailableWords set
+
+        User testUser = new User();
+        testUser.setId(1L);
+        testUser.setPassword("testPassword");
+        testUser.setUsername("firstname@lastname");
+        testUser.setStatus(UserStatus.OFFLINE);
+        testUser.setToken("1");
+
+        testUser.setPlayer(testPlayer);
+        testPlayer.setUser(testUser);
+
+        testLobby.setOwner(testPlayer);
+        testPlayer.setOwnedLobby(testLobby);
+
+        testPlayer.setLobby(testLobby);
+        testLobby.setPlayers(new ArrayList<>(Arrays.asList(testPlayer)));
+
+        // when
+        Lobby createdLobby = lobbyService.createLobbyFromUser(testUser, true);
+
+        //then
+        assertNotNull(createdLobby.getName());
+        assertEquals(testLobby.getPublicAccess(), createdLobby.getPublicAccess());
+        assertNotNull(createdLobby.getStatus());
+        assertEquals(testLobby.getOwner().getUser(), createdLobby.getOwner().getUser());
+    }
+
+    @Test
+    public void joinLobbyByUser_invalidCode_throwsNotFoundException() {
+        // given
+        assertNull(lobbyRepository.findByCode(234));
+
+        User testUser = new User();
+        testUser.setId(1L);
+        testUser.setPassword("testPassword");
+        testUser.setUsername("firstname@lastname");
+        testUser.setStatus(UserStatus.OFFLINE);
+        testUser.setToken("1");
+
+        // when then
+        assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyFromUser(testUser, 234));
     }
 }

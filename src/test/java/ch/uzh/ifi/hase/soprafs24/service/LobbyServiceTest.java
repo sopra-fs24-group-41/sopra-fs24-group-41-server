@@ -14,8 +14,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,7 +66,7 @@ public class LobbyServiceTest {
         testPlayer.setOwnedLobby(testLobby);
 
         testPlayer.setLobby(testLobby);
-        testLobby.setPlayers(Collections.singletonList(testPlayer));
+        testLobby.setPlayers(new ArrayList<>(Arrays.asList(testPlayer)));
 
         Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
         Mockito.when(lobbyRepository.save(Mockito.any())).thenReturn(testLobby);
@@ -85,6 +87,29 @@ public class LobbyServiceTest {
         assertEquals(testLobby.getStatus(), createdLobby.getStatus());
         assertEquals(testLobby.getMode(), createdLobby.getMode());
         assertEquals(testLobby.getOwner(), createdLobby.getOwner());
-        assertEquals(testLobby.getPlayers(), createdLobby.getPlayers());
+        assertArrayEquals(testLobby.getPlayers().toArray(), createdLobby.getPlayers().toArray());
+    }
+
+    @Test
+    public void joinLobbyByUser_validInputs_success() {
+
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
+        Lobby joinedLobby = lobbyService.joinLobbyFromUser(testUser, testLobby.getCode());
+
+        // then
+        assertEquals(testLobby.getCode(), joinedLobby.getCode());
+        assertEquals(testLobby.getName(), joinedLobby.getName());
+        assertEquals(testLobby.getPublicAccess(), joinedLobby.getPublicAccess());
+        assertEquals(testLobby.getStatus(), joinedLobby.getStatus());
+        assertEquals(testLobby.getMode(), joinedLobby.getMode());
+        assertEquals(testLobby.getOwner(), joinedLobby.getOwner());
+        assertEquals(testLobby.getPlayers(), joinedLobby.getPlayers());
+    }
+
+    @Test
+    public void joinLobbyByUser_invalidCode_success() {
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(null);
+
+        assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyFromUser(testUser, 232));
     }
 }

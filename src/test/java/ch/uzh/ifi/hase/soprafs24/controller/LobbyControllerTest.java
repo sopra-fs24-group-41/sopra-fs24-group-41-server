@@ -205,6 +205,83 @@ public class LobbyControllerTest {
         mockMvc.perform(postRequest).andExpect(status().isBadRequest());
     }
 
+    @Test
+    public void joinLobbyByUser_validToken_thenLobbyAndPlayerTokenReturned() throws Exception {
+        // given
+        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
+        testLobby.setPublicAccess(true);
+        testLobby.setMode(GameMode.STANDARD);
+
+        Player testPlayer1 = new Player("123", "testplayer", null);
+        testPlayer1.setId(5L);
+        testPlayer1.setPoints(32);
+        // no value for AvailableWords set
+
+        User testUser1 = new User();
+        testUser1.setPassword("testPassword");
+        testUser1.setUsername("firstname@lastname");
+        testUser1.setStatus(UserStatus.OFFLINE);
+        testUser1.setToken("1254");
+        testUser1.setId(1L);
+
+        testLobby.setOwner(testPlayer1);
+        testPlayer1.setOwnedLobby(testLobby);
+
+        testPlayer1.setLobby(testLobby);
+        testLobby.setPlayers(List.of(testPlayer1));
+
+        LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
+        lobbyPostDTO.setUserToken("1254");
+        lobbyPostDTO.setAnonymous(false);
+
+        given(userService.checkToken(Mockito.any())).willReturn(testUser1);
+        given(lobbyService.joinLobbyFromUser(Mockito.any(), Mockito.anyLong())).willReturn(testLobby);
+
+        // when
+        MockHttpServletRequestBuilder postRequest = post("/lobbies/1234")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(lobbyPostDTO));
+
+        //then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.playerToken", is(testPlayer1.getToken())))
+                .andExpect(jsonPath("$.lobby.code", is((int)testPlayer1.getLobby().getCode())))
+                .andExpect(jsonPath("$.lobby.name", is(testPlayer1.getLobby().getName())))
+                .andExpect(jsonPath("$.lobby.publicAccess", is(testPlayer1.getLobby().getPublicAccess())))
+                .andExpect(jsonPath("$.lobby.status", is(testPlayer1.getLobby().getStatus().toString())))
+                .andExpect(jsonPath("$.lobby.mode", is(testPlayer1.getLobby().getMode().toString())));
+    }
+
+    @Test
+    public void joinLobbyByUser_InvalidLobbyCode_throwsNotFoundException() throws Exception {
+        // given
+        User testUser = new User();
+        testUser.setPassword("testPassword");
+        testUser.setUsername("firstname@lastname");
+        testUser.setStatus(UserStatus.OFFLINE);
+        testUser.setToken("1254");
+        testUser.setId(1L);
+
+        given(userService.checkToken(Mockito.any())).willReturn(testUser);
+        given(lobbyService.joinLobbyFromUser(Mockito.any(), Mockito.anyLong()))
+                .willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Lobby code not found"));
+
+        LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
+        lobbyPostDTO.setUserToken("1254");
+        lobbyPostDTO.setAnonymous(false);
+
+        // when
+        MockHttpServletRequestBuilder postRequest = post("/lobbies/6543")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(lobbyPostDTO));
+
+        //then
+        mockMvc.perform(postRequest).andExpect(status().isNotFound());
+    }
+
     /**
      * helper method that translates an object into a JSON string
      * @param object object to be translated
