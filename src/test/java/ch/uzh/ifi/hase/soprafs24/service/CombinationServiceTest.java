@@ -19,7 +19,6 @@ public class CombinationServiceTest {
     @Mock
     private APIService apiService;
 
-    @Spy
     @InjectMocks
     private CombinationService combinationService;
 
@@ -84,7 +83,8 @@ public class CombinationServiceTest {
 
         Combination testCombination = new Combination(testWord1, testWord2, testResult);
 
-        Mockito.doReturn(testCombination).when(combinationService).findCombination(testWord1, testWord2);
+        Mockito.when(combinationRepository.findByWord1AndWord2(testWord1, testWord2)).thenReturn(testCombination);
+        Mockito.when(combinationRepository.findByWord1AndWord2(testWord2, testWord1)).thenReturn(testCombination);
 
         Combination foundCombination = combinationService.getCombination(testWord1, testWord2);
 
@@ -102,8 +102,9 @@ public class CombinationServiceTest {
 
         Combination testCombination = new Combination(testWord1, testWord2, testResult);
 
-        Mockito.doThrow(new CombinationNotFoundException(testWord1.getName(), testWord2.getName())).when(combinationService).findCombination(testWord1, testWord2);
-        Mockito.doReturn(testCombination).when(combinationRepository).save(Mockito.any());
+        Mockito.when(combinationRepository.findByWord1AndWord2(testWord1, testWord2)).thenReturn(null);
+        Mockito.when(combinationRepository.findByWord1AndWord2(testWord2, testWord1)).thenReturn(null);
+        Mockito.doReturn(testCombination).when(combinationRepository).saveAndFlush(Mockito.any());
         Mockito.doReturn(testResult.getName()).when(apiService).generateCombinationResult(testWord1.getName(), testWord2.getName());
 
         Combination newCombination = combinationService.getCombination(testWord1, testWord2);
