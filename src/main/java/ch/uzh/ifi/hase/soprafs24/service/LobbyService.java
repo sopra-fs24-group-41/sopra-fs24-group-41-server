@@ -83,6 +83,22 @@ public class LobbyService {
         return player;
     }
 
+    public void removeLobby(Lobby lobby) {
+        if (lobby.getOwner() != null) {
+            lobby.getOwner().setOwnedLobby(null);
+            lobby.setOwner(null);
+        }
+        if (lobby.getPlayers() != null) {
+            for (Player p : lobby.getPlayers()) {
+                p.setLobby(null);
+            }
+            lobby.setPlayers(null);
+        }
+        lobby.setPlayers(null);
+        lobbyRepository.delete(lobby);
+        log.debug("successfully deleted player {}", lobby);
+    }
+
     private long generateLobbyCode() {
         long code = ThreadLocalRandom.current().nextLong(1000, 10000);
         while (lobbyRepository.existsByCode(code)) {

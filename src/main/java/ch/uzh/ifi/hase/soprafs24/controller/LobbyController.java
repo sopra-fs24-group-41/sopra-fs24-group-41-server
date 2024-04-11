@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerJoinedDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
+import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -28,9 +29,12 @@ public class LobbyController {
 
     private final UserService userService;
 
-    LobbyController(LobbyService lobbyService, UserService userService) {
+    private final PlayerService playerService;
+
+    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService) {
         this.lobbyService = lobbyService;
         this.userService = userService;
+        this.playerService = playerService;
     }
 
     @GetMapping("/lobbies")
@@ -85,6 +89,39 @@ public class LobbyController {
         } else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "joining lobby as anonymous user not supported, please supply userToken as header field");
+        }
+    }
+
+    @DeleteMapping("/lobbies/{code}/players")
+    @ResponseStatus(HttpStatus.OK)
+    public void removePlayerFromLobby(@PathVariable String code, @RequestHeader String token) {
+        // check inputs
+        long lobbyCodeLong;
+        if (token == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "include player token in your request");
+        }
+        try {
+            lobbyCodeLong = Long.parseLong(code);
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lobby code has invalid formatting");
+        }
+
+        // get and check player
+        Player player = playerService.checkToken(token);
+        if (player.getLobby().getCode() != lobbyCodeLong) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "wrong lobby code for the player you tried to delete");
+        }
+
+        // remove player
+        if (player.getOwnedLobby() == null) {
+            playerService.removePlayer(player);
+        } else {
+            Lobby lobby = player.getOwnedLobby();
+            List<Player> playerList = lobby.getPlayers();
+            for (int i = playerList.toArray().length-1; i>=0; i--) {
+                playerService.removePlayer(playerList.get(i));
+            }
+            lobbyService.removeLobby(lobby);
         }
     }
 
