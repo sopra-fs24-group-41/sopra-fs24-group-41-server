@@ -39,6 +39,14 @@ public class UserService {
     public List<User> getUsers() {
         return this.userRepository.findAll();
     }
+    public User getUserByUsername(String username) {
+        User foundUser = userRepository.findByUsername(username);
+        if (foundUser == null) {
+            String errorMessage = "Cannot find this username.";
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+        }
+        return foundUser;
+    }
 
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
