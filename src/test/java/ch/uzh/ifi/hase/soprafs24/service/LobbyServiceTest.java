@@ -107,7 +107,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void joinLobbyByUser_invalidCode_success() {
+    public void joinLobbyByUser_invalidCode_throwsNotFoundError() {
         Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(null);
 
         assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyFromUser(testUser, 232));

@@ -238,7 +238,7 @@ public class LobbyControllerTest {
         given(lobbyService.joinLobbyFromUser(Mockito.any(), Mockito.anyLong())).willReturn(testLobby);
 
         // when
-        MockHttpServletRequestBuilder postRequest = post("/lobbies/1234")
+        MockHttpServletRequestBuilder postRequest = post("/lobbies/1234/players")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(asJsonString(lobbyPostDTO));
@@ -273,7 +273,7 @@ public class LobbyControllerTest {
         lobbyPostDTO.setAnonymous(false);
 
         // when
-        MockHttpServletRequestBuilder postRequest = post("/lobbies/6543")
+        MockHttpServletRequestBuilder postRequest = post("/lobbies/6543/players")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(asJsonString(lobbyPostDTO));
@@ -292,7 +292,7 @@ public class LobbyControllerTest {
             return new ObjectMapper().writeValueAsString(object);
         }
         catch (JsonProcessingException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("The request body could not be created.%s", e.toString()));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("The request body could not be created.%s", e));
         }
     }
 

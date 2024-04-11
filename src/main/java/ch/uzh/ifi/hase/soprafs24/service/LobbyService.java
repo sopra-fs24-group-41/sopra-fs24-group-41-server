@@ -56,10 +56,11 @@ public class LobbyService {
     public Lobby joinLobbyFromUser(User user, long lobbyCode) {
         Lobby foundLobby = lobbyRepository.findByCode(lobbyCode);
         if (foundLobby == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("lobby with code %d", lobbyCode));
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("lobby with code %d does not exist", lobbyCode));
         }
 
         Player player = new Player(UUID.randomUUID().toString(), user.getUsername(), foundLobby);
+        player.setUser(user);
         foundLobby.getPlayers().add(player);
         user.setPlayer(player);
 

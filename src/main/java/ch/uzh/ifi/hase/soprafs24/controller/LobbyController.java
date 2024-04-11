@@ -62,7 +62,7 @@ public class LobbyController {
         throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "something went wrong in create lobby");
     }
 
-    @PostMapping("/lobbies/{code}")
+    @PostMapping("/lobbies/{code}/players")
     @ResponseStatus(HttpStatus.CREATED)
     public PlayerJoinedDTO joinPlayer(@RequestBody LobbyPostDTO lobbyPostDTO, @PathVariable String code) {
         long lobbyCodeLong;
