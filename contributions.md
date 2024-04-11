@@ -31,6 +31,12 @@ Worked on:
 - User login: [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/116)
 - User logout: [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/117)
 
+**JacquelineUlken - Jacqueline Ulken**
+- Word representation in the database [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/114)
+- Combination representation in the database [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/114)
+- Looking up words and combinations [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/114)
+- Api Service to generate new combinations [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/123)
+
 ## 08.04 - 14.04 Week 3
 
 ## 15.04 - 21.04 Week 4
