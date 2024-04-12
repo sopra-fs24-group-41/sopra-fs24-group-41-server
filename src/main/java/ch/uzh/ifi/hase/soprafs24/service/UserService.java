@@ -14,6 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -39,13 +40,13 @@ public class UserService {
     public List<User> getUsers() {
         return this.userRepository.findAll();
     }
-    public User getUserByUsername(String username) {
-        User foundUser = userRepository.findByUsername(username);
-        if (foundUser == null) {
+    public User getUserById(Long id) {
+        Optional<User> foundUser = userRepository.findById(id);
+        if (foundUser.isEmpty()) {
             String errorMessage = "Cannot find this username.";
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
         }
-        return foundUser;
+        return foundUser.get();
     }
 
     public User createUser(User newUser) {

@@ -44,11 +44,11 @@ public class UserController {
         return userGetDTOs;
     }
 
-    @GetMapping("/users/{username}")
+    @GetMapping("/users/{id}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public UserGetDTO getUser(@PathVariable String username) {
-        User foundUser = userService.getUserByUsername(username);
+    public UserGetDTO getUser(@PathVariable Long id) {
+        User foundUser = userService.getUserById(id);
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(foundUser);
     }
 
