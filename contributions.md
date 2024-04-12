@@ -31,8 +31,8 @@ Worked on:
 - User logout: [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/117)
 
 **JacquelineUlken - Jacqueline Ulken**
-- Call to the database to get a word #77 [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/114)
-- Word merging to get combination #80 [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/114)
+- Call to the database to get a word, [#77](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/77), [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/114)
+- Word merging to get combination, [#80](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/80), [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/114)
 
 ## 08.04 - 14.04 Week 3
 
@@ -42,7 +42,7 @@ Worked on:
 - Experiments with using postgres as our data base. Conclusion: Our current entity setup is compatible. [branch](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/tree/postgres)
 
  **JacquelineUlken - Jacqueline Ulken**
- - Api Service to generate new combinations #78 [Pull request]([https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/123](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/124))
+ - Api service to generate new combinations, [#78](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/78), [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/124)
 
 ## 15.04 - 21.04 Week 4
 
