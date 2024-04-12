@@ -16,15 +16,15 @@ public class Combination implements Serializable {
     @GeneratedValue
     private Long id;
 
-    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "word1", nullable = false)
     private Word word1;
 
-    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "word2", nullable = false)
     private Word word2;
 
-    @ManyToOne(optional = false, cascade = CascadeType.PERSIST)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "result", nullable = false)
     private Word result;
 

@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
+import ch.uzh.ifi.hase.soprafs24.exceptions.CombinationNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.exceptions.WordNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.repository.WordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +20,20 @@ public class WordService {
         this.wordRepository = wordRepository;
     }
 
-    public Word getWordFromString(String name) {
-        Word word = wordRepository.findByName(name);
-        if (word != null) {
-            return word;
+    public Word getWord(Word word) {
+        try {
+            return findWord(word);
         }
-        else {
-            throw new WordNotFoundException(name);
+        catch (WordNotFoundException e) {
+            return wordRepository.saveAndFlush(word);
         }
     }
+
+    public Word findWord(Word word) {
+        Word foundWord = wordRepository.findByName(word.getName());
+        if (foundWord != null) return foundWord;
+
+        throw new WordNotFoundException(word.getName());
+    }
+
 }
