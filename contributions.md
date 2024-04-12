@@ -10,7 +10,6 @@
 
 
 **Grizzlytron - Lucas Timothy Leo Bär**
-
 - I worked on the Lobby page, where the different types of users can see the gamemodes and all currently joined players.
 - Also implemented quit functionality with a cool popup that rechecks if a user wants to leave or not.
 - Worked on the design generally. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/62)
@@ -32,18 +31,18 @@ Worked on:
 - User logout: [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/117)
 
 **JacquelineUlken - Jacqueline Ulken**
-- Word representation in the database [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/114)
-- Combination representation in the database [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/114)
-- Looking up words and combinations [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/114)
-- Api Service to generate new combinations [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/123)
+- Call to the database to get a word #77 [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/114)
+- Word merging to get combination #80 [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/114)
 
 ## 08.04 - 14.04 Week 3
 
 **Tmmn - Timon Leupp**
-
 - User can join existing lobby by providing user token and lobby code. [#42](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/42)
 - Player can leave lobby: player gets deleted. If the user was lobby owner, then the lobby will also be deleted. [#28](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/28)
 - Experiments with using postgres as our data base. Conclusion: Our current entity setup is compatible. [branch](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/tree/postgres)
+
+ **JacquelineUlken - Jacqueline Ulken**
+ - Api Service to generate new combinations #78 [Pull request]([https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/123](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/124))
 
 ## 15.04 - 21.04 Week 4
 
