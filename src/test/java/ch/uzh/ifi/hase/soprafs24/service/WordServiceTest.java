@@ -15,8 +15,10 @@ import static org.junit.jupiter.api.Assertions.*;
 public class WordServiceTest {
     @Mock
     private WordRepository wordRepository;
+
     @InjectMocks
     private WordService wordService;
+
     private Word testWord;
 
     @BeforeEach
@@ -25,26 +27,25 @@ public class WordServiceTest {
 
         testWord = new Word("Water");
 
+        Mockito.when(wordRepository.saveAndFlush(Mockito.any())).thenReturn(testWord);
         Mockito.when(wordRepository.save(Mockito.any())).thenReturn(testWord);
     }
 
     @Test
-    public void getWordFromString_success() {
-        Mockito.when(wordRepository.findByName("Water")).thenReturn(testWord);
+    public void getWord_foundWord() {
+        Mockito.when(wordRepository.findByName(Mockito.any())).thenReturn(testWord);
 
-        Word foundWord = wordService.getWordFromString(testWord.getName());
+        Word foundWord = wordService.getWord(testWord);
 
         assertEquals(testWord.getName(), foundWord.getName());
     }
 
     @Test
-    public void getWordFromString_throwsException() {
-        String name = "Fire";
+    public void getWord_newWord() {
+        Mockito.when(wordRepository.findByName(Mockito.any())).thenReturn(null);
 
-        Mockito.when(wordRepository.findByName(name)).thenReturn(null);
+        Word foundWord = wordService.getWord(testWord);
 
-        assertThrows(WordNotFoundException.class, () -> wordService.getWordFromString(name));
+        assertEquals(testWord.getName(), foundWord.getName());
     }
-
-
 }
