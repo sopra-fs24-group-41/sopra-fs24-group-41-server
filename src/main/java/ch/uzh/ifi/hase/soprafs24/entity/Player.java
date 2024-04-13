@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,8 +33,9 @@ public class Player implements Serializable {
     @OneToOne(mappedBy = "player")
     private User user;
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
-    private List<PlayerWord> availableWords;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(name = "PLAYERWORDS", joinColumns = @JoinColumn(name = "player"), inverseJoinColumns = @JoinColumn(name = "word"))
+    private List<Word> availableWords = new ArrayList<Word>();
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ownedLobby")
@@ -43,7 +45,8 @@ public class Player implements Serializable {
     @JoinColumn(name = "lobby")
     private Lobby lobby;
 
-    public Player() {}
+    public Player() {
+    }
 
     public Player(String token, String name, Lobby lobby) {
         this.token = token;
@@ -83,12 +86,20 @@ public class Player implements Serializable {
         this.points = points;
     }
 
-    public List<PlayerWord> getAvailableWords() {
+    public void addPoints(long points) {
+        this.points += points;
+    }
+
+    public List<Word> getAvailableWords() {
         return availableWords;
     }
 
-    public void setAvailableWords(List<PlayerWord> availableWords) {
+    public void setAvailableWords(List<Word> availableWords) {
         this.availableWords = availableWords;
+    }
+
+    public void addWord(Word word) {
+        this.availableWords.add(word);
     }
 
     public Lobby getOwnedLobby() {
