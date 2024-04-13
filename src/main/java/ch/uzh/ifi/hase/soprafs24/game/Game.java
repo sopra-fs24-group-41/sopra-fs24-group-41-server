@@ -6,6 +6,7 @@ import ch.uzh.ifi.hase.soprafs24.service.CombinationService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.WordService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
@@ -18,17 +19,28 @@ public class Game {
         this.playerService = playerService;
         this.combinationService = combinationService;
         this.wordService = wordService;
+        setup();
+    }
+
+    void setup() {
+        this.startingWords = new ArrayList<>();
+        startingWords.add(wordService.getWord(new Word("water")));
+        startingWords.add(wordService.getWord(new Word("earth")));
+        startingWords.add(wordService.getWord(new Word("fire")));
+        startingWords.add(wordService.getWord(new Word("air")));
     }
 
     public void setupPlayers(List<Player> players) {
+        for (Player player : players) {
+            player.setWords(startingWords);
+            playerService.updatePlayer(player);
+        }
     }
 
-    public Player makeCombination(Player player, List<Word> words) {
-        return player;
+    public void makeCombination(Player player, List<Word> words) {
     }
 
     public boolean winConditionReached(Player player) {
         return false;
     }
-
 }

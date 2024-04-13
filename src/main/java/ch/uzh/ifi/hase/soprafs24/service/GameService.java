@@ -37,30 +37,37 @@ public class GameService {
     }
 
     public void createNewGame(Lobby lobby) {
-        Game game = instantiateGame(lobby.getMode());
-        game.setupPlayers(lobby.getPlayers());
+        List<Player> players = lobby.getPlayers();
+        if (players != null && !players.isEmpty()) {
+            Game game = instantiateGame(lobby.getMode());
+            game.setupPlayers(players);
+            return;
+        }
+        String errorMessage = String.format("There are no players in the lobby %s!", lobby.getName());
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
     public void play(Player player, List<Word> words) {
-        Lobby lobby = player.getLobby();
+        Player foundPlayer = playerService.findPlayer(player);
+        Lobby lobby = foundPlayer.getLobby();
         Game game = instantiateGame(lobby.getMode());
-        player = game.makeCombination(player, words);
+        game.makeCombination(foundPlayer, words);
 
-        if (game.winConditionReached(player)) {
-            playerService.addPointsToPlayer(player, 1L);  // notify that player has won or something
+        if (game.winConditionReached(foundPlayer)) {
+            return;  // notify that player has won
         }
 
-        // notify stuff
+        // notify that the player did something
     }
 
     private Game instantiateGame(GameMode gameMode) {
         Class<? extends Game> gameClass = gameModes.get(gameMode);
-        Class[] parameterTypes = {CombinationService.class, WordService.class, PlayerService.class};
+        Class[] parameterTypes = {PlayerService.class, CombinationService.class, WordService.class};
         try {
-            return gameClass.getDeclaredConstructor(parameterTypes).newInstance(combinationService, wordService, playerService);
+            return gameClass.getDeclaredConstructor(parameterTypes).newInstance(playerService, combinationService, wordService);
         }
         catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
-            String errorMessage = String.format("Game mode %s could not be instantiated!", gameMode.name());
+            String errorMessage = String.format("Game mode %s could not be instantiated! Exception: %s", gameMode.name(), e);
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
         }
     }
