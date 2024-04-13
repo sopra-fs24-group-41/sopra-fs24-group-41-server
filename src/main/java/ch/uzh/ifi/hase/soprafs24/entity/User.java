@@ -31,6 +31,12 @@ public class User implements Serializable {
     @Column(nullable = false)
     private String password;
 
+    @Column(nullable = false)
+    private int wins = 0;
+
+    @Column(nullable = false)
+    private int losses = 0;
+
     @Column(nullable = false, unique = true)
     private String token;
 
@@ -59,6 +65,14 @@ public class User implements Serializable {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    public void setWins(int wins){this.wins = wins;}
+
+    public int getWins(){return this.wins;}
+
+    public void setLosses(int losses){this.losses = losses;}
+
+    public int getLosses(){return this.losses;}
 
     public String getPassword() {
         return password;

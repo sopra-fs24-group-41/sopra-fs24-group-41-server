@@ -8,6 +8,10 @@ public class UserGetDTO {
     private String username;
     private UserStatus status;
 
+    private int wins;
+
+    private int losses;
+
     private String profilePicture;
 
     public Long getId() {
@@ -41,4 +45,12 @@ public class UserGetDTO {
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
     }
+
+    public void setWins(int wins){this.wins = wins;}
+
+    public int getWins(){return this.wins;}
+
+    public void setLosses(int losses){this.losses = losses;}
+
+    public int getLosses(){return this.losses;}
 }
