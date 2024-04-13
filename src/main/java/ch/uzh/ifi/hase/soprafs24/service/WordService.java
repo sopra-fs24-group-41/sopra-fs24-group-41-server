@@ -7,6 +7,8 @@ import ch.uzh.ifi.hase.soprafs24.exceptions.WordNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.repository.WordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,17 @@ public class WordService {
         if (foundWord != null) return foundWord;
 
         throw new WordNotFoundException(word.getName());
+    }
+
+    public Word findRandomWord() {
+        Long qty = wordRepository.count();
+        int idx = (int)(Math.random() * qty);
+        Page<Word> wordPage = wordRepository.findAll(PageRequest.of(idx, 1));
+        Word word = null;
+        if (wordPage.hasContent()) {
+            word = wordPage.getContent().get(0);
+        }
+        return word;
     }
 
 }
