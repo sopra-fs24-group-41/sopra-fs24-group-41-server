@@ -33,9 +33,11 @@ public class Player implements Serializable {
     @OneToOne(mappedBy = "player")
     private User user;
 
-    @ManyToMany(cascade = CascadeType.ALL)
-    @JoinTable(name = "PLAYERWORDS", joinColumns = @JoinColumn(name = "player"), inverseJoinColumns = @JoinColumn(name = "word"))
-    private List<Word> availableWords = new ArrayList<Word>();
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    private List<PlayerWord> playerWords;
+
+    @ManyToOne
+    private Word targetWord;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ownedLobby")
@@ -90,16 +92,33 @@ public class Player implements Serializable {
         this.points += points;
     }
 
-    public List<Word> getAvailableWords() {
-        return availableWords;
+    public List<Word> getWords() {
+        List<Word> words = new ArrayList<>();
+        if (playerWords != null) {
+            for (PlayerWord playerWord : playerWords) {
+                words.add(playerWord.getWord());
+            }
+        }
+        return words;
     }
 
-    public void setAvailableWords(List<Word> availableWords) {
-        this.availableWords = availableWords;
+    public void setWords(List<Word> words) {
+        this.playerWords = new ArrayList<>();
+        for (Word word : words) {
+            playerWords.add(new PlayerWord(this, word));
+        }
     }
 
     public void addWord(Word word) {
-        this.availableWords.add(word);
+        playerWords.add(new PlayerWord(this, word));
+    }
+
+    public Word getTargetWord() {
+        return targetWord;
+    }
+
+    public void setTargetWord(Word targetWord) {
+        this.targetWord = targetWord;
     }
 
     public Lobby getOwnedLobby() {

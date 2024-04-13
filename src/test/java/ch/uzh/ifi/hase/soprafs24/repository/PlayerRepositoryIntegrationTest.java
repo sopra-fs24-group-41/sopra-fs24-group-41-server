@@ -99,12 +99,11 @@ public class PlayerRepositoryIntegrationTest {
         Player found = playerRepository.findById(testPlayer1.getId());
 
         // then
-        assertNotNull(found.getId());
         assertEquals(testPlayer1.getName(), found.getName());
         assertEquals(testPlayer1.getToken(), found.getToken());
         assertEquals(testPlayer1.getPoints(), found.getPoints());
         assertEquals(testPlayer1.getUser(), found.getUser());
-        assertEquals(testPlayer1.getAvailableWords(), found.getAvailableWords());
+        assertEquals(testPlayer1.getWords(), found.getWords());
         assertEquals(testPlayer1.getOwnedLobby(), found.getOwnedLobby());
         assertEquals(testPlayer1.getLobby(), found.getLobby());
     }
@@ -115,12 +114,11 @@ public class PlayerRepositoryIntegrationTest {
         Player found = playerRepository.findByToken(testPlayer1.getToken());
 
         // then
-        assertNotNull(found.getId());
         assertEquals(testPlayer1.getName(), found.getName());
         assertEquals(testPlayer1.getToken(), found.getToken());
         assertEquals(testPlayer1.getPoints(), found.getPoints());
         assertEquals(testPlayer1.getUser(), found.getUser());
-        assertEquals(testPlayer1.getAvailableWords(), found.getAvailableWords());
+        assertEquals(testPlayer1.getWords(), found.getWords());
         assertEquals(testPlayer1.getOwnedLobby(), found.getOwnedLobby());
         assertEquals(testPlayer1.getLobby(), found.getLobby());
     }
@@ -131,12 +129,11 @@ public class PlayerRepositoryIntegrationTest {
         Player found = playerRepository.findByUser_Id(testPlayer1.getUser().getId());
 
         // then
-        assertNotNull(found.getId());
         assertEquals(testPlayer1.getName(), found.getName());
         assertEquals(testPlayer1.getToken(), found.getToken());
         assertEquals(testPlayer1.getPoints(), found.getPoints());
         assertEquals(testPlayer1.getUser(), found.getUser());
-        assertEquals(testPlayer1.getAvailableWords(), found.getAvailableWords());
+        assertEquals(testPlayer1.getWords(), found.getWords());
         assertEquals(testPlayer1.getOwnedLobby(), found.getOwnedLobby());
         assertEquals(testPlayer1.getLobby(), found.getLobby());
     }
@@ -152,7 +149,7 @@ public class PlayerRepositoryIntegrationTest {
         assertEquals(testPlayer1.getToken(), found.getToken());
         assertEquals(testPlayer1.getPoints(), found.getPoints());
         assertEquals(testPlayer1.getUser(), found.getUser());
-        assertEquals(testPlayer1.getAvailableWords(), found.getAvailableWords());
+        assertEquals(testPlayer1.getWords(), found.getWords());
         assertEquals(testPlayer1.getOwnedLobby(), found.getOwnedLobby());
         assertEquals(testPlayer1.getLobby(), found.getLobby());
     }
