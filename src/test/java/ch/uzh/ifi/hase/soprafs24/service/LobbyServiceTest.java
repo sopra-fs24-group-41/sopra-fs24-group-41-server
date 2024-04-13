@@ -149,4 +149,9 @@ public class LobbyServiceTest {
 
         assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyFromUser(testUser, testLobby.getCode()));
     }
+
+    @Test
+    public void removeLobby_success() {
+        // TODO: to be implemented
+    }
 }

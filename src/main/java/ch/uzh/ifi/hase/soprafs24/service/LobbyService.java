@@ -96,7 +96,7 @@ public class LobbyService {
         }
         lobby.setPlayers(null);
         lobbyRepository.delete(lobby);
-        log.debug("successfully deleted player {}", lobby);
+        log.debug("successfully deleted lobby {}", lobby);
     }
 
     private long generateLobbyCode() {
