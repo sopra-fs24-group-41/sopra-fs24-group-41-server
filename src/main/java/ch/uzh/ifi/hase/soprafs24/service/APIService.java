@@ -13,12 +13,8 @@ public class APIService {
     }
 
     public String getRandomWord() {
-        String apiUrl = "https://random-words5.p.rapidapi.com/getRandom";
-        String apiKey = "d5b9992233mshb61f6d853db1eafp14a0ffjsn62bda1d8c90d";
-
+        String apiUrl = "https://random-word-api.herokuapp.com/word";
         HttpHeaders headers = new HttpHeaders();
-        headers.set("X-RapidAPI-Key", apiKey);
-        headers.set("X-RapidAPI-Host", "random-words5.p.rapidapi.com");
         HttpEntity<String> httpEntity = new HttpEntity<>(headers);
 
         RestTemplate restTemplate = new RestTemplate();
