@@ -76,34 +76,33 @@ public class LobbyServiceTest {
 
     @Test
     public void createLobbyByUser_validInputs_success() {
-        Lobby createdLobby = lobbyService.createLobbyFromUser(testUser, true);
+        Player createdPlayer = lobbyService.createLobbyFromUser(testUser, true);
 
         // then
         Mockito.verify(lobbyRepository, Mockito.times(1)).saveAndFlush(Mockito.any());
 
-        assertEquals(testLobby.getCode(), createdLobby.getCode());
-        assertEquals(testLobby.getName(), createdLobby.getName());
-        assertEquals(testLobby.getPublicAccess(), createdLobby.getPublicAccess());
-        assertEquals(testLobby.getStatus(), createdLobby.getStatus());
-        assertEquals(testLobby.getMode(), createdLobby.getMode());
-        assertEquals(testLobby.getOwner(), createdLobby.getOwner());
-        assertArrayEquals(testLobby.getPlayers().toArray(), createdLobby.getPlayers().toArray());
+        assertEquals(testLobby.getCode(), createdPlayer.getLobby().getCode());
+        assertEquals(testLobby.getName(), createdPlayer.getLobby().getName());
+        assertEquals(testLobby.getPublicAccess(), createdPlayer.getLobby().getPublicAccess());
+        assertEquals(testLobby.getStatus(), createdPlayer.getLobby().getStatus());
+        assertEquals(testLobby.getMode(), createdPlayer.getLobby().getMode());
+        assertEquals(testLobby.getOwner(), createdPlayer.getLobby().getOwner());
+        assertArrayEquals(testLobby.getPlayers().toArray(), createdPlayer.getLobby().getPlayers().toArray());
     }
 
     @Test
     public void joinLobbyByUser_validInputs_success() {
-
         Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
-        Lobby joinedLobby = lobbyService.joinLobbyFromUser(testUser, testLobby.getCode());
+        Player createdPlayer = lobbyService.joinLobbyFromUser(testUser, testLobby.getCode());
 
         // then
-        assertEquals(testLobby.getCode(), joinedLobby.getCode());
-        assertEquals(testLobby.getName(), joinedLobby.getName());
-        assertEquals(testLobby.getPublicAccess(), joinedLobby.getPublicAccess());
-        assertEquals(testLobby.getStatus(), joinedLobby.getStatus());
-        assertEquals(testLobby.getMode(), joinedLobby.getMode());
-        assertEquals(testLobby.getOwner(), joinedLobby.getOwner());
-        assertEquals(testLobby.getPlayers(), joinedLobby.getPlayers());
+        assertEquals(testLobby.getCode(), createdPlayer.getLobby().getCode());
+        assertEquals(testLobby.getName(), createdPlayer.getLobby().getName());
+        assertEquals(testLobby.getPublicAccess(), createdPlayer.getLobby().getPublicAccess());
+        assertEquals(testLobby.getStatus(), createdPlayer.getLobby().getStatus());
+        assertEquals(testLobby.getMode(), createdPlayer.getLobby().getMode());
+        assertEquals(testLobby.getOwner(), createdPlayer.getLobby().getOwner());
+        assertEquals(testLobby.getPlayers(), createdPlayer.getLobby().getPlayers());
     }
 
     @Test

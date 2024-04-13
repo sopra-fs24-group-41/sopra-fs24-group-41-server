@@ -152,7 +152,7 @@ public class LobbyControllerTest {
         lobbyPostDTO.setAnonymous(false);
 
         given(userService.checkToken(Mockito.any())).willReturn(testUser1);
-        given(lobbyService.createLobbyFromUser(Mockito.any(), Mockito.any())).willReturn(testLobby);
+        given(lobbyService.createLobbyFromUser(Mockito.any(), Mockito.any())).willReturn(testPlayer1);
 
         // when
         MockHttpServletRequestBuilder postRequest = post("/lobbies")
@@ -235,7 +235,7 @@ public class LobbyControllerTest {
         lobbyPostDTO.setAnonymous(false);
 
         given(userService.checkToken(Mockito.any())).willReturn(testUser1);
-        given(lobbyService.joinLobbyFromUser(Mockito.any(), Mockito.anyLong())).willReturn(testLobby);
+        given(lobbyService.joinLobbyFromUser(Mockito.any(), Mockito.anyLong())).willReturn(testPlayer1);
 
         // when
         MockHttpServletRequestBuilder postRequest = post("/lobbies/1234/players")

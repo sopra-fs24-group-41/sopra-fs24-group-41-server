@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
+import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPostDTO;
@@ -54,8 +55,8 @@ public class LobbyController {
             if (user.getPlayer() != null) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "delete or leave your lobby before creating a new one");
             }
-            Lobby lobby = lobbyService.createLobbyFromUser(user, lobbyPostDTO.getPublicAccess());
-            return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(lobby.getOwner());
+            Player player = lobbyService.createLobbyFromUser(user, lobbyPostDTO.getPublicAccess());
+            return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
         } else if (Boolean.TRUE.equals(lobbyPostDTO.getAnonymous())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "creating lobbies as anonymous user not supported");
         }
@@ -78,8 +79,8 @@ public class LobbyController {
             if (user.getPlayer() != null) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "leave your lobby before joining a new one");
             }
-            Lobby lobby = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
-            return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(lobby.getOwner());
+            Player player = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
+            return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
         } else if (Boolean.TRUE.equals(lobbyPostDTO.getAnonymous())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "creating lobbies as anonymous user not supported");
         }

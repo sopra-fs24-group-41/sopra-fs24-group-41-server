@@ -34,7 +34,7 @@ public class LobbyService {
         return lobbyRepository.findAllByPublicAccess(true);
     }
 
-    public Lobby createLobbyFromUser(User user, Boolean publicAccess) {
+    public Player createLobbyFromUser(User user, Boolean publicAccess) {
         String lobbyName = user.getUsername() + "'s Lobby";
         Lobby lobby = new Lobby(generateLobbyCode(), lobbyName);
         Player player = new Player(UUID.randomUUID().toString(), user.getUsername(), lobby);
@@ -50,10 +50,10 @@ public class LobbyService {
 
         log.debug("created new lobby {}", lobby);
         log.debug("created new player from user {}", player);
-        return savedLobby;
+        return savedLobby.getOwner();
     }
 
-    public Lobby joinLobbyFromUser(User user, long lobbyCode) {
+    public Player joinLobbyFromUser(User user, long lobbyCode) {
         Lobby foundLobby = lobbyRepository.findByCode(lobbyCode);
         if (foundLobby == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("lobby with code %d does not exist", lobbyCode));
@@ -66,7 +66,7 @@ public class LobbyService {
 
         log.debug("updated lobby {}", foundLobby);
         log.debug("created new player from user {}", player);
-        return foundLobby;
+        return player;
     }
 
     private long generateLobbyCode() {
