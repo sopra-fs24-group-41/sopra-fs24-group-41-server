@@ -48,6 +48,11 @@ Worked on:
 - I worked on the Copy button and lobby code functionality for the client side. [18](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/18) and [21](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/21)
 - Worked on the design generally. Also figured out how images can be deployed and shown on google cloud.
 
+**Aquamarine-12 - Alexandru-Mihai Hurjui**
+
+- Created the Game Board (i.e., the page where the player merges the elements). Implemented all client-side functionality.
+- Pull request: [Link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/65), issue numbers: [#31](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/31), [#32](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/32), [#35](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/35), [#36](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/36)
+
 ## 15.04 - 21.04 Week 4
 
 ## 22.04 - 28.04 Week 5
