@@ -20,34 +20,31 @@ public class FusionFrenzyGame extends Game {
         setup();
     }
 
-    private void setup() {
-        this.startingWords = new ArrayList<>();
-        startingWords.add(wordService.getWord(new Word("water")));
-        startingWords.add(wordService.getWord(new Word("earth")));
-        startingWords.add(wordService.getWord(new Word("fire")));
-        startingWords.add(wordService.getWord(new Word("air")));
+    void setup() {
+        super.setup();
+        target = wordService.findRandomWord();
     }
 
     public void setupPlayers(List<Player> players) {
         for (Player player : players) {
-            player.setAvailableWords(startingWords);
+            player.setWords(startingWords);
+            player.setTargetWord(target);
             playerService.updatePlayer(player);
         }
     }
 
-    public Player makeCombination(Player player, List<Word> words) {
+    public void makeCombination(Player player, List<Word> words) {
         if (words.size() == 2) {
             Combination combination = combinationService.getCombination(words.get(0), words.get(1));
-            player = playerService.addWordToPlayer(player, combination.getResult());
-            return player;
+            player.addWord(combination.getResult());
+            return;
         }
 
         String errorMessage = "Fusion Frenzy only allows combination of exactly two words!";
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
-
     }
 
     public boolean winConditionReached(Player player) {
-        return player.getAvailableWords().contains(target);
+        return player.getWords().contains(target);
     }
 }
