@@ -35,6 +35,9 @@ public class LobbyServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private PlayerService playerService;
+
     @InjectMocks
     private LobbyService lobbyService;
 
@@ -152,6 +155,18 @@ public class LobbyServiceTest {
 
     @Test
     public void removeLobby_success() {
-        // TODO: to be implemented
+        // given
+        Player testPlayer2 = new Player("234", "testPlayer2", testLobby);
+        testLobby.getPlayers().add(testPlayer2);
+
+        Mockito.doNothing().when(lobbyRepository).delete(Mockito.any());
+        Mockito.doNothing().when(playerService).removePlayer(Mockito.any());
+
+        // when
+        lobbyService.removeLobby(testLobby);
+
+        // then
+        Mockito.verify(playerService, Mockito.times(2)).removePlayer(Mockito.any());
+        Mockito.verify(lobbyRepository, Mockito.times(1)).delete(Mockito.any());
     }
 }

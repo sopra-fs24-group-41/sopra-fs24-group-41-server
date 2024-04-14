@@ -92,23 +92,23 @@ public class LobbyController {
         }
     }
 
-    @DeleteMapping("/lobbies/{code}/players")
-    @ResponseStatus(HttpStatus.OK)
-    public void removePlayerFromLobby(@PathVariable String code, @RequestHeader String token) {
+    @DeleteMapping("/lobbies/{code}/players/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void removePlayerFromLobby(@PathVariable String code, @PathVariable String id, @RequestHeader String token) {
         // check inputs
-        long lobbyCodeLong;
         if (token == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "include player token in your request");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "include player token in your request header as token");
         }
-        try {
-            lobbyCodeLong = Long.parseLong(code);
-        } catch (NumberFormatException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "lobby code has invalid formatting");
-        }
+        long lobbyCodeLong = parseLobbyCode(code);
+        long playerIdLong = parseId(id);
 
         // get and check player
         Player player = playerService.checkToken(token);
-        if (player.getLobby().getCode() != lobbyCodeLong) {
+        if (player.getId() != playerIdLong) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
+                    String.format("Your player has id %d, but you tried to remove player with id %d", player.getId(), playerIdLong));
+        }
+        else if (player.getLobby().getCode() != lobbyCodeLong) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "wrong lobby code for the player you tried to delete");
         }
 
@@ -116,12 +116,7 @@ public class LobbyController {
         if (player.getOwnedLobby() == null) {
             playerService.removePlayer(player);
         } else {
-            Lobby lobby = player.getOwnedLobby();
-            List<Player> playerList = lobby.getPlayers();
-            for (int i = playerList.toArray().length-1; i>=0; i--) {
-                playerService.removePlayer(playerList.get(i));
-            }
-            lobbyService.removeLobby(lobby);
+            lobbyService.removeLobby(player.getOwnedLobby());
         }
     }
 
@@ -130,6 +125,14 @@ public class LobbyController {
             return Long.parseLong(codeString);
         } catch (NumberFormatException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted lobby code");
+        }
+    }
+
+    private long parseId(String idString) {
+        try {
+            return Long.parseLong(idString);
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted id");
         }
     }
 }

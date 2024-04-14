@@ -54,6 +54,7 @@ public interface DTOMapper {
     LobbyGetDTO convertEntityToLobbyGetDTO(Lobby lobby);
 
     @Mapping(source = "token", target = "playerToken")
+    @Mapping(source = "id", target = "playerId")
     @Mapping(source = "lobby", target = "lobby")
     PlayerJoinedDTO convertEntityToPlayerJoinedDTO(Player player);
 
