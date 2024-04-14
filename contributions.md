@@ -37,8 +37,9 @@ Worked on:
 ## 08.04 - 14.04 Week 3
 
 **Tmmn - Timon Leupp**
-- User can join existing lobby by providing user token and lobby code. [#42](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/42)
-- Player can leave lobby: player gets deleted. If the user was lobby owner, then the lobby will also be deleted. [#28](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/28)
+- User can join existing lobby by providing user token and lobby code. [#42](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/42) [pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/125)
+- Player can leave lobby: player gets deleted. If the user was lobby owner, then the lobby will also be deleted. [#28](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/28) [pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/127)
+- General cleanup, wrote tests and moved token to header
 - Experiments with using postgres as our data base. Conclusion: Our current entity setup is compatible. [branch](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/tree/postgres)
 
  **JacquelineUlken - Jacqueline Ulken**
