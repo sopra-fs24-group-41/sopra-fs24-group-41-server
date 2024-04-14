@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
+import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
@@ -18,6 +19,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -75,6 +78,33 @@ public class LobbyServiceTest {
     }
 
     @Test
+    public void getPublicLobbies_returnsPublicLobbies() {
+        Mockito.when(lobbyRepository.findAllByPublicAccess(true)).thenReturn(Collections.singletonList(testLobby));
+
+        List<Lobby> foundLobbies = lobbyService.getPublicLobbies();
+
+        // then
+        Mockito.verify(lobbyRepository, Mockito.times(1)).findAllByPublicAccess(Mockito.anyBoolean());
+        assertArrayEquals(Collections.singletonList(testLobby).toArray(), foundLobbies.toArray());
+    }
+
+    @Test
+    public void getLobby_validCode_returnsLobby() {
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
+        Lobby foundLobby = lobbyService.getLobbyByCode(1234);
+
+        // then
+        Mockito.verify(lobbyRepository, Mockito.times(1)).findByCode(Mockito.anyLong());
+        assertEquals(testLobby, foundLobby);
+    }
+
+    @Test
+    public void getLobby_invalidCode_throwsNotFoundException() {
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(null);
+        assertThrows(ResponseStatusException.class, () -> lobbyService.getLobbyByCode(Mockito.anyLong()));
+    }
+
+    @Test
     public void createLobbyByUser_validInputs_success() {
         Player createdPlayer = lobbyService.createLobbyFromUser(testUser, true);
 
@@ -110,5 +140,13 @@ public class LobbyServiceTest {
         Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(null);
 
         assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyFromUser(testUser, 232));
+    }
+
+    @Test
+    public void joinLobbyByUser_lobbyNotPregame_throwsForbiddenError() {
+        testLobby.setStatus(LobbyStatus.INGAME);
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
+
+        assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyFromUser(testUser, testLobby.getCode()));
     }
 }

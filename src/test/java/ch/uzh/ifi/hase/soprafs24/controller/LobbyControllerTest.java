@@ -123,6 +123,98 @@ public class LobbyControllerTest {
     }
 
     @Test
+    public void givenLobbies_validCode_thenReturnsLobby() throws Exception {
+        // given
+        Lobby testLobby = new Lobby(1234, "test Lobby");
+        testLobby.setPublicAccess(true);
+        testLobby.setMode(GameMode.STANDARD);
+
+        Player testPlayer1 = new Player("123", "testplayer", null);
+        testPlayer1.setId(5L);
+        testPlayer1.setPoints(32);
+        // no value for AvailableWords set
+
+        Player testPlayer2 = new Player("643", "anothertestplayer", null);
+        testPlayer2.setId(4L);
+        testPlayer2.setPoints(54);
+
+        User testUser1 = new User();
+        testUser1.setPassword("testPassword");
+        testUser1.setUsername("firstname@lastname");
+        testUser1.setStatus(UserStatus.OFFLINE);
+        testUser1.setToken("1");
+        testUser1.setId(1L);
+
+        User testUser2 = new User();
+        testUser2.setPassword("testPassword2");
+        testUser2.setUsername("firstname@lastname2");
+        testUser2.setStatus(UserStatus.OFFLINE);
+        testUser2.setToken("2");
+        testUser2.setId(2L);
+
+        testUser1.setPlayer(testPlayer1);
+        testPlayer1.setUser(testUser1);
+
+        testUser2.setPlayer(testPlayer2);
+        testPlayer2.setUser(testUser2);
+
+        testLobby.setOwner(testPlayer1);
+        testPlayer1.setOwnedLobby(testLobby);
+
+        testPlayer1.setLobby(testLobby);
+        testPlayer2.setLobby(testLobby);
+        testLobby.setPlayers(Arrays.asList(testPlayer1, testPlayer2));
+
+        given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/1234")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code", is((int)testLobby.getCode())))
+                .andExpect(jsonPath("$.name", is(testLobby.getName())))
+                .andExpect(jsonPath("$.publicAccess", is(testLobby.getPublicAccess())))
+                .andExpect(jsonPath("$.status", is(testLobby.getStatus().toString())))
+                .andExpect(jsonPath("$.mode", is(testLobby.getMode().toString())))
+                .andExpect(jsonPath("$.owner.id", is((int)testLobby.getOwner().getId())))
+                .andExpect(jsonPath("$.owner.name", is(testLobby.getOwner().getName())))
+                .andExpect(jsonPath("$.owner.points", is((int)testLobby.getOwner().getPoints())))
+                .andExpect(jsonPath("$.owner.user.id", is(testLobby.getOwner().getUser().getId().intValue())))
+                .andExpect(jsonPath("$.owner.user.username", is(testLobby.getOwner().getUser().getUsername())))
+                .andExpect(jsonPath("$.owner.user.status", is(testLobby.getOwner().getUser().getStatus().toString())))
+                .andExpect(jsonPath("$.owner.user.profilePicture", is(testLobby.getOwner().getUser().getProfilePicture())))
+                .andExpect(jsonPath("$.players", hasSize(2)));
+    }
+
+    @Test
+    public void givenLobbies_badlyFormattedCode_throwsBadRequestError() throws Exception {
+        // when
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/onetwothreefour")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        // then
+        mockMvc.perform(getRequest).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void givenLobbies_unknownCode_throwsNotFoundException() throws Exception {
+        given(lobbyService.getLobbyByCode(Mockito.anyLong())).willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get("/lobbies/2345")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        // then
+        mockMvc.perform(getRequest).andExpect(status().isNotFound());
+    }
+
+    @Test
     public void createLobbyByUser_validToken_thenLobbyAndPlayerTokenReturned() throws Exception {
         // given
         Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
@@ -148,8 +240,7 @@ public class LobbyControllerTest {
         testLobby.setPlayers(List.of(testPlayer1));
 
         LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
-        lobbyPostDTO.setUserToken("1254");
-        lobbyPostDTO.setAnonymous(false);
+        lobbyPostDTO.setPublicAccess(true);
 
         given(userService.checkToken(Mockito.any())).willReturn(testUser1);
         given(lobbyService.createLobbyFromUser(Mockito.any(), Mockito.any())).willReturn(testPlayer1);
@@ -158,7 +249,8 @@ public class LobbyControllerTest {
         MockHttpServletRequestBuilder postRequest = post("/lobbies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(asJsonString(lobbyPostDTO));
+                .content(asJsonString(lobbyPostDTO))
+                .header("userToken", "1254");
 
         //then
         mockMvc.perform(postRequest)
@@ -178,31 +270,17 @@ public class LobbyControllerTest {
                 .willThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This user token has insufficient access rights"));
 
         LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
-        lobbyPostDTO.setUserToken("42");
-        lobbyPostDTO.setAnonymous(false);
+        lobbyPostDTO.setPublicAccess(true);
 
         // when
         MockHttpServletRequestBuilder postRequest = post("/lobbies")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(asJsonString(lobbyPostDTO));
+                .content(asJsonString(lobbyPostDTO))
+                .header("userToken", "42");
 
         //then
         mockMvc.perform(postRequest).andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    public void createLobby_anonymousNotProvided_throwsBadRequestException() throws Exception {
-        LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
-
-        // when
-        MockHttpServletRequestBuilder postRequest = post("/lobbies")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(asJsonString(lobbyPostDTO));
-
-        // then
-        mockMvc.perform(postRequest).andExpect(status().isBadRequest());
     }
 
     @Test
@@ -231,8 +309,7 @@ public class LobbyControllerTest {
         testLobby.setPlayers(List.of(testPlayer1));
 
         LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
-        lobbyPostDTO.setUserToken("1254");
-        lobbyPostDTO.setAnonymous(false);
+        lobbyPostDTO.setPublicAccess(true);
 
         given(userService.checkToken(Mockito.any())).willReturn(testUser1);
         given(lobbyService.joinLobbyFromUser(Mockito.any(), Mockito.anyLong())).willReturn(testPlayer1);
@@ -241,7 +318,8 @@ public class LobbyControllerTest {
         MockHttpServletRequestBuilder postRequest = post("/lobbies/1234/players")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(asJsonString(lobbyPostDTO));
+                .content(asJsonString(lobbyPostDTO))
+                .header("userToken", "1254");
 
         //then
         mockMvc.perform(postRequest)
@@ -269,14 +347,14 @@ public class LobbyControllerTest {
                 .willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Lobby code not found"));
 
         LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
-        lobbyPostDTO.setUserToken("1254");
-        lobbyPostDTO.setAnonymous(false);
+        lobbyPostDTO.setPublicAccess(true);
 
         // when
         MockHttpServletRequestBuilder postRequest = post("/lobbies/6543/players")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .content(asJsonString(lobbyPostDTO));
+                .content(asJsonString(lobbyPostDTO))
+                .header("userToken", "1254");
 
         //then
         mockMvc.perform(postRequest).andExpect(status().isNotFound());
