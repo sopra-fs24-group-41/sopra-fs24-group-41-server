@@ -44,6 +44,10 @@ Worked on:
  **JacquelineUlken - Jacqueline Ulken**
  - Api service to generate new combinations, [#78](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/78), [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/124)
 
+**Grizzlytron - Lucas Timothy Leo Bär**
+- I worked on the Copy button and lobby code functionality for the client side. [18](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/18) and [21](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/21)
+- Worked on the design generally. Also figured out how images can be deployed and shown on google cloud.
+
 ## 15.04 - 21.04 Week 4
 
 ## 22.04 - 28.04 Week 5
