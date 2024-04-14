@@ -43,6 +43,8 @@ Worked on:
 
  **JacquelineUlken - Jacqueline Ulken**
  - Api service to generate new combinations, [#78](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/78), [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/124)
+ - Implemented creating a new game and setting Player starting words [#76](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/76), [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/128)
+ - Implemented updating the Player words when a player merges two words [#81](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/81), [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/128)
 
 **Grizzlytron - Lucas Timothy Leo Bär**
 - I worked on the Copy button and lobby code functionality for the client side. [18](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/18) and [21](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/21)
