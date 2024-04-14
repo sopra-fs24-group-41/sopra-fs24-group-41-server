@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.Date;
+
 
 /**
  * User Service
@@ -53,6 +55,7 @@ public class UserService {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
         newUser.setProfilePicture("");  // for now, the profile picture is empty
+        newUser.setCreationDate(new Date());
         checkDuplicateUser(newUser);
         newUser = userRepository.save(newUser);
         userRepository.flush();
@@ -114,5 +117,21 @@ public class UserService {
         if (userByUsername != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
         }
+    }
+
+    public void authUser(Long id, String token){
+        User foundUser = userRepository.findByToken(token);
+        if (foundUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found");
+        }
+        if (!Objects.equals(foundUser.getId(), id)){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not have permission to edit this user's data");
+        }
+    }
+
+    public void editUser(String token, User updatedUser){
+        User foundUser = userRepository.findByToken(token);
+        foundUser.setUsername(updatedUser.getUsername());
+        foundUser.setFavourite(updatedUser.getFavourite());
     }
 }

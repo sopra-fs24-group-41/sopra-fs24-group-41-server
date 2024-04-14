@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import java.util.Date;
 
 public class UserGetDTO {
 
@@ -12,7 +13,11 @@ public class UserGetDTO {
 
     private int losses;
 
+    private Date creationDate;
+
     private String profilePicture;
+
+    private String favourite;
 
     public Long getId() {
         return id;
@@ -53,4 +58,16 @@ public class UserGetDTO {
     public void setLosses(int losses){this.losses = losses;}
 
     public int getLosses(){return this.losses;}
+
+    public Date getCreationDate() {return creationDate;}
+
+    public void setCreationDate(Date creationDate) {this.creationDate = creationDate;}
+
+    public String getFavourite() {
+        return favourite;
+    }
+
+    public void setFavourite(String favourite) {
+        this.favourite = favourite;
+    }
 }
