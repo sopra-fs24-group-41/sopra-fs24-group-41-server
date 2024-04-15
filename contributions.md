@@ -37,12 +37,24 @@ Worked on:
 ## 08.04 - 14.04 Week 3
 
 **Tmmn - Timon Leupp**
-- User can join existing lobby by providing user token and lobby code. [#42](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/42)
-- Player can leave lobby: player gets deleted. If the user was lobby owner, then the lobby will also be deleted. [#28](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/28)
+- User can join existing lobby by providing user token and lobby code. [#42](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/42) [pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/125)
+- Player can leave lobby: player gets deleted. If the user was lobby owner, then the lobby will also be deleted. [#28](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/28) [pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/127)
+- General cleanup, wrote tests and moved token to header
 - Experiments with using postgres as our data base. Conclusion: Our current entity setup is compatible. [branch](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/tree/postgres)
 
  **JacquelineUlken - Jacqueline Ulken**
  - Api service to generate new combinations, [#78](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/78), [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/124)
+ - Implemented creating a new game and setting Player starting words [#76](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/76), [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/128)
+ - Implemented updating the Player words when a player merges two words [#81](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/81), [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/128)
+
+**Grizzlytron - Lucas Timothy Leo Bär**
+- I worked on the Copy button and lobby code functionality for the client side. [18](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/18) and [21](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/21)
+- Worked on the design generally. Also figured out how images can be deployed and shown on google cloud.
+
+**Aquamarine-12 - Alexandru-Mihai Hurjui**
+
+- Created the Game Board (i.e., the page where the player merges the elements). Implemented all client-side functionality.
+- Pull request: [Link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/65), issue numbers: [#31](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/31), [#32](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/32), [#35](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/35), [#36](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/36)
 
 ## 15.04 - 21.04 Week 4
 

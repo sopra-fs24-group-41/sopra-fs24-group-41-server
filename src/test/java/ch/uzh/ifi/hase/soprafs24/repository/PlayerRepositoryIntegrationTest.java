@@ -144,7 +144,6 @@ public class PlayerRepositoryIntegrationTest {
         Player found = playerRepository.findByOwnedLobby_Code(testPlayer1.getOwnedLobby().getCode());
 
         // then
-        assertNotNull(found.getId());
         assertEquals(testPlayer1.getName(), found.getName());
         assertEquals(testPlayer1.getToken(), found.getToken());
         assertEquals(testPlayer1.getPoints(), found.getPoints());

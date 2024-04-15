@@ -4,6 +4,8 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDate;
+
 
 /**
  * Internal User Representation
@@ -28,8 +30,17 @@ public class User implements Serializable {
     @Column(nullable = false, unique = true)
     private String username;
 
+    @Column(nullable = true)
+    private String favourite;
+
     @Column(nullable = false)
     private String password;
+
+    @Column(nullable = false)
+    private int wins = 0;
+
+    @Column(nullable = false)
+    private int losses = 0;
 
     @Column(nullable = false, unique = true)
     private String token;
@@ -43,6 +54,9 @@ public class User implements Serializable {
 
     @Column
     private String profilePicture;
+
+    @Column(nullable = true, updatable = false)
+    private LocalDate creationDate;
 
     public Long getId() {
         return id;
@@ -59,6 +73,22 @@ public class User implements Serializable {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    public String getFavourite() {
+        return favourite;
+    }
+
+    public void setFavourite(String favourite) {
+        this.favourite = favourite;
+    }
+
+    public void setWins(int wins){this.wins = wins;}
+
+    public int getWins(){return this.wins;}
+
+    public void setLosses(int losses){this.losses = losses;}
+
+    public int getLosses(){return this.losses;}
 
     public String getPassword() {
         return password;
@@ -99,4 +129,8 @@ public class User implements Serializable {
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
     }
+
+    public LocalDate getCreationDate() {return creationDate;}
+
+    public void setCreationDate(LocalDate creationDate) {this.creationDate = creationDate;}
 }

@@ -1,10 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserSecretDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.UserTokenPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.http.HttpStatus;
@@ -59,6 +56,18 @@ public class UserController {
         User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userLoginPostDTO);
         User createdUser = userService.createUser(userInput);
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdUser);
+    }
+
+    @PutMapping("/users/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public UserGetDTO editUser(@PathVariable("id") Long id,
+                         @RequestBody UserPutDTO userPutDTO,
+                         @RequestHeader(name = "Authorization", required = true) String token){
+        userService.authUser(id, token);
+        User Update = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
+        User updatedUser = userService.editUser(token, Update);
+        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(updatedUser);
     }
 
     @PostMapping("/logins")
