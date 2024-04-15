@@ -37,8 +37,7 @@ public class PlayerService {
     public Player checkToken(String token) {
         Player foundPlayer = playerRepository.findByToken(token);
         if (foundPlayer == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    "No player found with this token");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No player found with this token");
         }
         log.debug("found the player for the provided token: {}", foundPlayer);
         return foundPlayer;
