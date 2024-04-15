@@ -131,7 +131,10 @@ public class UserService {
 
     public void editUser(String token, User updatedUser){
         User foundUser = userRepository.findByToken(token);
-        foundUser.setUsername(updatedUser.getUsername());
-        foundUser.setFavourite(updatedUser.getFavourite());
+        if(!Objects.equals(foundUser.getUsername(), updatedUser.getUsername())){
+                foundUser.setUsername(updatedUser.getUsername());}
+
+        if(!Objects.equals(foundUser.getFavourite(), updatedUser.getFavourite())){
+                foundUser.setFavourite(updatedUser.getFavourite());}
     }
 }
