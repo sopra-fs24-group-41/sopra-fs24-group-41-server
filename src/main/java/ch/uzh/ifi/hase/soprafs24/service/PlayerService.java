@@ -20,14 +20,6 @@ public class PlayerService {
         this.playerRepository = playerRepository;
     }
 
-    public Player updatePlayer(Player player) {
-        Player updatedPlayer = findPlayer(player);
-        updatedPlayer.setWords(player.getWords());
-        updatedPlayer.setPoints(player.getPoints());
-        updatedPlayer.setTargetWord(player.getTargetWord());
-        return updatedPlayer;
-    }
-
     public Player findPlayer(Player player) {
         Player foundPlayer = playerRepository.findByToken(player.getToken());
         if (foundPlayer != null) return foundPlayer;
