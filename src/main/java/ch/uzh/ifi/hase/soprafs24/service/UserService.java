@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.time.LocalDate;
+
 
 /**
  * User Service
@@ -53,6 +55,7 @@ public class UserService {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
         newUser.setProfilePicture("");  // for now, the profile picture is empty
+        newUser.setCreationDate(LocalDate.now());
         checkDuplicateUser(newUser);
         newUser = userRepository.save(newUser);
         userRepository.flush();
@@ -114,5 +117,54 @@ public class UserService {
         if (userByUsername != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
         }
+    }
+
+    public void authUser(Long id, String token){
+        User foundUser = userRepository.findByToken(token);
+        if (foundUser == null) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found");
+        }
+        if (!Objects.equals(foundUser.getId(), id)){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not have permission to edit this user's data");
+        }
+    }
+
+    public void usernameValidation(String username){
+        if(username.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Username may not be left empty");
+        }
+
+        if(username.contains(" ")){
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Username may not contain blank spaces");
+        }
+    }
+
+    public void favouriteValidation(String favourite){
+        if(favourite.contains(" ")){
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Favourite word may not contain blank spaces");
+        }
+    }
+
+    public User editUser(String token, User updatedUser){
+        User foundUser = userRepository.findByToken(token);
+
+        User conflictUser = userRepository.findByUsername(updatedUser.getUsername());
+        if(conflictUser != null && conflictUser!=foundUser){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already taken, please choose a different one");
+        }
+
+        usernameValidation(updatedUser.getUsername());
+        favouriteValidation(updatedUser.getFavourite());
+
+        if(!Objects.equals(foundUser.getUsername(), updatedUser.getUsername())){
+                foundUser.setUsername(updatedUser.getUsername());}
+
+        if(!Objects.equals(foundUser.getFavourite(), updatedUser.getFavourite())){
+                foundUser.setFavourite(updatedUser.getFavourite());}
+
+        if(updatedUser.getFavourite().isEmpty()){
+            foundUser.setFavourite("Zaddy");
+        }
+        return foundUser;
     }
 }
