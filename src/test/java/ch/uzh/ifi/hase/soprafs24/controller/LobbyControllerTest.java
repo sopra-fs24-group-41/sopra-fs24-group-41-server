@@ -391,7 +391,7 @@ public class LobbyControllerTest {
         MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/6")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("token", "234");
+                .header("playerToken", "234");
 
         //then
         mockMvc.perform(deleteRequest)
@@ -429,7 +429,7 @@ public class LobbyControllerTest {
         MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/5")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("token", "123");
+                .header("playerToken", "123");
 
         //then
         mockMvc.perform(deleteRequest)
@@ -489,7 +489,7 @@ public class LobbyControllerTest {
         MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/4541/players/5")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("token", "123");
+                .header("playerToken", "123");
 
         //then
         mockMvc.perform(deleteRequest)
@@ -518,7 +518,7 @@ public class LobbyControllerTest {
         MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/four23one/players/5")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("token", "123");
+                .header("playerToken", "123");
 
         //then
         mockMvc.perform(deleteRequest)
@@ -547,7 +547,7 @@ public class LobbyControllerTest {
         MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/53")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("token", "123");
+                .header("playerToken", "123");
 
         //then
         mockMvc.perform(deleteRequest)
@@ -576,7 +576,7 @@ public class LobbyControllerTest {
         MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/five")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("token", "123");
+                .header("playerToken", "123");
 
         //then
         mockMvc.perform(deleteRequest)

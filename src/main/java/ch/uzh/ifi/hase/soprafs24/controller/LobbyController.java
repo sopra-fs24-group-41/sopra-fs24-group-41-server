@@ -92,18 +92,18 @@ public class LobbyController {
         }
     }
 
-    @DeleteMapping("/lobbies/{code}/players/{id}")
+    @DeleteMapping("/lobbies/{lobbyCode}/players/{playerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removePlayerFromLobby(@PathVariable String code, @PathVariable String id, @RequestHeader String token) {
+    public void removePlayerFromLobby(@PathVariable String lobbyCode, @PathVariable String playerId, @RequestHeader String playerToken) {
         // check inputs
-        if (token == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "include player token in your request header as token");
+        if (playerToken == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "include player token in your request header as playerToken");
         }
-        long lobbyCodeLong = parseLobbyCode(code);
-        long playerIdLong = parseId(id);
+        long lobbyCodeLong = parseLobbyCode(lobbyCode);
+        long playerIdLong = parseId(playerId);
 
         // get and check player
-        Player player = playerService.checkToken(token);
+        Player player = playerService.checkToken(playerToken);
         if (player.getId() != playerIdLong) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,
                     String.format("Your player has id %d, but you tried to remove player with id %d", player.getId(), playerIdLong));
