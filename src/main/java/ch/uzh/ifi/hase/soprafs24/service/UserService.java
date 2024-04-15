@@ -129,12 +129,42 @@ public class UserService {
         }
     }
 
-    public void editUser(String token, User updatedUser){
+    public void usernameValidation(String username){
+        if(username.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Username may not be left empty");
+        }
+
+        if(username.contains(" ")){
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Username may not contain blank spaces");
+        }
+    }
+
+    public void favouriteValidation(String favourite){
+        if(favourite.contains(" ")){
+            throw new ResponseStatusException(HttpStatus.PRECONDITION_FAILED, "Favourite word may not contain blank spaces");
+        }
+    }
+
+    public User editUser(String token, User updatedUser){
         User foundUser = userRepository.findByToken(token);
+
+        User conflictUser = userRepository.findByUsername(updatedUser.getUsername());
+        if(conflictUser != null && conflictUser!=foundUser){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already taken, please choose a different one");
+        }
+
+        usernameValidation(updatedUser.getUsername());
+        favouriteValidation(updatedUser.getFavourite());
+
         if(!Objects.equals(foundUser.getUsername(), updatedUser.getUsername())){
                 foundUser.setUsername(updatedUser.getUsername());}
 
         if(!Objects.equals(foundUser.getFavourite(), updatedUser.getFavourite())){
                 foundUser.setFavourite(updatedUser.getFavourite());}
+
+        if(updatedUser.getFavourite().isEmpty()){
+            foundUser.setFavourite("Zaddy");
+        }
+        return foundUser;
     }
 }

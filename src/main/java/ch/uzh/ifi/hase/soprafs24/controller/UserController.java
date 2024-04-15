@@ -61,12 +61,13 @@ public class UserController {
     @PutMapping("/users/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void editUser(@PathVariable("id") Long id,
+    public UserGetDTO editUser(@PathVariable("id") Long id,
                          @RequestBody UserPutDTO userPutDTO,
                          @RequestHeader(name = "Authorization", required = true) String token){
         userService.authUser(id, token);
         User Update = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
-        userService.editUser(token, Update);
+        User updatedUser = userService.editUser(token, Update);
+        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(updatedUser);
     }
 
     @PostMapping("/logins")
