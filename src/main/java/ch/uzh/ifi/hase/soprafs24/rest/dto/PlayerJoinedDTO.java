@@ -4,6 +4,8 @@ public class PlayerJoinedDTO {
 
     private String playerToken;
 
+    private long playerId;
+
     private LobbyGetDTO lobby;
 
     public String getPlayerToken() {
@@ -12,6 +14,14 @@ public class PlayerJoinedDTO {
 
     public void setPlayerToken(String playerToken) {
         this.playerToken = playerToken;
+    }
+
+    public long getPlayerId() {
+        return playerId;
+    }
+
+    public void setPlayerId(long playerId) {
+        this.playerId = playerId;
     }
 
     public LobbyGetDTO getLobby() {

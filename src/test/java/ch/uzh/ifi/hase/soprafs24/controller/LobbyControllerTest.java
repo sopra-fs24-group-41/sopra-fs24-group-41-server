@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPostDTO;
 import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
+import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,8 +30,7 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -50,6 +50,9 @@ public class LobbyControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private PlayerService playerService;
 
     @Test
     public void givenLobbies_whenGetLobbies_thenReturnJsonArray() throws Exception {
@@ -358,6 +361,226 @@ public class LobbyControllerTest {
 
         //then
         mockMvc.perform(postRequest).andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void removePlayerNotOwner_validInputs_success() throws Exception {
+        // given
+        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
+        testLobby.setPublicAccess(true);
+
+        Player testPlayer1 = new Player("123", "testplayer", testLobby);
+        testPlayer1.setId(5L);
+        testPlayer1.setPoints(32);
+
+        Player testPlayer2 = new Player("234", "testplayer2", testLobby);
+        testPlayer2.setId(6L);
+        testPlayer2.setPoints(54);
+
+        testLobby.setOwner(testPlayer1);
+        testPlayer1.setOwnedLobby(testLobby);
+
+        testPlayer1.setLobby(testLobby);
+        testPlayer2.setLobby(testLobby);
+        testLobby.setPlayers(List.of(testPlayer1, testPlayer2));
+
+        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer2);
+        Mockito.doNothing().when(playerService).removePlayer(Mockito.any());
+
+        // when
+        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/6")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("playerToken", "234");
+
+        //then
+        mockMvc.perform(deleteRequest)
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(playerService, Mockito.times(1)).checkToken(Mockito.any());
+        Mockito.verify(playerService, Mockito.times(1)).removePlayer(Mockito.any());
+    }
+
+    @Test
+    public void removePlayerOwner_validInputs_success() throws Exception {
+        // given
+        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
+        testLobby.setPublicAccess(true);
+
+        Player testPlayer1 = new Player("123", "testplayer", testLobby);
+        testPlayer1.setId(5L);
+        testPlayer1.setPoints(32);
+
+        Player testPlayer2 = new Player("234", "testplayer2", testLobby);
+        testPlayer2.setId(6L);
+        testPlayer2.setPoints(54);
+
+        testLobby.setOwner(testPlayer1);
+        testPlayer1.setOwnedLobby(testLobby);
+
+        testPlayer1.setLobby(testLobby);
+        testPlayer2.setLobby(testLobby);
+        testLobby.setPlayers(List.of(testPlayer1, testPlayer2));
+
+        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer1);
+        Mockito.doNothing().when(lobbyService).removeLobby(Mockito.any());
+
+        // when
+        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/5")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("playerToken", "123");
+
+        //then
+        mockMvc.perform(deleteRequest)
+                .andExpect(status().isNoContent());
+
+        Mockito.verify(playerService, Mockito.times(1)).checkToken(Mockito.any());
+        Mockito.verify(lobbyService, Mockito.times(1)).removeLobby(Mockito.any());
+    }
+
+    @Test
+    public void removePlayer_noToken_throwsBadRequestError() throws Exception {
+        // given
+        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
+        testLobby.setPublicAccess(true);
+
+        Player testPlayer1 = new Player("123", "testplayer", testLobby);
+        testPlayer1.setId(5L);
+        testPlayer1.setPoints(32);
+
+        testLobby.setOwner(testPlayer1);
+        testPlayer1.setOwnedLobby(testLobby);
+
+        testPlayer1.setLobby(testLobby);
+        testLobby.setPlayers(List.of(testPlayer1));
+
+        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer1);
+
+        // when
+        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/5")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        //then
+        mockMvc.perform(deleteRequest)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void removePlayer_invalidCode_throwsBadRequestError() throws Exception {
+        // given
+        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
+        testLobby.setPublicAccess(true);
+
+        Player testPlayer1 = new Player("123", "testplayer", testLobby);
+        testPlayer1.setId(5L);
+        testPlayer1.setPoints(32);
+
+        testLobby.setOwner(testPlayer1);
+        testPlayer1.setOwnedLobby(testLobby);
+
+        testPlayer1.setLobby(testLobby);
+        testLobby.setPlayers(List.of(testPlayer1));
+
+        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer1);
+
+        // when
+        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/4541/players/5")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("playerToken", "123");
+
+        //then
+        mockMvc.perform(deleteRequest)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void removePlayer_badlyFormattedCode_throwsBadRequestError() throws Exception {
+        // given
+        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
+        testLobby.setPublicAccess(true);
+
+        Player testPlayer1 = new Player("123", "testplayer", testLobby);
+        testPlayer1.setId(5L);
+        testPlayer1.setPoints(32);
+
+        testLobby.setOwner(testPlayer1);
+        testPlayer1.setOwnedLobby(testLobby);
+
+        testPlayer1.setLobby(testLobby);
+        testLobby.setPlayers(List.of(testPlayer1));
+
+        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer1);
+
+        // when
+        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/four23one/players/5")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("playerToken", "123");
+
+        //then
+        mockMvc.perform(deleteRequest)
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void removePlayer_invalidId_throwsNotFoundException() throws Exception {
+        // given
+        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
+        testLobby.setPublicAccess(true);
+
+        Player testPlayer1 = new Player("123", "testplayer", testLobby);
+        testPlayer1.setId(5L);
+        testPlayer1.setPoints(32);
+
+        testLobby.setOwner(testPlayer1);
+        testPlayer1.setOwnedLobby(testLobby);
+
+        testPlayer1.setLobby(testLobby);
+        testLobby.setPlayers(List.of(testPlayer1));
+
+        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer1);
+
+        // when
+        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/53")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("playerToken", "123");
+
+        //then
+        mockMvc.perform(deleteRequest)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void removePlayer_badlyFormattedId_throwsBadRequestException() throws Exception {
+        // given
+        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
+        testLobby.setPublicAccess(true);
+
+        Player testPlayer1 = new Player("123", "testplayer", testLobby);
+        testPlayer1.setId(5L);
+        testPlayer1.setPoints(32);
+
+        testLobby.setOwner(testPlayer1);
+        testPlayer1.setOwnedLobby(testLobby);
+
+        testPlayer1.setLobby(testLobby);
+        testLobby.setPlayers(List.of(testPlayer1));
+
+        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer1);
+
+        // when
+        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/five")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("playerToken", "123");
+
+        //then
+        mockMvc.perform(deleteRequest)
+                .andExpect(status().isBadRequest());
     }
 
     /**

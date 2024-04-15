@@ -26,9 +26,12 @@ public class LobbyService {
 
     private final LobbyRepository lobbyRepository;
 
+    private final PlayerService playerService;
+
     @Autowired
-    public LobbyService(@Qualifier("lobbyRepository") LobbyRepository lobbyRepository) {
+    public LobbyService(@Qualifier("lobbyRepository") LobbyRepository lobbyRepository, PlayerService playerService) {
         this.lobbyRepository = lobbyRepository;
+        this.playerService = playerService;
     }
 
     public List<Lobby> getPublicLobbies() {
@@ -81,6 +84,21 @@ public class LobbyService {
         log.debug("updated lobby {}", foundLobby);
         log.debug("created new player from user {}", player);
         return player;
+    }
+
+    public void removeLobby(Lobby lobby) {
+        if (lobby.getOwner() != null) {
+            lobby.getOwner().setOwnedLobby(null);
+            lobby.setOwner(null);
+        }
+        if (lobby.getPlayers() != null) {
+            List<Player> playerList = lobby.getPlayers();
+            for (int i = playerList.toArray().length-1; i>=0; i--) {
+                playerService.removePlayer(playerList.get(i));
+            }
+        }
+        lobbyRepository.delete(lobby);
+        log.debug("successfully deleted lobby {}", lobby);
     }
 
     private long generateLobbyCode() {
