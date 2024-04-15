@@ -56,6 +56,12 @@ Worked on:
 - Created the Game Board (i.e., the page where the player merges the elements). Implemented all client-side functionality.
 - Pull request: [Link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/65), issue numbers: [#31](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/31), [#32](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/32), [#35](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/35), [#36](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/36)
 
+**na50r - Rosan Shanmuganathan**
+- Worked on integrating Client & Server for Login, Registration and Profile page. Adjusted functionality on both sides and implemented authentication using tokens in header 
+- Client side [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/64)
+- Server side [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/130)
+- Also working on the result page, couldn't find the time to complete it. Will try to finish it in Week 4.
+
 ## 15.04 - 21.04 Week 4
 
 ## 22.04 - 28.04 Week 5
