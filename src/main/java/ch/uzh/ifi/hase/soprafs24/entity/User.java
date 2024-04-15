@@ -4,7 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
+import java.time.LocalDate;
 
 
 /**
@@ -56,7 +56,7 @@ public class User implements Serializable {
     private String profilePicture;
 
     @Column(nullable = true, updatable = false)
-    private Date creationDate;
+    private LocalDate creationDate;
 
     public Long getId() {
         return id;
@@ -130,7 +130,7 @@ public class User implements Serializable {
         this.profilePicture = profilePicture;
     }
 
-    public Date getCreationDate() {return creationDate;}
+    public LocalDate getCreationDate() {return creationDate;}
 
-    public void setCreationDate(Date creationDate) {this.creationDate = creationDate;}
+    public void setCreationDate(LocalDate creationDate) {this.creationDate = creationDate;}
 }

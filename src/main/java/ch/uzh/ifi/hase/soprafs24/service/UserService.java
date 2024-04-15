@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.Date;
+import java.time.LocalDate;
 
 
 /**
@@ -55,7 +55,7 @@ public class UserService {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
         newUser.setProfilePicture("");  // for now, the profile picture is empty
-        newUser.setCreationDate(new Date());
+        newUser.setCreationDate(LocalDate.now());
         checkDuplicateUser(newUser);
         newUser = userRepository.save(newUser);
         userRepository.flush();
