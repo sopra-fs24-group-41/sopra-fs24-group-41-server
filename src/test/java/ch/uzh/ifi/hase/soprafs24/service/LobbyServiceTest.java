@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
+import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
@@ -14,8 +15,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -64,7 +69,7 @@ public class LobbyServiceTest {
         testPlayer.setOwnedLobby(testLobby);
 
         testPlayer.setLobby(testLobby);
-        testLobby.setPlayers(Collections.singletonList(testPlayer));
+        testLobby.setPlayers(new ArrayList<>(Arrays.asList(testPlayer)));
 
         Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
         Mockito.when(lobbyRepository.save(Mockito.any())).thenReturn(testLobby);
@@ -73,18 +78,75 @@ public class LobbyServiceTest {
     }
 
     @Test
+    public void getPublicLobbies_returnsPublicLobbies() {
+        Mockito.when(lobbyRepository.findAllByPublicAccess(true)).thenReturn(Collections.singletonList(testLobby));
+
+        List<Lobby> foundLobbies = lobbyService.getPublicLobbies();
+
+        // then
+        Mockito.verify(lobbyRepository, Mockito.times(1)).findAllByPublicAccess(Mockito.anyBoolean());
+        assertArrayEquals(Collections.singletonList(testLobby).toArray(), foundLobbies.toArray());
+    }
+
+    @Test
+    public void getLobby_validCode_returnsLobby() {
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
+        Lobby foundLobby = lobbyService.getLobbyByCode(1234);
+
+        // then
+        Mockito.verify(lobbyRepository, Mockito.times(1)).findByCode(Mockito.anyLong());
+        assertEquals(testLobby, foundLobby);
+    }
+
+    @Test
+    public void getLobby_invalidCode_throwsNotFoundException() {
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(null);
+        assertThrows(ResponseStatusException.class, () -> lobbyService.getLobbyByCode(Mockito.anyLong()));
+    }
+
+    @Test
     public void createLobbyByUser_validInputs_success() {
-        Lobby createdLobby = lobbyService.createLobbyFromUser(testUser, true);
+        Player createdPlayer = lobbyService.createLobbyFromUser(testUser, true);
 
         // then
         Mockito.verify(lobbyRepository, Mockito.times(1)).saveAndFlush(Mockito.any());
 
-        assertEquals(testLobby.getCode(), createdLobby.getCode());
-        assertEquals(testLobby.getName(), createdLobby.getName());
-        assertEquals(testLobby.getPublicAccess(), createdLobby.getPublicAccess());
-        assertEquals(testLobby.getStatus(), createdLobby.getStatus());
-        assertEquals(testLobby.getMode(), createdLobby.getMode());
-        assertEquals(testLobby.getOwner(), createdLobby.getOwner());
-        assertEquals(testLobby.getPlayers(), createdLobby.getPlayers());
+        assertEquals(testLobby.getCode(), createdPlayer.getLobby().getCode());
+        assertEquals(testLobby.getName(), createdPlayer.getLobby().getName());
+        assertEquals(testLobby.getPublicAccess(), createdPlayer.getLobby().getPublicAccess());
+        assertEquals(testLobby.getStatus(), createdPlayer.getLobby().getStatus());
+        assertEquals(testLobby.getMode(), createdPlayer.getLobby().getMode());
+        assertEquals(testLobby.getOwner(), createdPlayer.getLobby().getOwner());
+        assertArrayEquals(testLobby.getPlayers().toArray(), createdPlayer.getLobby().getPlayers().toArray());
+    }
+
+    @Test
+    public void joinLobbyByUser_validInputs_success() {
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
+        Player createdPlayer = lobbyService.joinLobbyFromUser(testUser, testLobby.getCode());
+
+        // then
+        assertEquals(testLobby.getCode(), createdPlayer.getLobby().getCode());
+        assertEquals(testLobby.getName(), createdPlayer.getLobby().getName());
+        assertEquals(testLobby.getPublicAccess(), createdPlayer.getLobby().getPublicAccess());
+        assertEquals(testLobby.getStatus(), createdPlayer.getLobby().getStatus());
+        assertEquals(testLobby.getMode(), createdPlayer.getLobby().getMode());
+        assertEquals(testLobby.getOwner(), createdPlayer.getLobby().getOwner());
+        assertEquals(testLobby.getPlayers(), createdPlayer.getLobby().getPlayers());
+    }
+
+    @Test
+    public void joinLobbyByUser_invalidCode_throwsNotFoundError() {
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(null);
+
+        assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyFromUser(testUser, 232));
+    }
+
+    @Test
+    public void joinLobbyByUser_lobbyNotPregame_throwsForbiddenError() {
+        testLobby.setStatus(LobbyStatus.INGAME);
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
+
+        assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyFromUser(testUser, testLobby.getCode()));
     }
 }

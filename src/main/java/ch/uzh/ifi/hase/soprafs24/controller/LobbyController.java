@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
+import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPostDTO;
@@ -34,7 +35,6 @@ public class LobbyController {
 
     @GetMapping("/lobbies")
     @ResponseStatus(HttpStatus.OK)
-    @ResponseBody
     public List<LobbyGetDTO> getAllLobbies() {
         List<Lobby> lobbies = lobbyService.getPublicLobbies();
         List<LobbyGetDTO> lobbyGetDTOS = new ArrayList<>();
@@ -45,24 +45,54 @@ public class LobbyController {
         return lobbyGetDTOS;
     }
 
+    @GetMapping("/lobbies/{code}")
+    public LobbyGetDTO getLobbyByCode(@PathVariable String code) {
+        long parsedLobbyCode = parseLobbyCode(code);
+        Lobby lobby = lobbyService.getLobbyByCode(parsedLobbyCode);
+        return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
+    }
+
     @PostMapping("/lobbies")
     @ResponseStatus(HttpStatus.CREATED)
-    @ResponseBody
-    public PlayerJoinedDTO createLobby(@RequestBody LobbyPostDTO lobbyPostDTO) {
-        if (lobbyPostDTO.getAnonymous() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "only true or false value allowed for anonymous attribute");
-        }
-
-        if (!lobbyPostDTO.getAnonymous()) {
-            User user = userService.checkToken(lobbyPostDTO.getUserToken());
+    public PlayerJoinedDTO createLobby(@RequestBody LobbyPostDTO lobbyPostDTO, @RequestHeader String userToken) {
+        if (userToken != null && !userToken.isEmpty()) {
+            User user = userService.checkToken(userToken);
             if (user.getPlayer() != null) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "delete or leave your lobby before creating a new one");
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Your user already has a lobby associated, leave it before creating a new one.");
             }
-            Lobby lobby = lobbyService.createLobbyFromUser(user, lobbyPostDTO.getPublicAccess());
-            return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(lobby.getOwner());
-        } else if (lobbyPostDTO.getAnonymous()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "creating lobbies as anonymous user not supported");
+            Player player = lobbyService.createLobbyFromUser(user, lobbyPostDTO.getPublicAccess());
+            return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "creating lobby as anonymous user not supported, please supply userToken as header field");
         }
-        throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "something went wrong in create lobby");
+    }
+
+    @PostMapping("/lobbies/{code}/players")
+    @ResponseStatus(HttpStatus.CREATED)
+    public PlayerJoinedDTO joinPlayer(@PathVariable String code, @RequestHeader String userToken) {
+        long lobbyCodeLong = parseLobbyCode(code);
+
+        if (userToken != null && !userToken.isEmpty()) {
+            User user = userService.checkToken(userToken);
+            if (user.getPlayer() != null) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT,
+                        "Your user already has a lobby associated, leave it before joining a new one.");
+            }
+            Player player = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
+            return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
+        } else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "joining lobby as anonymous user not supported, please supply userToken as header field");
+        }
+    }
+
+    private long parseLobbyCode(String codeString) {
+        try {
+            return Long.parseLong(codeString);
+        } catch (NumberFormatException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted lobby code");
+        }
     }
 }
