@@ -5,6 +5,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Internal Player Representation
@@ -34,7 +35,7 @@ public class Player implements Serializable {
     private User user;
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
-    private List<PlayerWord> playerWords;
+    private List<PlayerWord> playerWords = new ArrayList<PlayerWord>();
 
     @ManyToOne
     private Word targetWord;
@@ -93,20 +94,11 @@ public class Player implements Serializable {
     }
 
     public List<Word> getWords() {
-        List<Word> words = new ArrayList<>();
-        if (playerWords != null) {
-            for (PlayerWord playerWord : playerWords) {
-                words.add(playerWord.getWord());
-            }
-        }
-        return words;
+        return playerWords.stream().map(PlayerWord::getWord).toList();
     }
 
     public void setWords(List<Word> words) {
-        this.playerWords = new ArrayList<>();
-        for (Word word : words) {
-            playerWords.add(new PlayerWord(this, word));
-        }
+        this.playerWords = words.stream().map(word -> new PlayerWord(this, word)).collect(Collectors.toList());
     }
 
     public void addWord(Word word) {
