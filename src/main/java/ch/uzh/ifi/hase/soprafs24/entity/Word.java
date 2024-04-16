@@ -24,6 +24,8 @@ public class Word implements Serializable {
     }
 
     public Word(String name) {
+        name = name.replaceAll("[^A-Za-z0-9]","");
+        name = name.toLowerCase();
         this.name = name;
     }
 
@@ -32,6 +34,8 @@ public class Word implements Serializable {
     }
 
     public void setName(String name) {
+        name = name.replaceAll("[^A-Za-z0-9]","");
+        name = name.toLowerCase();
         this.name = name;
     }
 

@@ -35,7 +35,8 @@ public class PlayerWord implements Serializable {
         this.timestamp = LocalDateTime.now();
     }
 
-    public PlayerWord() {}
+    public PlayerWord() {
+    }
 
     public PlayerWord(Player player, Word word) {
         this.player = player;

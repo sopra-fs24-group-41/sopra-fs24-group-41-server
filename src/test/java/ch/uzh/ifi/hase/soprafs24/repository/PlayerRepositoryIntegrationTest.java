@@ -103,7 +103,7 @@ public class PlayerRepositoryIntegrationTest {
         assertEquals(testPlayer1.getToken(), found.getToken());
         assertEquals(testPlayer1.getPoints(), found.getPoints());
         assertEquals(testPlayer1.getUser(), found.getUser());
-        assertEquals(testPlayer1.getAvailableWords(), found.getAvailableWords());
+        assertEquals(testPlayer1.getWords(), found.getWords());
         assertEquals(testPlayer1.getOwnedLobby(), found.getOwnedLobby());
         assertEquals(testPlayer1.getLobby(), found.getLobby());
     }
@@ -118,7 +118,7 @@ public class PlayerRepositoryIntegrationTest {
         assertEquals(testPlayer1.getToken(), found.getToken());
         assertEquals(testPlayer1.getPoints(), found.getPoints());
         assertEquals(testPlayer1.getUser(), found.getUser());
-        assertEquals(testPlayer1.getAvailableWords(), found.getAvailableWords());
+        assertEquals(testPlayer1.getWords(), found.getWords());
         assertEquals(testPlayer1.getOwnedLobby(), found.getOwnedLobby());
         assertEquals(testPlayer1.getLobby(), found.getLobby());
     }
@@ -133,7 +133,7 @@ public class PlayerRepositoryIntegrationTest {
         assertEquals(testPlayer1.getToken(), found.getToken());
         assertEquals(testPlayer1.getPoints(), found.getPoints());
         assertEquals(testPlayer1.getUser(), found.getUser());
-        assertEquals(testPlayer1.getAvailableWords(), found.getAvailableWords());
+        assertEquals(testPlayer1.getWords(), found.getWords());
         assertEquals(testPlayer1.getOwnedLobby(), found.getOwnedLobby());
         assertEquals(testPlayer1.getLobby(), found.getLobby());
     }
@@ -148,7 +148,7 @@ public class PlayerRepositoryIntegrationTest {
         assertEquals(testPlayer1.getToken(), found.getToken());
         assertEquals(testPlayer1.getPoints(), found.getPoints());
         assertEquals(testPlayer1.getUser(), found.getUser());
-        assertEquals(testPlayer1.getAvailableWords(), found.getAvailableWords());
+        assertEquals(testPlayer1.getWords(), found.getWords());
         assertEquals(testPlayer1.getOwnedLobby(), found.getOwnedLobby());
         assertEquals(testPlayer1.getLobby(), found.getLobby());
     }

@@ -3,7 +3,9 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Internal Player Representation
@@ -33,7 +35,10 @@ public class Player implements Serializable {
     private User user;
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
-    private List<PlayerWord> availableWords;
+    private List<PlayerWord> playerWords = new ArrayList<PlayerWord>();
+
+    @ManyToOne
+    private Word targetWord;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "ownedLobby")
@@ -43,7 +48,8 @@ public class Player implements Serializable {
     @JoinColumn(name = "lobby")
     private Lobby lobby;
 
-    public Player() {}
+    public Player() {
+    }
 
     public Player(String token, String name, Lobby lobby) {
         this.token = token;
@@ -83,12 +89,28 @@ public class Player implements Serializable {
         this.points = points;
     }
 
-    public List<PlayerWord> getAvailableWords() {
-        return availableWords;
+    public void addPoints(long points) {
+        this.points += points;
     }
 
-    public void setAvailableWords(List<PlayerWord> availableWords) {
-        this.availableWords = availableWords;
+    public List<Word> getWords() {
+        return playerWords.stream().map(PlayerWord::getWord).toList();
+    }
+
+    public void setWords(List<Word> words) {
+        this.playerWords = words.stream().map(word -> new PlayerWord(this, word)).collect(Collectors.toList());
+    }
+
+    public void addWord(Word word) {
+        playerWords.add(new PlayerWord(this, word));
+    }
+
+    public Word getTargetWord() {
+        return targetWord;
+    }
+
+    public void setTargetWord(Word targetWord) {
+        this.targetWord = targetWord;
     }
 
     public Lobby getOwnedLobby() {
