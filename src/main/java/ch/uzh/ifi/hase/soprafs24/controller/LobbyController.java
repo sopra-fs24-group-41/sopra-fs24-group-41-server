@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
@@ -16,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Lobby Controller
@@ -92,6 +94,14 @@ public class LobbyController {
         }
     }
 
+    @PostMapping("/lobbies/{code}/games")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void startGame(@PathVariable String code, @RequestHeader String playerToken) {
+        Lobby lobby = getAuthenticatedLobby(code, playerToken);
+        gameService.createNewGame(lobby);
+        lobby.setStatus(LobbyStatus.INGAME);
+    }
+
     @PutMapping("/lobbies/{lobbyCode}/players/{playerId}")
     @ResponseStatus(HttpStatus.OK)
     public PlayerPlayedDTO play(@PathVariable String lobbyCode, @PathVariable String playerId,
@@ -125,6 +135,19 @@ public class LobbyController {
                 String.format("Wrong token for player with ID %s", playerIdLong));
 
         return player;
+    }
+
+    private Lobby getAuthenticatedLobby(String lobbyCode, String ownerToken) {
+        long lobbyCodeLong = parseLobbyCode(lobbyCode);
+        Lobby lobby = lobbyService.getLobbyByCode(lobbyCodeLong);
+
+        if (ownerToken == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "Include player token in your request header as playerToken");
+
+        if (!Objects.equals(lobby.getOwner().getToken(), ownerToken)) throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Lobby does not belong to the player with the given token");
+
+        return lobby;
     }
 
     private long parseLobbyCode(String codeString) {
