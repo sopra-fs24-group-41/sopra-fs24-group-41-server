@@ -29,7 +29,7 @@ public class Player implements Serializable {
     private String name;
 
     @Column
-    private long points;
+    private long points = 0;
 
     @OneToOne(mappedBy = "player")
     private User user;
@@ -91,6 +91,14 @@ public class Player implements Serializable {
 
     public void addPoints(long points) {
         this.points += points;
+    }
+
+    public List<PlayerWord> getPlayerWords() {
+        return playerWords;
+    }
+
+    public void setPlayerWords(List<PlayerWord> playerWords) {
+        this.playerWords = playerWords;
     }
 
     public List<Word> getWords() {
