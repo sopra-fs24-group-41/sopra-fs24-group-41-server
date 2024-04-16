@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
+import ch.uzh.ifi.hase.soprafs24.entity.PlayerWord;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import org.mapstruct.*;
@@ -57,6 +58,15 @@ public interface DTOMapper {
     @Mapping(source = "id", target = "playerId")
     @Mapping(source = "lobby", target = "lobby")
     PlayerJoinedDTO convertEntityToPlayerJoinedDTO(Player player);
+
+    @Mapping(source = "word", target = "word")
+    @Mapping(source = "timestamp", target = "timestamp")
+    PlayerWordDTO convertEntityToPlayerWordDTO(PlayerWord playerWord);
+
+    @Mapping(source = "points", target = "points")
+    @Mapping(source = "playerWords", target = "playerWords")
+    @Mapping(source = "targetWord", target = "targetWord")
+    PlayerPlayedDTO convertEntityToPlayerPlayedDTO(Player player);
 
     @Mapping(source = "username", target = "username")
     @Mapping(source = "favourite", target = "favourite")
