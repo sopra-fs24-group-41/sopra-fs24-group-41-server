@@ -27,16 +27,16 @@ public class Lobby implements Serializable {
     private String name;
 
     @Column(nullable = false)
-    private Boolean publicAccess;
+    private Boolean publicAccess = true;
 
     @Column
     private LocalDateTime startTime;
 
     @Column(nullable = false)
-    private LobbyStatus status;
+    private LobbyStatus status = LobbyStatus.PREGAME;
 
     @Column
-    private GameMode mode;
+    private GameMode mode = GameMode.STANDARD;
 
     @OneToOne(mappedBy = "ownedLobby")
     private Player owner;
