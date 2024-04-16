@@ -62,14 +62,13 @@ public class LobbyController {
         if (userToken != null && !userToken.isEmpty()) {
             User user = userService.checkToken(userToken);
             if (user.getPlayer() != null) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT,
-                        "Your user already has a lobby associated, leave it before creating a new one.");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before creating a new one.");
             }
             Player player = lobbyService.createLobbyFromUser(user, lobbyPostDTO.getPublicAccess());
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "creating lobby as anonymous user not supported, please supply userToken as header field");
+        }
+        else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "creating lobby as anonymous user not supported, please supply userToken as header field");
         }
     }
 
@@ -81,49 +80,47 @@ public class LobbyController {
         if (userToken != null && !userToken.isEmpty()) {
             User user = userService.checkToken(userToken);
             if (user.getPlayer() != null) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT,
-                        "Your user already has a lobby associated, leave it before joining a new one.");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before joining a new one.");
             }
             Player player = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "joining lobby as anonymous user not supported, please supply userToken as header field");
+        }
+        else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "joining lobby as anonymous user not supported, please supply userToken as header field");
         }
     }
 
     @DeleteMapping("/lobbies/{lobbyCode}/players/{playerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removePlayerFromLobby(@PathVariable String lobbyCode, @PathVariable String playerId, @RequestHeader String playerToken) {
-        // check inputs
-        if (playerToken == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "include player token in your request header as playerToken");
-        }
+        Player player = getAuthenticatedPlayer(lobbyCode, playerId, playerToken);
+        if (player.getOwnedLobby() == null) playerService.removePlayer(player);
+        else lobbyService.removeLobby(player.getOwnedLobby());
+    }
+
+    private Player getAuthenticatedPlayer(String lobbyCode, String playerId, String playerToken) {
         long lobbyCodeLong = parseLobbyCode(lobbyCode);
         long playerIdLong = parseId(playerId);
 
-        // get and check player
-        Player player = playerService.checkToken(playerToken);
-        if (player.getId() != playerIdLong) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    String.format("Your player has id %d, but you tried to remove player with id %d", player.getId(), playerIdLong));
-        }
-        else if (player.getLobby().getCode() != lobbyCodeLong) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "wrong lobby code for the player you tried to delete");
-        }
+        if (playerToken == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "Include player token in your request header as playerToken");
 
-        // remove player
-        if (player.getOwnedLobby() == null) {
-            playerService.removePlayer(player);
-        } else {
-            lobbyService.removeLobby(player.getOwnedLobby());
-        }
+        Player player = playerService.findPlayerByToken(playerToken);
+
+        if (player.getLobby().getCode() != lobbyCodeLong) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                String.format("Player is not in lobby with code %s", lobbyCodeLong));
+
+        if (player.getId() != playerIdLong) throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                String.format("Wrong token for player with ID %s", playerIdLong));
+
+        return player;
     }
 
     private long parseLobbyCode(String codeString) {
         try {
             return Long.parseLong(codeString);
-        } catch (NumberFormatException e) {
+        }
+        catch (NumberFormatException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted lobby code");
         }
     }
@@ -131,7 +128,8 @@ public class LobbyController {
     private long parseId(String idString) {
         try {
             return Long.parseLong(idString);
-        } catch (NumberFormatException e) {
+        }
+        catch (NumberFormatException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted id");
         }
     }

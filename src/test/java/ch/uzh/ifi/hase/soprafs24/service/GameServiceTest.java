@@ -86,7 +86,6 @@ public class GameServiceTest {
 
         Combination testCombination = new Combination(water, earth, mud);
 
-        Mockito.when(playerService.findPlayer(testPlayer)).thenReturn(testPlayer);
         Mockito.when(combinationService.getCombination(water, earth)).thenReturn(testCombination);
 
         assertEquals(startingWords, testPlayer.getWords());

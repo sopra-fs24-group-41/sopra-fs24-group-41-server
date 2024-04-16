@@ -384,7 +384,7 @@ public class LobbyControllerTest {
         testPlayer2.setLobby(testLobby);
         testLobby.setPlayers(List.of(testPlayer1, testPlayer2));
 
-        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer2);
+        given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer2);
         Mockito.doNothing().when(playerService).removePlayer(Mockito.any());
 
         // when
@@ -397,7 +397,7 @@ public class LobbyControllerTest {
         mockMvc.perform(deleteRequest)
                 .andExpect(status().isNoContent());
 
-        Mockito.verify(playerService, Mockito.times(1)).checkToken(Mockito.any());
+        Mockito.verify(playerService, Mockito.times(1)).findPlayerByToken(Mockito.any());
         Mockito.verify(playerService, Mockito.times(1)).removePlayer(Mockito.any());
     }
 
@@ -422,7 +422,7 @@ public class LobbyControllerTest {
         testPlayer2.setLobby(testLobby);
         testLobby.setPlayers(List.of(testPlayer1, testPlayer2));
 
-        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer1);
+        given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
         Mockito.doNothing().when(lobbyService).removeLobby(Mockito.any());
 
         // when
@@ -435,7 +435,7 @@ public class LobbyControllerTest {
         mockMvc.perform(deleteRequest)
                 .andExpect(status().isNoContent());
 
-        Mockito.verify(playerService, Mockito.times(1)).checkToken(Mockito.any());
+        Mockito.verify(playerService, Mockito.times(1)).findPlayerByToken(Mockito.any());
         Mockito.verify(lobbyService, Mockito.times(1)).removeLobby(Mockito.any());
     }
 
@@ -455,7 +455,7 @@ public class LobbyControllerTest {
         testPlayer1.setLobby(testLobby);
         testLobby.setPlayers(List.of(testPlayer1));
 
-        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer1);
+        given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
         // when
         MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/5")
@@ -483,7 +483,7 @@ public class LobbyControllerTest {
         testPlayer1.setLobby(testLobby);
         testLobby.setPlayers(List.of(testPlayer1));
 
-        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer1);
+        given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
         // when
         MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/4541/players/5")
@@ -512,7 +512,7 @@ public class LobbyControllerTest {
         testPlayer1.setLobby(testLobby);
         testLobby.setPlayers(List.of(testPlayer1));
 
-        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer1);
+        given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
         // when
         MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/four23one/players/5")
@@ -526,7 +526,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void removePlayer_invalidId_throwsNotFoundException() throws Exception {
+    public void removePlayer_invalidId_throwsForbiddenException() throws Exception {
         // given
         Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
         testLobby.setPublicAccess(true);
@@ -541,7 +541,7 @@ public class LobbyControllerTest {
         testPlayer1.setLobby(testLobby);
         testLobby.setPlayers(List.of(testPlayer1));
 
-        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer1);
+        given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
         // when
         MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/53")
@@ -551,7 +551,7 @@ public class LobbyControllerTest {
 
         //then
         mockMvc.perform(deleteRequest)
-                .andExpect(status().isNotFound());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -570,7 +570,7 @@ public class LobbyControllerTest {
         testPlayer1.setLobby(testLobby);
         testLobby.setPlayers(List.of(testPlayer1));
 
-        given(playerService.checkToken(Mockito.any())).willReturn(testPlayer1);
+        given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
         // when
         MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/five")
