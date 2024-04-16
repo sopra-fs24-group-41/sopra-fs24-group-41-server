@@ -6,7 +6,9 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPostDTO;
+import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
@@ -24,12 +26,12 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -60,6 +62,9 @@ public class LobbyControllerTest {
 
     @MockBean
     private PlayerService playerService;
+
+    @MockBean
+    private GameService gameService;
 
     @BeforeEach
     public void setup() {
@@ -288,6 +293,32 @@ public class LobbyControllerTest {
     }
 
     @Test
+    public void play_standard_success() throws Exception {
+        // given
+        given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
+        List<Word> words = new ArrayList<Word>();
+        words.add(new Word("water"));
+        words.add(new Word("fire"));
+
+        testPlayer1.setWords(words);
+
+        // when
+        MockHttpServletRequestBuilder putRequest = put(String.format("/lobbies/%s/players/%s", testLobby.getCode(), testPlayer1.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(new ArrayList<Word>()))
+                .header("playerToken", testPlayer1.getToken());
+
+        //then
+        mockMvc.perform(putRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.points", is((int) testPlayer1.getPoints())))
+                .andExpect(jsonPath("$.playerWords[0].word.name", is(testPlayer1.getWords().get(0).getName())))
+                .andExpect(jsonPath("$.playerWords[1].word.name", is(testPlayer1.getWords().get(1).getName())))
+                .andExpect(jsonPath("$.targetWord", is(testPlayer1.getTargetWord())));
+    }
+
+    @Test
     public void play_invalidId_throwsExceptionUnauthorized() throws Exception {
         // given
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
@@ -296,6 +327,7 @@ public class LobbyControllerTest {
         MockHttpServletRequestBuilder putRequest = put(String.format("/lobbies/%s/players/321", testLobby.getCode()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(new ArrayList<Word>()))
                 .header("playerToken", testPlayer1.getToken());
 
         //then
@@ -424,6 +456,7 @@ public class LobbyControllerTest {
 
     /**
      * helper method that translates an object into a JSON string
+     *
      * @param object object to be translated
      * @return JSON string of object
      */
@@ -435,5 +468,4 @@ public class LobbyControllerTest {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("The request body could not be created.%s", e));
         }
     }
-
 }

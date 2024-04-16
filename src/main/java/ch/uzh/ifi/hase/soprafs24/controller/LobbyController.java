@@ -3,11 +3,10 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerJoinedDTO;
+import ch.uzh.ifi.hase.soprafs24.entity.Word;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
@@ -31,11 +30,13 @@ public class LobbyController {
     private final UserService userService;
 
     private final PlayerService playerService;
+    private final GameService gameService;
 
-    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService) {
+    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService, GameService gameService) {
         this.lobbyService = lobbyService;
         this.userService = userService;
         this.playerService = playerService;
+        this.gameService = gameService;
     }
 
     @GetMapping("/lobbies")
@@ -93,8 +94,11 @@ public class LobbyController {
 
     @PutMapping("/lobbies/{lobbyCode}/players/{playerId}")
     @ResponseStatus(HttpStatus.OK)
-    public void play(@PathVariable String lobbyCode, @PathVariable String playerId, @RequestHeader String playerToken) {
+    public PlayerPlayedDTO play(@PathVariable String lobbyCode, @PathVariable String playerId,
+                                @RequestHeader String playerToken, @RequestBody List<Word> words) {
         Player player = getAuthenticatedPlayer(lobbyCode, playerId, playerToken);
+        gameService.play(player, words);
+        return DTOMapper.INSTANCE.convertEntityToPlayerPlayedDTO(player);
     }
 
     @DeleteMapping("/lobbies/{lobbyCode}/players/{playerId}")
