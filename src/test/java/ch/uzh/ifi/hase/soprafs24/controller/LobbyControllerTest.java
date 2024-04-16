@@ -12,6 +12,7 @@ import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @WebMvcTest(LobbyController.class)
 public class LobbyControllerTest {
+    private Lobby testLobby;
+    private List<Lobby> allLobbies;
+    private User testUser1;
+    private Player testPlayer1;
+    private User testUser2;
+    private Player testPlayer2;
 
     @Autowired
     private MockMvc mockMvc;
@@ -54,51 +61,56 @@ public class LobbyControllerTest {
     @MockBean
     private PlayerService playerService;
 
-    @Test
-    public void givenLobbies_whenGetLobbies_thenReturnJsonArray() throws Exception {
-        // given
-        Lobby testLobby = new Lobby(1234, "test Lobby");
-        testLobby.setPublicAccess(true);
-        testLobby.setMode(GameMode.STANDARD);
-
-        Player testPlayer1 = new Player("123", "testplayer", null);
-        testPlayer1.setId(5L);
-        testPlayer1.setPoints(32);
-        // no value for AvailableWords set
-
-        Player testPlayer2 = new Player("643", "anothertestplayer", null);
-        testPlayer2.setId(4L);
-        testPlayer2.setPoints(54);
-
-        User testUser1 = new User();
+    @BeforeEach
+    public void setup() {
+        // User/Player 1
+        testUser1 = new User();
         testUser1.setPassword("testPassword");
         testUser1.setUsername("firstname@lastname");
         testUser1.setStatus(UserStatus.OFFLINE);
-        testUser1.setToken("1");
+        testUser1.setToken("11");
         testUser1.setId(1L);
 
-        User testUser2 = new User();
-        testUser2.setPassword("testPassword2");
-        testUser2.setUsername("firstname@lastname2");
-        testUser2.setStatus(UserStatus.OFFLINE);
-        testUser2.setToken("2");
-        testUser2.setId(2L);
+        testPlayer1 = new Player("33", "testplayer", null);
+        testPlayer1.setId(3L);
+        testPlayer1.setPoints(30);
 
         testUser1.setPlayer(testPlayer1);
         testPlayer1.setUser(testUser1);
 
+        // User/Player 2
+        testUser2 = new User();
+        testUser2.setPassword("testPassword2");
+        testUser2.setUsername("firstname@lastname2");
+        testUser2.setStatus(UserStatus.OFFLINE);
+        testUser2.setToken("22");
+        testUser2.setId(2L);
+
+        testPlayer2 = new Player("44", "anothertestplayer", null);
+        testPlayer2.setId(4L);
+        testPlayer2.setPoints(40);
+
         testUser2.setPlayer(testPlayer2);
         testPlayer2.setUser(testUser2);
 
-        testLobby.setOwner(testPlayer1);
-        testPlayer1.setOwnedLobby(testLobby);
+        // Lobby
+        testLobby = new Lobby(1234, "test Lobby");
+        testLobby.setPublicAccess(true);
+        testLobby.setMode(GameMode.STANDARD);
 
+        testPlayer1.setOwnedLobby(testLobby);
         testPlayer1.setLobby(testLobby);
         testPlayer2.setLobby(testLobby);
+
+        testLobby.setOwner(testPlayer1);
         testLobby.setPlayers(Arrays.asList(testPlayer1, testPlayer2));
 
-        List<Lobby> allLobbies = Collections.singletonList(testLobby);
+        allLobbies = Collections.singletonList(testLobby);
+    }
 
+    @Test
+    public void givenLobbies_whenGetLobbies_thenReturnJsonArray() throws Exception {
+        // given
         given(lobbyService.getPublicLobbies()).willReturn(allLobbies);
 
         // when
@@ -127,51 +139,11 @@ public class LobbyControllerTest {
 
     @Test
     public void givenLobbies_validCode_thenReturnsLobby() throws Exception {
-        // given
-        Lobby testLobby = new Lobby(1234, "test Lobby");
-        testLobby.setPublicAccess(true);
-        testLobby.setMode(GameMode.STANDARD);
-
-        Player testPlayer1 = new Player("123", "testplayer", null);
-        testPlayer1.setId(5L);
-        testPlayer1.setPoints(32);
-        // no value for AvailableWords set
-
-        Player testPlayer2 = new Player("643", "anothertestplayer", null);
-        testPlayer2.setId(4L);
-        testPlayer2.setPoints(54);
-
-        User testUser1 = new User();
-        testUser1.setPassword("testPassword");
-        testUser1.setUsername("firstname@lastname");
-        testUser1.setStatus(UserStatus.OFFLINE);
-        testUser1.setToken("1");
-        testUser1.setId(1L);
-
-        User testUser2 = new User();
-        testUser2.setPassword("testPassword2");
-        testUser2.setUsername("firstname@lastname2");
-        testUser2.setStatus(UserStatus.OFFLINE);
-        testUser2.setToken("2");
-        testUser2.setId(2L);
-
-        testUser1.setPlayer(testPlayer1);
-        testPlayer1.setUser(testUser1);
-
-        testUser2.setPlayer(testPlayer2);
-        testPlayer2.setUser(testUser2);
-
-        testLobby.setOwner(testPlayer1);
-        testPlayer1.setOwnedLobby(testLobby);
-
-        testPlayer1.setLobby(testLobby);
-        testPlayer2.setLobby(testLobby);
-        testLobby.setPlayers(Arrays.asList(testPlayer1, testPlayer2));
-
+        //given
         given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
 
         // when
-        MockHttpServletRequestBuilder getRequest = get("/lobbies/1234")
+        MockHttpServletRequestBuilder getRequest = get(String.format("/lobbies/%s", testLobby.getCode()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -220,28 +192,7 @@ public class LobbyControllerTest {
     @Test
     public void createLobbyByUser_validToken_thenLobbyAndPlayerTokenReturned() throws Exception {
         // given
-        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
-        testLobby.setPublicAccess(true);
-        testLobby.setMode(GameMode.STANDARD);
-
-        Player testPlayer1 = new Player("123", "testplayer", null);
-        testPlayer1.setId(5L);
-        testPlayer1.setPoints(32);
-        // no value for AvailableWords set
-
-        User testUser1 = new User();
-        testUser1.setPassword("testPassword");
-        testUser1.setUsername("firstname@lastname");
-        testUser1.setStatus(UserStatus.OFFLINE);
-        testUser1.setToken("1254");
-        testUser1.setId(1L);
-
-        testLobby.setOwner(testPlayer1);
-        testPlayer1.setOwnedLobby(testLobby);
-
-        testPlayer1.setLobby(testLobby);
-        testLobby.setPlayers(List.of(testPlayer1));
-
+        testUser1.setPlayer(null);
         LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
         lobbyPostDTO.setPublicAccess(true);
 
@@ -253,7 +204,7 @@ public class LobbyControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(asJsonString(lobbyPostDTO))
-                .header("userToken", "1254");
+                .header("userToken", testUser1.getToken());
 
         //then
         mockMvc.perform(postRequest)
@@ -289,28 +240,7 @@ public class LobbyControllerTest {
     @Test
     public void joinLobbyByUser_validToken_thenLobbyAndPlayerTokenReturned() throws Exception {
         // given
-        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
-        testLobby.setPublicAccess(true);
-        testLobby.setMode(GameMode.STANDARD);
-
-        Player testPlayer1 = new Player("123", "testplayer", null);
-        testPlayer1.setId(5L);
-        testPlayer1.setPoints(32);
-        // no value for AvailableWords set
-
-        User testUser1 = new User();
-        testUser1.setPassword("testPassword");
-        testUser1.setUsername("firstname@lastname");
-        testUser1.setStatus(UserStatus.OFFLINE);
-        testUser1.setToken("1254");
-        testUser1.setId(1L);
-
-        testLobby.setOwner(testPlayer1);
-        testPlayer1.setOwnedLobby(testLobby);
-
-        testPlayer1.setLobby(testLobby);
-        testLobby.setPlayers(List.of(testPlayer1));
-
+        testUser1.setPlayer(null);
         LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
         lobbyPostDTO.setPublicAccess(true);
 
@@ -318,11 +248,11 @@ public class LobbyControllerTest {
         given(lobbyService.joinLobbyFromUser(Mockito.any(), Mockito.anyLong())).willReturn(testPlayer1);
 
         // when
-        MockHttpServletRequestBuilder postRequest = post("/lobbies/1234/players")
+        MockHttpServletRequestBuilder postRequest = post(String.format("/lobbies/%s/players", testLobby.getCode()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(asJsonString(lobbyPostDTO))
-                .header("userToken", "1254");
+                .header("userToken", testUser1.getToken());
 
         //then
         mockMvc.perform(postRequest)
@@ -338,14 +268,8 @@ public class LobbyControllerTest {
     @Test
     public void joinLobbyByUser_InvalidLobbyCode_throwsNotFoundException() throws Exception {
         // given
-        User testUser = new User();
-        testUser.setPassword("testPassword");
-        testUser.setUsername("firstname@lastname");
-        testUser.setStatus(UserStatus.OFFLINE);
-        testUser.setToken("1254");
-        testUser.setId(1L);
-
-        given(userService.checkToken(Mockito.any())).willReturn(testUser);
+        testUser1.setPlayer(null);
+        given(userService.checkToken(Mockito.any())).willReturn(testUser1);
         given(lobbyService.joinLobbyFromUser(Mockito.any(), Mockito.anyLong()))
                 .willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND, "Lobby code not found"));
 
@@ -357,7 +281,7 @@ public class LobbyControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .content(asJsonString(lobbyPostDTO))
-                .header("userToken", "1254");
+                .header("userToken", testUser1.getToken());
 
         //then
         mockMvc.perform(postRequest).andExpect(status().isNotFound());
@@ -366,32 +290,14 @@ public class LobbyControllerTest {
     @Test
     public void removePlayerNotOwner_validInputs_success() throws Exception {
         // given
-        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
-        testLobby.setPublicAccess(true);
-
-        Player testPlayer1 = new Player("123", "testplayer", testLobby);
-        testPlayer1.setId(5L);
-        testPlayer1.setPoints(32);
-
-        Player testPlayer2 = new Player("234", "testplayer2", testLobby);
-        testPlayer2.setId(6L);
-        testPlayer2.setPoints(54);
-
-        testLobby.setOwner(testPlayer1);
-        testPlayer1.setOwnedLobby(testLobby);
-
-        testPlayer1.setLobby(testLobby);
-        testPlayer2.setLobby(testLobby);
-        testLobby.setPlayers(List.of(testPlayer1, testPlayer2));
-
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer2);
         Mockito.doNothing().when(playerService).removePlayer(Mockito.any());
 
         // when
-        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/6")
+        MockHttpServletRequestBuilder deleteRequest = delete(String.format("/lobbies/%s/players/%s", testLobby.getCode(), testPlayer2.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("playerToken", "234");
+                .header("playerToken", testPlayer2.getToken());
 
         //then
         mockMvc.perform(deleteRequest)
@@ -404,32 +310,14 @@ public class LobbyControllerTest {
     @Test
     public void removePlayerOwner_validInputs_success() throws Exception {
         // given
-        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
-        testLobby.setPublicAccess(true);
-
-        Player testPlayer1 = new Player("123", "testplayer", testLobby);
-        testPlayer1.setId(5L);
-        testPlayer1.setPoints(32);
-
-        Player testPlayer2 = new Player("234", "testplayer2", testLobby);
-        testPlayer2.setId(6L);
-        testPlayer2.setPoints(54);
-
-        testLobby.setOwner(testPlayer1);
-        testPlayer1.setOwnedLobby(testLobby);
-
-        testPlayer1.setLobby(testLobby);
-        testPlayer2.setLobby(testLobby);
-        testLobby.setPlayers(List.of(testPlayer1, testPlayer2));
-
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
         Mockito.doNothing().when(lobbyService).removeLobby(Mockito.any());
 
         // when
-        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/5")
+        MockHttpServletRequestBuilder deleteRequest = delete(String.format("/lobbies/%s/players/%s", testLobby.getCode(), testPlayer1.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("playerToken", "123");
+                .header("playerToken", testPlayer1.getToken());
 
         //then
         mockMvc.perform(deleteRequest)
@@ -442,23 +330,10 @@ public class LobbyControllerTest {
     @Test
     public void removePlayer_noToken_throwsBadRequestError() throws Exception {
         // given
-        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
-        testLobby.setPublicAccess(true);
-
-        Player testPlayer1 = new Player("123", "testplayer", testLobby);
-        testPlayer1.setId(5L);
-        testPlayer1.setPoints(32);
-
-        testLobby.setOwner(testPlayer1);
-        testPlayer1.setOwnedLobby(testLobby);
-
-        testPlayer1.setLobby(testLobby);
-        testLobby.setPlayers(List.of(testPlayer1));
-
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
         // when
-        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/5")
+        MockHttpServletRequestBuilder deleteRequest = delete(String.format("/lobbies/%s/players/%s", testLobby.getCode(), testPlayer1.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
 
@@ -470,26 +345,13 @@ public class LobbyControllerTest {
     @Test
     public void removePlayer_invalidCode_throwsBadRequestError() throws Exception {
         // given
-        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
-        testLobby.setPublicAccess(true);
-
-        Player testPlayer1 = new Player("123", "testplayer", testLobby);
-        testPlayer1.setId(5L);
-        testPlayer1.setPoints(32);
-
-        testLobby.setOwner(testPlayer1);
-        testPlayer1.setOwnedLobby(testLobby);
-
-        testPlayer1.setLobby(testLobby);
-        testLobby.setPlayers(List.of(testPlayer1));
-
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
         // when
-        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/4541/players/5")
+        MockHttpServletRequestBuilder deleteRequest = delete(String.format("/lobbies/5432/players/%s", testPlayer2.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("playerToken", "123");
+                .header("playerToken", testPlayer1.getToken());
 
         //then
         mockMvc.perform(deleteRequest)
@@ -499,26 +361,13 @@ public class LobbyControllerTest {
     @Test
     public void removePlayer_badlyFormattedCode_throwsBadRequestError() throws Exception {
         // given
-        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
-        testLobby.setPublicAccess(true);
-
-        Player testPlayer1 = new Player("123", "testplayer", testLobby);
-        testPlayer1.setId(5L);
-        testPlayer1.setPoints(32);
-
-        testLobby.setOwner(testPlayer1);
-        testPlayer1.setOwnedLobby(testLobby);
-
-        testPlayer1.setLobby(testLobby);
-        testLobby.setPlayers(List.of(testPlayer1));
-
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
         // when
-        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/four23one/players/5")
+        MockHttpServletRequestBuilder deleteRequest = delete(String.format("/lobbies/4twothree1/players/%s", testLobby.getCode(), testPlayer2.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("playerToken", "123");
+                .header("playerToken", testPlayer1.getToken());
 
         //then
         mockMvc.perform(deleteRequest)
@@ -528,26 +377,13 @@ public class LobbyControllerTest {
     @Test
     public void removePlayer_invalidId_throwsForbiddenException() throws Exception {
         // given
-        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
-        testLobby.setPublicAccess(true);
-
-        Player testPlayer1 = new Player("123", "testplayer", testLobby);
-        testPlayer1.setId(5L);
-        testPlayer1.setPoints(32);
-
-        testLobby.setOwner(testPlayer1);
-        testPlayer1.setOwnedLobby(testLobby);
-
-        testPlayer1.setLobby(testLobby);
-        testLobby.setPlayers(List.of(testPlayer1));
-
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
         // when
-        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/53")
+        MockHttpServletRequestBuilder deleteRequest = delete(String.format("/lobbies/%s/players/321", testLobby.getCode()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("playerToken", "123");
+                .header("playerToken", testPlayer1.getToken());
 
         //then
         mockMvc.perform(deleteRequest)
@@ -557,26 +393,13 @@ public class LobbyControllerTest {
     @Test
     public void removePlayer_badlyFormattedId_throwsBadRequestException() throws Exception {
         // given
-        Lobby testLobby = new Lobby(1234, "testplayer's Lobby");
-        testLobby.setPublicAccess(true);
-
-        Player testPlayer1 = new Player("123", "testplayer", testLobby);
-        testPlayer1.setId(5L);
-        testPlayer1.setPoints(32);
-
-        testLobby.setOwner(testPlayer1);
-        testPlayer1.setOwnedLobby(testLobby);
-
-        testPlayer1.setLobby(testLobby);
-        testLobby.setPlayers(List.of(testPlayer1));
-
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
         // when
-        MockHttpServletRequestBuilder deleteRequest = delete("/lobbies/1234/players/five")
+        MockHttpServletRequestBuilder deleteRequest = delete(String.format("/lobbies/%s/players/threetwo", testLobby.getCode()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .header("playerToken", "123");
+                .header("playerToken", testPlayer1.getToken());
 
         //then
         mockMvc.perform(deleteRequest)
