@@ -288,6 +288,22 @@ public class LobbyControllerTest {
     }
 
     @Test
+    public void play_invalidId_throwsExceptionUnauthorized() throws Exception {
+        // given
+        given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
+
+        // when
+        MockHttpServletRequestBuilder putRequest = put(String.format("/lobbies/%s/players/321", testLobby.getCode()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("playerToken", testPlayer1.getToken());
+
+        //then
+        mockMvc.perform(putRequest)
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     public void removePlayerNotOwner_validInputs_success() throws Exception {
         // given
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer2);

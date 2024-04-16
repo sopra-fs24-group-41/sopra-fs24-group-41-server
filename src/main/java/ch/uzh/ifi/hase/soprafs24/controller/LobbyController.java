@@ -5,6 +5,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerJoinedDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
@@ -88,6 +89,12 @@ public class LobbyController {
         else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "joining lobby as anonymous user not supported, please supply userToken as header field");
         }
+    }
+
+    @PutMapping("/lobbies/{lobbyCode}/players/{playerId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void play(@PathVariable String lobbyCode, @PathVariable String playerId, @RequestHeader String playerToken) {
+        Player player = getAuthenticatedPlayer(lobbyCode, playerId, playerToken);
     }
 
     @DeleteMapping("/lobbies/{lobbyCode}/players/{playerId}")
