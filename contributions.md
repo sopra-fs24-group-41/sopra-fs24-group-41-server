@@ -60,8 +60,12 @@ Worked on:
 - Worked on integrating Client & Server for Login, Registration and Profile page. Adjusted functionality on both sides and implemented authentication using tokens in header 
 - Client side [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/64)
 - Server side [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/130)
-- Also working on the result page, couldn't find the time to complete it. Will try to finish it in Week 4.
+- Started working on the result page, couldn't find the time to complete it. Will try to finish it in Week 4.
 
 ## 15.04 - 21.04 Week 4
+**na50r - Rosan Shanmuganathan**
+- Worked on the result page and completed it. (Still not integrated with server yet, waiting for web socket setup to be complete) [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/71)
+
+
 
 ## 22.04 - 28.04 Week 5
