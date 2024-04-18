@@ -40,8 +40,7 @@ public class Word implements Serializable {
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         Word that = (Word) o;
-        return Objects.equals(getName(), that.getName()) &&
-               Objects.equals(getCombinations(), that.getCombinations());
+        return Objects.equals(getName(), that.getName());
     }
 
     @Override

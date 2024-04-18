@@ -5,8 +5,7 @@ import org.hibernate.proxy.HibernateProxy;
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.Objects;
 
@@ -38,7 +37,7 @@ public class Player implements Serializable {
     private User user;
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
-    private List<PlayerWord> playerWords = new ArrayList<PlayerWord>();
+    private Set<PlayerWord> playerWords = new HashSet<PlayerWord>();
 
     @ManyToOne
     private Word targetWord;
@@ -69,14 +68,14 @@ public class Player implements Serializable {
         if (thisEffectiveClass != oEffectiveClass) return false;
         Player that = (Player) o;
         return Objects.equals(getId(), that.getId()) &&
-               Objects.equals(getToken(), that.getToken()) &&
-               Objects.equals(getName(), that.getName()) &&
-               Objects.equals(getPoints(), that.getPoints()) &&
-               Objects.equals(getUser(), that.getUser()) &&
-               Objects.equals(getWords(), that.getWords()) &&
-               Objects.equals(getTargetWord(), that.getTargetWord()) &&
-               Objects.equals(getOwnedLobby(), that.getOwnedLobby()) &&
-               Objects.equals(getLobby(), that.getLobby());
+                Objects.equals(getToken(), that.getToken()) &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getPoints(), that.getPoints()) &&
+                Objects.equals(getUser(), that.getUser()) &&
+                Objects.equals(getWords(), that.getWords()) &&
+                Objects.equals(getTargetWord(), that.getTargetWord()) &&
+                Objects.equals(getOwnedLobby(), that.getOwnedLobby()) &&
+                Objects.equals(getLobby(), that.getLobby());
     }
 
     @Override
@@ -120,11 +119,11 @@ public class Player implements Serializable {
         this.points += points;
     }
 
-    public List<PlayerWord> getPlayerWords() {
+    public Set<PlayerWord> getPlayerWords() {
         return playerWords;
     }
 
-    public void setPlayerWords(List<PlayerWord> playerWords) {
+    public void setPlayerWords(Set<PlayerWord> playerWords) {
         this.playerWords = playerWords;
     }
 
@@ -133,7 +132,7 @@ public class Player implements Serializable {
     }
 
     public void setWords(List<Word> words) {
-        this.playerWords = words.stream().map(word -> new PlayerWord(this, word)).collect(Collectors.toList());
+        this.playerWords = words.stream().map(word -> new PlayerWord(this, word)).collect(Collectors.toSet());
     }
 
     public void addWord(Word word) {
