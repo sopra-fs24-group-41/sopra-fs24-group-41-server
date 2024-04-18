@@ -1,9 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs24.entity.Player;
-import ch.uzh.ifi.hase.soprafs24.entity.PlayerWord;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
@@ -62,6 +59,9 @@ public interface DTOMapper {
     @Mapping(source = "word", target = "word")
     @Mapping(source = "timestamp", target = "timestamp")
     PlayerWordDTO convertEntityToPlayerWordDTO(PlayerWord playerWord);
+
+    @Mapping(source = "name", target = "name")
+    WordDTO convertEntityToWordDTO(Word word);
 
     @Mapping(source = "points", target = "points")
     @Mapping(source = "playerWords", target = "playerWords")

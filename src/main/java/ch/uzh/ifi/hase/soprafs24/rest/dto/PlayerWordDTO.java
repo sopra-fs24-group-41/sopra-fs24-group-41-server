@@ -5,15 +5,15 @@ import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import java.time.LocalDateTime;
 
 public class PlayerWordDTO {
-    private Word word;
+    private WordDTO word;
 
     private LocalDateTime timestamp;
 
-    public Word getWord() {
+    public WordDTO getWord() {
         return word;
     }
 
-    public void setWord(Word word) {
+    public void setWord(WordDTO word) {
         this.word = word;
     }
 

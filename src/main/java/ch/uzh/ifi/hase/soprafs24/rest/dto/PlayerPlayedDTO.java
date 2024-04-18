@@ -4,11 +4,12 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerWordDTO;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 
 import java.util.List;
+import java.util.Set;
 
 public class PlayerPlayedDTO {
     private long points;
-    private List<PlayerWordDTO> playerWords;
-    private Word targetWord;
+    private Set<PlayerWordDTO> playerWords;
+    private WordDTO targetWord;
 
     public long getPoints() {
         return points;
@@ -18,19 +19,19 @@ public class PlayerPlayedDTO {
         this.points = points;
     }
 
-    public List<PlayerWordDTO> getPlayerWords() {
+    public Set<PlayerWordDTO> getPlayerWords() {
         return playerWords;
     }
 
-    public void setPlayerWords(List<PlayerWordDTO> playerWords) {
+    public void setPlayerWords(Set<PlayerWordDTO> playerWords) {
         this.playerWords = playerWords;
     }
 
-    public Word getTargetWord() {
+    public WordDTO getTargetWord() {
         return targetWord;
     }
 
-    public void setTargetWord(Word targetWord) {
+    public void setTargetWord(WordDTO targetWord) {
         this.targetWord = targetWord;
     }
 }
