@@ -2,12 +2,14 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
+import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Internal Lobby Representation
@@ -27,16 +29,16 @@ public class Lobby implements Serializable {
     private String name;
 
     @Column(nullable = false)
-    private Boolean publicAccess;
+    private Boolean publicAccess = true;
 
     @Column
     private LocalDateTime startTime;
 
     @Column(nullable = false)
-    private LobbyStatus status;
+    private LobbyStatus status = LobbyStatus.PREGAME;
 
     @Column
-    private GameMode mode;
+    private GameMode mode = GameMode.STANDARD;
 
     @OneToOne(mappedBy = "ownedLobby")
     private Player owner;
@@ -51,6 +53,29 @@ public class Lobby implements Serializable {
         this.name = name;
         this.publicAccess = false;
         this.status = LobbyStatus.PREGAME;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Lobby that = (Lobby) o;
+        return Objects.equals(getCode(), that.getCode()) &&
+               Objects.equals(getName(), that.getName()) &&
+               Objects.equals(getPublicAccess(), that.getPublicAccess()) &&
+               Objects.equals(getStartTime(), that.getStartTime()) &&
+               Objects.equals(getStatus(), that.getStatus()) &&
+               Objects.equals(getMode(), that.getMode()) &&
+               Objects.equals(getOwner(), that.getOwner()) &&
+               Objects.equals(getPlayers(), that.getPlayers());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
     public long getCode() {

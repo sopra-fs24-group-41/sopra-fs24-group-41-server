@@ -1,11 +1,13 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
+import org.hibernate.proxy.HibernateProxy;
+
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Objects;
 
 /**
  * Internal Player Representation
@@ -29,13 +31,13 @@ public class Player implements Serializable {
     private String name;
 
     @Column
-    private long points;
+    private long points = 0;
 
     @OneToOne(mappedBy = "player")
     private User user;
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
-    private List<PlayerWord> playerWords = new ArrayList<PlayerWord>();
+    private Set<PlayerWord> playerWords = new HashSet<PlayerWord>();
 
     @ManyToOne
     private Word targetWord;
@@ -55,6 +57,30 @@ public class Player implements Serializable {
         this.token = token;
         this.name = name;
         this.lobby = lobby;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Player that = (Player) o;
+        return Objects.equals(getId(), that.getId()) &&
+                Objects.equals(getToken(), that.getToken()) &&
+                Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getPoints(), that.getPoints()) &&
+                Objects.equals(getUser(), that.getUser()) &&
+                Objects.equals(getWords(), that.getWords()) &&
+                Objects.equals(getTargetWord(), that.getTargetWord()) &&
+                Objects.equals(getOwnedLobby(), that.getOwnedLobby()) &&
+                Objects.equals(getLobby(), that.getLobby());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
     public long getId() {
@@ -93,12 +119,20 @@ public class Player implements Serializable {
         this.points += points;
     }
 
+    public Set<PlayerWord> getPlayerWords() {
+        return playerWords;
+    }
+
+    public void setPlayerWords(Set<PlayerWord> playerWords) {
+        this.playerWords = playerWords;
+    }
+
     public List<Word> getWords() {
         return playerWords.stream().map(PlayerWord::getWord).toList();
     }
 
     public void setWords(List<Word> words) {
-        this.playerWords = words.stream().map(word -> new PlayerWord(this, word)).collect(Collectors.toList());
+        this.playerWords = words.stream().map(word -> new PlayerWord(this, word)).collect(Collectors.toSet());
     }
 
     public void addWord(Word word) {

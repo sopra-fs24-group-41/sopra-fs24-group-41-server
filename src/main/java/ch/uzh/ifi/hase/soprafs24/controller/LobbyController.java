@@ -1,12 +1,13 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyGetDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPostDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerJoinedDTO;
+import ch.uzh.ifi.hase.soprafs24.entity.Word;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
@@ -16,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Lobby Controller
@@ -30,11 +32,13 @@ public class LobbyController {
     private final UserService userService;
 
     private final PlayerService playerService;
+    private final GameService gameService;
 
-    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService) {
+    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService, GameService gameService) {
         this.lobbyService = lobbyService;
         this.userService = userService;
         this.playerService = playerService;
+        this.gameService = gameService;
     }
 
     @GetMapping("/lobbies")
@@ -62,14 +66,13 @@ public class LobbyController {
         if (userToken != null && !userToken.isEmpty()) {
             User user = userService.checkToken(userToken);
             if (user.getPlayer() != null) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT,
-                        "Your user already has a lobby associated, leave it before creating a new one.");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before creating a new one.");
             }
             Player player = lobbyService.createLobbyFromUser(user, lobbyPostDTO.getPublicAccess());
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "creating lobby as anonymous user not supported, please supply userToken as header field");
+        }
+        else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "creating lobby as anonymous user not supported, please supply userToken as header field");
         }
     }
 
@@ -81,49 +84,77 @@ public class LobbyController {
         if (userToken != null && !userToken.isEmpty()) {
             User user = userService.checkToken(userToken);
             if (user.getPlayer() != null) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT,
-                        "Your user already has a lobby associated, leave it before joining a new one.");
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before joining a new one.");
             }
             Player player = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
-        } else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    "joining lobby as anonymous user not supported, please supply userToken as header field");
         }
+        else {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "joining lobby as anonymous user not supported, please supply userToken as header field");
+        }
+    }
+
+    @PostMapping("/lobbies/{code}/games")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void startGame(@PathVariable String code, @RequestHeader String playerToken) {
+        Lobby lobby = getAuthenticatedLobby(code, playerToken);
+        gameService.createNewGame(lobby);
+        lobby.setStatus(LobbyStatus.INGAME);
+    }
+
+    @PutMapping("/lobbies/{lobbyCode}/players/{playerId}")
+    @ResponseStatus(HttpStatus.OK)
+    public PlayerPlayedDTO play(@PathVariable String lobbyCode, @PathVariable String playerId,
+                                @RequestHeader String playerToken, @RequestBody List<Word> words) {
+        Player player = getAuthenticatedPlayer(lobbyCode, playerId, playerToken);
+        gameService.play(player, words);
+        return DTOMapper.INSTANCE.convertEntityToPlayerPlayedDTO(player);
     }
 
     @DeleteMapping("/lobbies/{lobbyCode}/players/{playerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removePlayerFromLobby(@PathVariable String lobbyCode, @PathVariable String playerId, @RequestHeader String playerToken) {
-        // check inputs
-        if (playerToken == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "include player token in your request header as playerToken");
-        }
+        Player player = getAuthenticatedPlayer(lobbyCode, playerId, playerToken);
+        if (player.getOwnedLobby() == null) playerService.removePlayer(player);
+        else lobbyService.removeLobby(player.getOwnedLobby());
+    }
+
+    private Player getAuthenticatedPlayer(String lobbyCode, String playerId, String playerToken) {
         long lobbyCodeLong = parseLobbyCode(lobbyCode);
         long playerIdLong = parseId(playerId);
 
-        // get and check player
-        Player player = playerService.checkToken(playerToken);
-        if (player.getId() != playerIdLong) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,
-                    String.format("Your player has id %d, but you tried to remove player with id %d", player.getId(), playerIdLong));
-        }
-        else if (player.getLobby().getCode() != lobbyCodeLong) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "wrong lobby code for the player you tried to delete");
-        }
+        if (playerToken == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "Include player token in your request header as playerToken");
 
-        // remove player
-        if (player.getOwnedLobby() == null) {
-            playerService.removePlayer(player);
-        } else {
-            lobbyService.removeLobby(player.getOwnedLobby());
-        }
+        Player player = playerService.findPlayerByToken(playerToken);
+
+        if (player.getLobby().getCode() != lobbyCodeLong) throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                String.format("Player is not in lobby with code %s", lobbyCodeLong));
+
+        if (player.getId() != playerIdLong) throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                String.format("Wrong token for player with ID %s", playerIdLong));
+
+        return player;
+    }
+
+    private Lobby getAuthenticatedLobby(String lobbyCode, String ownerToken) {
+        long lobbyCodeLong = parseLobbyCode(lobbyCode);
+        Lobby lobby = lobbyService.getLobbyByCode(lobbyCodeLong);
+
+        if (ownerToken == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                "Include player token in your request header as playerToken");
+
+        if (!Objects.equals(lobby.getOwner().getToken(), ownerToken)) throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                "Lobby does not belong to the player with the given token");
+
+        return lobby;
     }
 
     private long parseLobbyCode(String codeString) {
         try {
             return Long.parseLong(codeString);
-        } catch (NumberFormatException e) {
+        }
+        catch (NumberFormatException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted lobby code");
         }
     }
@@ -131,7 +162,8 @@ public class LobbyController {
     private long parseId(String idString) {
         try {
             return Long.parseLong(idString);
-        } catch (NumberFormatException e) {
+        }
+        catch (NumberFormatException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted id");
         }
     }

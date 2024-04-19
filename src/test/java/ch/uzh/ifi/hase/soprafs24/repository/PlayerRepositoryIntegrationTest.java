@@ -5,6 +5,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,23 +25,29 @@ public class PlayerRepositoryIntegrationTest {
     private TestEntityManager entityManager;
 
     @Autowired
-    private PlayerRepository playerRepository;
+    private UserRepository userRepository;
 
     @Autowired
     private LobbyRepository lobbyRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private PlayerWordRepository playerWordRepository;
 
-    private Player testPlayer1;
+    @Autowired
+    private WordRepository wordRepository;
 
-    private Player testPlayer2;
-
-    private Lobby testLobby;
+    @Autowired
+    private PlayerRepository playerRepository;
 
     private User testUser1;
 
     private User testUser2;
+
+    private Lobby testLobby;
+
+    private Player testPlayer1;
+
+    private Player testPlayer2;
 
     @BeforeEach
     public void setup() {
@@ -88,9 +95,41 @@ public class PlayerRepositoryIntegrationTest {
 
     @AfterEach
     public void cleanup() {
+        userRepository.deleteAll();
         lobbyRepository.deleteAll();
         playerRepository.deleteAll();
-        userRepository.deleteAll();
+        wordRepository.deleteAll();
+        playerWordRepository.deleteAll();
+    }
+
+    @Test
+    public void addSingleWord_success() {
+        Word water = new Word("water");
+        testPlayer1.addWord(water);
+
+        assertEquals(1, testPlayer1.getPlayerWords().size());
+        assertTrue(testPlayer1.getWords().contains(water));
+    }
+
+    @Test
+    public void addWord_sameWordTwice_success() {
+        Word water = new Word("water");
+        testPlayer1.addWord(water);
+        testPlayer1.addWord(water);
+        testPlayer1.addWord(new Word("water"));
+
+        assertEquals(1, testPlayer1.getPlayerWords().size());
+        assertTrue(testPlayer1.getWords().contains(water));
+    }
+
+    @Test
+    public void addWord_sameWordDifferentPlayer_success() {
+        Word water = new Word("water");
+        testPlayer1.addWord(water);
+        testPlayer2.addWord(water);
+
+        assertTrue(testPlayer1.getWords().contains(water));
+        assertTrue(testPlayer2.getWords().contains(water));
     }
 
     @Test

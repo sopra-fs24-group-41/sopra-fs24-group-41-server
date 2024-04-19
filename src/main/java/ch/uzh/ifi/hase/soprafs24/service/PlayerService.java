@@ -26,21 +26,12 @@ public class PlayerService {
         this.playerRepository = playerRepository;
     }
 
-    public Player findPlayer(Player player) {
-        Player foundPlayer = playerRepository.findByToken(player.getToken());
+    public Player findPlayerByToken(String token) {
+        Player foundPlayer = playerRepository.findByToken(token);
         if (foundPlayer != null) return foundPlayer;
 
-        String errorMessage = String.format("Player %s not found.", player.getName());
+        String errorMessage = String.format("Player with token %s not found.", token);
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
-    }
-
-    public Player checkToken(String token) {
-        Player foundPlayer = playerRepository.findByToken(token);
-        if (foundPlayer == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No player found with this token");
-        }
-        log.debug("found the player for the provided token: {}", foundPlayer);
-        return foundPlayer;
     }
 
     public void removePlayer(Player player) {

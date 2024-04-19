@@ -46,22 +46,22 @@ public class PlayerServiceIntegrationTest {
     }
 
     @Test
-    public void checkToken_validInput_success() {
+    public void findPlayerByToken_validInput_success() {
         Player testPlayer = new Player("234", "test", null);
         playerRepository.save(testPlayer);
 
-        Player checkedPlayer = playerService.checkToken(testPlayer.getToken());
+        Player checkedPlayer = playerService.findPlayerByToken(testPlayer.getToken());
         assertEquals(testPlayer.getToken(), checkedPlayer.getToken());
         assertEquals(testPlayer.getPoints(), checkedPlayer.getPoints());
         assertEquals(testPlayer.getName(), checkedPlayer.getName());
     }
 
     @Test
-    public void checkToken_invalidToken_throwsNotFoundException() {
+    public void findPlayerByToken_invalidToken_throwsNotFoundException() {
         Player testPlayer = new Player("345", "tester", null);
         playerRepository.save(testPlayer);
 
-        assertThrows(ResponseStatusException.class, () -> playerService.checkToken(testPlayer.getToken()+"23"));
+        assertThrows(ResponseStatusException.class, () -> playerService.findPlayerByToken(testPlayer.getToken()+"23"));
     }
 
     @Test

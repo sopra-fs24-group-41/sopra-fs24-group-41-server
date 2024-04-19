@@ -65,20 +65,20 @@ public class PlayerServiceTest {
     }
 
     @Test
-    public void checkToken_validInput_success() {
+    public void findPlayerByToken_validInput_success() {
         Mockito.when(playerRepository.findByToken(Mockito.anyString())).thenReturn(testPlayer1);
 
-        Player checkedPlayer = playerService.checkToken(testPlayer1.getToken());
+        Player checkedPlayer = playerService.findPlayerByToken(testPlayer1.getToken());
         assertEquals(testPlayer1.getId(), checkedPlayer.getId());
         assertEquals(testPlayer1.getName(), checkedPlayer.getName());
         assertEquals(testPlayer1.getPoints(), checkedPlayer.getPoints());
     }
 
     @Test
-    public void checkToken_invalidToken_throwsNotFoundException() {
+    public void findPlayerByToken_invalidToken_throwsNotFoundException() {
         Mockito.when(playerRepository.findByToken(Mockito.anyString())).thenReturn(null);
 
-        assertThrows(ResponseStatusException.class, () -> playerService.checkToken(Mockito.anyString()));
+        assertThrows(ResponseStatusException.class, () -> playerService.findPlayerByToken(Mockito.anyString()));
     }
 
     @Test

@@ -1,8 +1,11 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
+import org.hibernate.proxy.HibernateProxy;
+
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Objects;
 
 
 @Entity
@@ -35,6 +38,25 @@ public class Combination implements Serializable {
         this.word1 = word1;
         this.word2 = word2;
         this.result = result;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Combination that = (Combination) o;
+        return Objects.equals(getId(), that.getId()) &&
+               Objects.equals(getWord1(), that.getWord1()) &&
+               Objects.equals(getWord2(), that.getWord2()) &&
+               Objects.equals(getResult(), that.getResult());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
     public Long getId() {

@@ -7,10 +7,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -47,38 +44,47 @@ public class GameServiceTest {
         startingWords.add(air);
 
         MockitoAnnotations.openMocks(this);
+        Mockito.when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
     }
 
     @Test
     public void createNewGame_success() {
-        Player testPlayer = new Player();
+        Player testPlayer1 = new Player();
+        Player testPlayer2 = new Player();
+
         List<Player> testPlayers = new ArrayList<Player>();
-        testPlayers.add(testPlayer);
+        testPlayers.add(testPlayer1);
+        testPlayers.add(testPlayer2);
 
         Lobby testLobby = new Lobby();
         testLobby.setMode(GameMode.STANDARD);
         testLobby.setPlayers(testPlayers);
 
-        assertEquals(0, testPlayer.getWords().size());
+        assertEquals(0, testPlayer1.getWords().size());
+        assertEquals(0, testPlayer2.getWords().size());
 
         gameService.createNewGame(testLobby);
 
-        assertEquals(4, testPlayer.getWords().size());
+        assertEquals(4, testPlayer1.getWords().size());
+        assertEquals(4, testPlayer2.getWords().size());
     }
 
     @Test
     public void play_success() {
-        Player testPlayer = new Player();
+        Player testPlayer1 = new Player();
+        Player testPlayer2 = new Player();
 
-        testPlayer.setWords(startingWords);
+        testPlayer1.setWords(startingWords);
+        testPlayer2.setWords(startingWords);
 
         List<Player> testPlayers = new ArrayList<Player>();
-        testPlayers.add(testPlayer);
+        testPlayers.add(testPlayer1);
+        testPlayers.add(testPlayer2);
 
         Lobby testLobby = new Lobby();
         testLobby.setMode(GameMode.STANDARD);
 
-        testPlayer.setLobby(testLobby);
+        testPlayer1.setLobby(testLobby);
 
         List<Word> playingWords = new ArrayList<>();
         playingWords.add(water);
@@ -86,13 +92,12 @@ public class GameServiceTest {
 
         Combination testCombination = new Combination(water, earth, mud);
 
-        Mockito.when(playerService.findPlayer(testPlayer)).thenReturn(testPlayer);
         Mockito.when(combinationService.getCombination(water, earth)).thenReturn(testCombination);
 
-        assertEquals(startingWords, testPlayer.getWords());
+        assertEquals(startingWords, testPlayer1.getWords());
 
-        gameService.play(testPlayer, playingWords);
+        gameService.play(testPlayer1, playingWords);
 
-        assertEquals(mud, testPlayer.getWords().get(4));
+        assertEquals(mud, testPlayer1.getWords().get(4));
     }
 }

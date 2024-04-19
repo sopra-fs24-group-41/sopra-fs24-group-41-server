@@ -48,12 +48,11 @@ public class GameService {
     }
 
     public void play(Player player, List<Word> words) {
-        Player foundPlayer = playerService.findPlayer(player);
-        Lobby lobby = foundPlayer.getLobby();
+        Lobby lobby = player.getLobby();
         Game game = instantiateGame(lobby.getMode());
-        game.makeCombination(foundPlayer, words);
+        game.makeCombination(player, words);
 
-        if (game.winConditionReached(foundPlayer)) {
+        if (game.winConditionReached(player)) {
             return;  // notify that player has won
         }
 
