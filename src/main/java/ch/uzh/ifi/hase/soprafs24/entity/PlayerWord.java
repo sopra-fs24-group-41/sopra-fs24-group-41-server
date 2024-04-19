@@ -26,7 +26,7 @@ public class PlayerWord implements Serializable {
     private Player player;
 
     @Id
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "word")
     private Word word;
 

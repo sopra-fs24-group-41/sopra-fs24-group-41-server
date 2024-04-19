@@ -293,9 +293,25 @@ public class LobbyControllerTest {
     }
 
     @Test
+    public void startGame_standard_success() throws Exception {
+        // given
+        given(lobbyService.getLobbyByCode(testLobby.getCode())).willReturn(testLobby);
+
+        // when
+        MockHttpServletRequestBuilder postRequest = post(String.format("/lobbies/%s/games", testLobby.getCode()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("playerToken", testPlayer1.getToken());
+
+        //then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isCreated());
+    }
+
+    @Test
     public void play_standard_success() throws Exception {
         // given
-        given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
+        given(playerService.findPlayerByToken(testPlayer1.getToken())).willReturn(testPlayer1);
         List<Word> words = new ArrayList<Word>();
         words.add(new Word("water"));
         words.add(new Word("fire"));
@@ -313,8 +329,7 @@ public class LobbyControllerTest {
         mockMvc.perform(putRequest)
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.points", is((int) testPlayer1.getPoints())))
-                .andExpect(jsonPath("$.playerWords[0].word.name", is(testPlayer1.getWords().get(0).getName())))
-                .andExpect(jsonPath("$.playerWords[1].word.name", is(testPlayer1.getWords().get(1).getName())))
+                .andExpect(jsonPath("$.playerWords[*].word.name", containsInAnyOrder(testPlayer1.getWords().stream().map(Word::getName).toArray(String[]::new))))
                 .andExpect(jsonPath("$.targetWord", is(testPlayer1.getTargetWord())));
     }
 

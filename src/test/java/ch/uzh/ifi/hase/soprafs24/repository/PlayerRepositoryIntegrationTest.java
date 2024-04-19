@@ -123,6 +123,16 @@ public class PlayerRepositoryIntegrationTest {
     }
 
     @Test
+    public void addWord_sameWordDifferentPlayer_success() {
+        Word water = new Word("water");
+        testPlayer1.addWord(water);
+        testPlayer2.addWord(water);
+
+        assertTrue(testPlayer1.getWords().contains(water));
+        assertTrue(testPlayer2.getWords().contains(water));
+    }
+
+    @Test
     public void findById_success() {
         // when
         Player found = playerRepository.findById(testPlayer1.getId());
