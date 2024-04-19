@@ -66,6 +66,10 @@ Worked on:
 **na50r - Rosan Shanmuganathan**
 - Worked on the result page and completed it. (Still not integrated with server yet, waiting for web socket setup to be complete) [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/71)
 
-
+ **JacquelineUlken - Jacqueline Ulken**
+ - Added endpoint for creating and starting a new game in an existing lobby
+ - Implemented endpoint to play the game, which automatically updates the player [#79](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/79), [Pull request]()
+ - Added player authentication to the play endpoint [#82](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/82), [Pull request]()
+ - Implemented receiving incoming words from client to return merged words [#105](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/105), [Pull request]()
 
 ## 22.04 - 28.04 Week 5
