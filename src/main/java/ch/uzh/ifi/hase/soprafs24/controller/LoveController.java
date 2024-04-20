@@ -36,5 +36,6 @@ public class LoveController {
     @Scheduled(fixedRate = 10000)
     public void scheduledTest() {
         messagingTemplate.convertAndSend("/topic/greetings", "{\"message\": \"Hello World\"}");
+        messagingTemplate.convertAndSend("/topic/greetings2", "{\"message\": \"Hello World2\"}");
     }
 }
