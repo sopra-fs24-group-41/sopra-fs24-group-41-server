@@ -4,6 +4,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -28,7 +29,12 @@ public class LoveController {
         User checkedUser = userService.checkToken(userToken);
         if (checkedUser == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
 
-        messagingTemplate.convertAndSend("/topic/greetings", checkedUser.getUsername() + " says I love you");
+        messagingTemplate.convertAndSend("/topic/greetings", "{'message': '" + checkedUser.getUsername() + " says I love you'}");
         System.out.println("greeted");
+    }
+
+    @Scheduled(fixedRate = 10000)
+    public void scheduledTest() {
+        messagingTemplate.convertAndSend("/topic/greetings", "{\"message\": \"Hello World\"}");
     }
 }

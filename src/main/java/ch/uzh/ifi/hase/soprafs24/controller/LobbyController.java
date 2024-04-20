@@ -12,6 +12,7 @@ import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -32,13 +33,18 @@ public class LobbyController {
     private final UserService userService;
 
     private final PlayerService playerService;
+
     private final GameService gameService;
 
-    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService, GameService gameService) {
+    private final SimpMessagingTemplate messagingTemplate;
+
+    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService,
+                    GameService gameService, SimpMessagingTemplate messagingTemplate) {
         this.lobbyService = lobbyService;
         this.userService = userService;
         this.playerService = playerService;
         this.gameService = gameService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @GetMapping("/lobbies")
@@ -87,6 +93,8 @@ public class LobbyController {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before joining a new one.");
             }
             Player player = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
+            LobbyGetDTO updatedLobby = DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(player.getLobby());
+            messagingTemplate.convertAndSend("/topic/lobby/" + player.getLobby().getCode(), updatedLobby);
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
         }
         else {
