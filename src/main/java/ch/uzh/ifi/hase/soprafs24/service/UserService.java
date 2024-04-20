@@ -156,6 +156,10 @@ public class UserService {
         usernameValidation(updatedUser.getUsername());
         favouriteValidation(updatedUser.getFavourite());
 
+        if(updatedUser.getProfilePicture()==null){
+            updatedUser.setProfilePicture("");
+        }
+
         if(!Objects.equals(foundUser.getUsername(), updatedUser.getUsername())){
                 foundUser.setUsername(updatedUser.getUsername());}
 
@@ -165,6 +169,11 @@ public class UserService {
         if(updatedUser.getFavourite().isEmpty()){
             foundUser.setFavourite("Zaddy");
         }
+
+        if(!Objects.equals(foundUser.getProfilePicture(), updatedUser.getProfilePicture())){
+            foundUser.setProfilePicture(updatedUser.getProfilePicture());
+        }
+
         return foundUser;
     }
 }
