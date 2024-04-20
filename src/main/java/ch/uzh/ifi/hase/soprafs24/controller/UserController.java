@@ -67,8 +67,6 @@ public class UserController {
         userService.authUser(id, token);
         User Update = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
         User updatedUser = userService.editUser(token, Update);
-        System.out.println(updatedUser.getUsername());
-        System.out.println(updatedUser.getProfilePicture());
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(updatedUser);
     }
 
