@@ -76,4 +76,9 @@ Worked on:
 - Implemented creating and joining lobbies from client side (on both lobby and lobbyoverview page). Also implemented design and a few other functions. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/72). 
 
 
+**Tmmn - Timon Leupp**
+- Spent many hours getting websockets to work. I have a working demo [here](https://sopra-fs24-leupp-timon-client.oa.r.appspot.com/websocket-demo)
+- Implement lobby update endpoint that relies on a websocket connection [#104](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/104) [#121](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/121)
+- Updated our endpoint specification [here](https://docs.google.com/document/d/17lbypcjihu_So1mG5_hbFzTprMyhldP0R6PDwxjIpnU/edit?usp=sharing)
+
 ## 22.04 - 28.04 Week 5
