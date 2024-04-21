@@ -49,4 +49,26 @@ public class WordService {
         return word;
     }
 
+    public Word addWord(Word word) throws Exception {
+        Word foundWord = wordRepository.findByName(word.getName());
+        if (foundWord != null) {
+            throw new Exception(String.format("The word %s already exists!", word.getName()));
+        }
+        wordRepository.save(word);
+        wordRepository.flush();
+
+        return word;
+    }
+
+    public Word updateWord(Word updatedWord) throws Exception {
+        Word foundWord = wordRepository.findByName(updatedWord.getName());
+        if (foundWord == null) {
+            throw new WordNotFoundException(updatedWord.getName());
+        }
+
+        foundWord.setDepth(updatedWord.getDepth());
+        foundWord.setDifficultyScore(updatedWord.getDifficultyScore());
+
+        return updatedWord;
+    }
 }
