@@ -59,7 +59,7 @@ public class UserController {
     }
 
     @PutMapping("/users/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseStatus(HttpStatus.OK)
     @ResponseBody
     public UserGetDTO editUser(@PathVariable("id") Long id,
                          @RequestBody UserPutDTO userPutDTO,
