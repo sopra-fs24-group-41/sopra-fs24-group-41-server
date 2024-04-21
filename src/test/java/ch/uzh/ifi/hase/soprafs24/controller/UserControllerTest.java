@@ -2,7 +2,9 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserTokenPostDTO;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -12,9 +14,11 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,10 +28,11 @@ import java.util.List;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -169,6 +174,115 @@ public class UserControllerTest {
 
         mockMvc.perform(postRequest).andExpect(status().isNotFound());
     }
+
+    @Test
+    public void updateUser_Success() throws Exception {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("Okay");
+        userPutDTO.setFavourite("Okay");
+        userPutDTO.setProfilePicture("BlueFrog");
+
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("Okay");
+        user.setFavourite("Okay");
+        user.setProfilePicture("BlueFrog");
+
+        doNothing().when(userService).authUser(1L, "OkayToken");
+        given(userService.editUser(any(), any())).willReturn(user);
+
+        MockHttpServletRequestBuilder putRequest = put("/users/{id}", 1L)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "OkayToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userPutDTO));
+
+        mockMvc.perform(putRequest).andExpect(status().isOk());
+    }
+
+    @Test
+    public void updateUser_Failure_WrongUser() throws Exception {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("Okay");
+        userPutDTO.setFavourite("Okay");
+        userPutDTO.setProfilePicture("BlueFrog");
+
+        doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED)).when(userService).authUser(1L, "WrongToken");
+
+        MockHttpServletRequestBuilder putRequest = put("/users/{id}", 1L)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "WrongToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userPutDTO));
+
+        mockMvc.perform(putRequest).andExpect(status().isUnauthorized());
+    }
+    @Test
+    public void updateUser_Failure_NotFoundUser() throws Exception {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("Okay");
+        userPutDTO.setFavourite("Okay");
+        userPutDTO.setProfilePicture("BlueFrog");
+
+
+        doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED)).when(userService).authUser(1L, "WrongToken");
+
+        MockHttpServletRequestBuilder putRequest = put("/users/{id}", 1L)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "WrongToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userPutDTO));
+
+        mockMvc.perform(putRequest).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void updateUser_inputValidation() throws Exception {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("Okay");
+        userPutDTO.setFavourite("Okay");
+        userPutDTO.setProfilePicture("BlueFrog");
+
+        doNothing().when(userService).authUser(1L, "OkayToken");
+        doThrow(new ResponseStatusException(HttpStatus.BAD_REQUEST))
+                .when(userService).editUser(Mockito.any(), Mockito.any());
+
+
+        MockHttpServletRequestBuilder putRequest = put("/users/{id}", 1L)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "OkayToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userPutDTO));
+
+        mockMvc.perform(putRequest).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void updateUser_Conflict() throws Exception {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setUsername("Okay");
+        userPutDTO.setFavourite("Okay");
+        userPutDTO.setProfilePicture("BlueFrog");
+
+        doNothing().when(userService).authUser(1L, "OkayToken");
+        doThrow(new ResponseStatusException(HttpStatus.CONFLICT))
+                .when(userService).editUser(Mockito.any(), Mockito.any());
+
+
+        MockHttpServletRequestBuilder putRequest = put("/users/{id}", 1L)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, "OkayToken")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(userPutDTO));
+
+        mockMvc.perform(putRequest).andExpect(status().isConflict());
+    }
+
+
+
+
+
+
 
     /**
      * Helper Method to convert userPostDTO into a JSON string such that the input

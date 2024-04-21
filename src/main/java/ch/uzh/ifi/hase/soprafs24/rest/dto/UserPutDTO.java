@@ -4,6 +4,8 @@ public class UserPutDTO {
     private String username;
     private String favourite;
 
+    private String profilePicture;
+
     public String getUsername() {
         return username;
     }
@@ -19,4 +21,10 @@ public class UserPutDTO {
     public void setFavourite(String favourite) {
         this.favourite = favourite;
     }
+
+    public String getProfilePicture() { return profilePicture; }
+
+    public void setProfilePicture(String profilePicture){this.profilePicture = profilePicture;}
+
+
 }
