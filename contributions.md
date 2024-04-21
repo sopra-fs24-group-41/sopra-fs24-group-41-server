@@ -72,4 +72,8 @@ Worked on:
  - Added player authentication to the play endpoint [#82](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/82), [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/134)
  - Implemented receiving incoming words from client to return merged words [#105](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/105), [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/134)
 
+ **Grizzlytron - Lucas Timothy Leo Bär**
+- Implemented creating and joining lobbies from client side (on both lobby and lobbyoverview page). Also implemented design and a few other functions. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/72). 
+
+
 ## 22.04 - 28.04 Week 5
