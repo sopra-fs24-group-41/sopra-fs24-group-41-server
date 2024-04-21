@@ -11,6 +11,7 @@ import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.websocket.Message;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -72,6 +73,7 @@ public class LobbyController {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before creating a new one.");
             }
             Player player = lobbyService.createLobbyFromUser(user, lobbyPostDTO.getPublicAccess());
+            messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
         }
         else {
@@ -90,7 +92,7 @@ public class LobbyController {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before joining a new one.");
             }
             Player player = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
-            messagingTemplate.convertAndSend("/lobbies", getPublicLobbiesGetDTOList());
+            messagingTemplate.convertAndSend("/topic/lobbies/" + code, DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(player.getLobby()));
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
         }
         else {
@@ -99,27 +101,32 @@ public class LobbyController {
     }
 
     @MessageMapping("/lobbies/{code}")
-    @SendTo("lobby/{code}")
+    @SendTo("/lobbies/{code}")
     public LobbyGetDTO updateLobby(@DestinationVariable String code, LobbyPutDTO lobbyUpdateDTO) {
-        Player player = playerService.findPlayerByToken(lobbyUpdateDTO.getPlayerToken());
-        Lobby lobby = player.getOwnedLobby();
-        long lobbyCodeLong = parseLobbyCode(code);
-        if (lobby == null || lobby.getCode() != lobbyCodeLong) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-        }
+        try {
+            Player player = playerService.findPlayerByToken(lobbyUpdateDTO.getPlayerToken());
+            Lobby lobby = player.getOwnedLobby();
+            long lobbyCodeLong = parseLobbyCode(code);
+            if (lobby == null || lobby.getCode() != lobbyCodeLong) {
+                throw new RuntimeException("Lobby not found or invalid code");
+            }
 
-        if (lobbyUpdateDTO.getMode() != null && !Objects.equals(lobbyUpdateDTO.getMode(), lobby.getMode())) {
-            lobby.setMode(lobbyUpdateDTO.getMode());
-        }
-        if (lobbyUpdateDTO.getName() != null && !Objects.equals(lobbyUpdateDTO.getName(), lobby.getName())) {
-            lobby.setName(lobbyUpdateDTO.getName());
-        }
-        if (Objects.equals(lobbyUpdateDTO.getPublicAccess(), lobby.getPublicAccess())) {
-            lobby.setPublicAccess(lobbyUpdateDTO.getPublicAccess());
-            messagingTemplate.convertAndSend("/lobbies", getPublicLobbiesGetDTOList());
-        }
+            if (lobbyUpdateDTO.getMode() != null && !Objects.equals(lobbyUpdateDTO.getMode(), lobby.getMode())) {
+                lobby.setMode(lobbyUpdateDTO.getMode());
+            }
+            if (lobbyUpdateDTO.getName() != null && !Objects.equals(lobbyUpdateDTO.getName(), lobby.getName())) {
+                lobby.setName(lobbyUpdateDTO.getName());
+            }
+            if (Objects.equals(lobbyUpdateDTO.getPublicAccess(), lobby.getPublicAccess())) {
+                lobby.setPublicAccess(lobbyUpdateDTO.getPublicAccess());
+                messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
+            }
 
-        return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
+            return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
+        } catch (Exception e) {
+            messagingTemplate.convertAndSend("/topic/errors/lobbies/" + code, new Message("Error occurred"));
+        }
+        return null;
     }
 
     @PostMapping("/lobbies/{code}/games")
