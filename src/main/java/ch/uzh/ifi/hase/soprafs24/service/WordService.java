@@ -40,7 +40,7 @@ public class WordService {
 
     public Word findRandomWord() {
         Long qty = wordRepository.count();
-        int idx = (int)(Math.random() * qty);
+        int idx = (int) (Math.random() * qty);
         Page<Word> wordPage = wordRepository.findAll(PageRequest.of(idx, 1));
         Word word = null;
         if (wordPage.hasContent()) {

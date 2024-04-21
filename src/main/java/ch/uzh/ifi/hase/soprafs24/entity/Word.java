@@ -36,6 +36,16 @@ public class Word implements Serializable {
         name = name.replaceAll("[^A-Za-z0-9]", "");
         name = name.toLowerCase();
         this.name = name;
+        this.depth = 0;
+        this.difficultyScore = 1e6;
+    }
+
+    public Word(String name, int depth, double difficultyScore) {
+        name = name.replaceAll("[^A-Za-z0-9]", "");
+        name = name.toLowerCase();
+        this.name = name;
+        this.depth = depth;
+        this.difficultyScore = difficultyScore;
     }
 
     @Override
