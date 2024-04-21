@@ -54,10 +54,7 @@ public class WordService {
         if (foundWord != null) {
             throw new Exception(String.format("The word %s already exists!", word.getName()));
         }
-        wordRepository.save(word);
-        wordRepository.flush();
-
-        return word;
+        return wordRepository.saveAndFlush(word);
     }
 
     public Word updateWord(Word updatedWord) throws Exception {
