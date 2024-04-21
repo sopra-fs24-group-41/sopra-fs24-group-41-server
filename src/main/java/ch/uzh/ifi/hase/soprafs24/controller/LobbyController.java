@@ -12,6 +12,10 @@ import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -32,25 +36,24 @@ public class LobbyController {
     private final UserService userService;
 
     private final PlayerService playerService;
+
     private final GameService gameService;
 
-    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService, GameService gameService) {
+    private final SimpMessagingTemplate messagingTemplate;
+
+    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService,
+                    GameService gameService, SimpMessagingTemplate messagingTemplate) {
         this.lobbyService = lobbyService;
         this.userService = userService;
         this.playerService = playerService;
         this.gameService = gameService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @GetMapping("/lobbies")
     @ResponseStatus(HttpStatus.OK)
     public List<LobbyGetDTO> getAllLobbies() {
-        List<Lobby> lobbies = lobbyService.getPublicLobbies();
-        List<LobbyGetDTO> lobbyGetDTOS = new ArrayList<>();
-
-        for (Lobby lobby : lobbies) {
-            lobbyGetDTOS.add(DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
-        }
-        return lobbyGetDTOS;
+        return getPublicLobbiesGetDTOList();
     }
 
     @GetMapping("/lobbies/{code}")
@@ -87,11 +90,36 @@ public class LobbyController {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before joining a new one.");
             }
             Player player = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
+            messagingTemplate.convertAndSend("/lobbies", getPublicLobbiesGetDTOList());
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
         }
         else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "joining lobby as anonymous user not supported, please supply userToken as header field");
         }
+    }
+
+    @MessageMapping("/lobbies/{code}")
+    @SendTo("lobby/{code}")
+    public LobbyGetDTO updateLobby(@DestinationVariable String code, LobbyPutDTO lobbyUpdateDTO) {
+        Player player = playerService.findPlayerByToken(lobbyUpdateDTO.getPlayerToken());
+        Lobby lobby = player.getOwnedLobby();
+        long lobbyCodeLong = parseLobbyCode(code);
+        if (lobby == null || lobby.getCode() != lobbyCodeLong) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
+        if (lobbyUpdateDTO.getMode() != null && !Objects.equals(lobbyUpdateDTO.getMode(), lobby.getMode())) {
+            lobby.setMode(lobbyUpdateDTO.getMode());
+        }
+        if (lobbyUpdateDTO.getName() != null && !Objects.equals(lobbyUpdateDTO.getName(), lobby.getName())) {
+            lobby.setName(lobbyUpdateDTO.getName());
+        }
+        if (Objects.equals(lobbyUpdateDTO.getPublicAccess(), lobby.getPublicAccess())) {
+            lobby.setPublicAccess(lobbyUpdateDTO.getPublicAccess());
+            messagingTemplate.convertAndSend("/lobbies", getPublicLobbiesGetDTOList());
+        }
+
+        return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
     }
 
     @PostMapping("/lobbies/{code}/games")
@@ -166,5 +194,15 @@ public class LobbyController {
         catch (NumberFormatException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted id");
         }
+    }
+
+    private List<LobbyGetDTO> getPublicLobbiesGetDTOList() {
+        List<Lobby> lobbies = lobbyService.getPublicLobbies();
+        List<LobbyGetDTO> lobbyGetDTOS = new ArrayList<>();
+
+        for (Lobby lobby : lobbies) {
+            lobbyGetDTOS.add(DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
+        }
+        return lobbyGetDTOS;
     }
 }
