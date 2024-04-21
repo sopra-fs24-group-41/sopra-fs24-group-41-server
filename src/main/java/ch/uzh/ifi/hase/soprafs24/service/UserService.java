@@ -130,24 +130,21 @@ public class UserService {
     }
 
     public void usernameValidation(String username){
-        if(username == null || username.isEmpty()){
+        if(username != null && username.isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username may not be left empty");
         }
 
-        if(username.contains(" ")){
+        if(username != null && username.contains(" ")){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username may not contain blank spaces");
         }
     }
 
     public void favouriteValidation(String favourite){
-        if(favourite == null){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username may not be left empty");
-        }
-
-        if(favourite.contains(" ")){
+        if(favourite != null && favourite.contains(" ")){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Favourite word may not contain blank spaces");
         }
     }
+
 
     public User editUser(String token, User updatedUser){
         User foundUser = userRepository.findByToken(token);
@@ -162,19 +159,18 @@ public class UserService {
         }
 
         //Update data
-        if(!Objects.equals(foundUser.getUsername(), updatedUser.getUsername())){
+        if(updatedUser.getUsername()!=null && !Objects.equals(foundUser.getUsername(), updatedUser.getUsername())){
             foundUser.setUsername(updatedUser.getUsername());}
 
-        if(!Objects.equals(foundUser.getFavourite(), updatedUser.getFavourite())){
+        if(updatedUser.getFavourite()!=null && !Objects.equals(foundUser.getFavourite(), updatedUser.getFavourite())){
             foundUser.setFavourite(updatedUser.getFavourite());}
-        if(updatedUser.getFavourite().isEmpty()){
+        if(updatedUser.getFavourite()!=null && updatedUser.getFavourite().isEmpty()){
             foundUser.setFavourite("Zaddy");
         }
 
-        if(updatedUser.getProfilePicture() != null && !Objects.equals(foundUser.getProfilePicture(), updatedUser.getProfilePicture())){
+        if(updatedUser.getProfilePicture()!=null && !Objects.equals(foundUser.getProfilePicture(), updatedUser.getProfilePicture())){
             foundUser.setProfilePicture(updatedUser.getProfilePicture());
         }
-
         return foundUser;
     }
 }
