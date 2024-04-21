@@ -23,11 +23,17 @@ public class Word implements Serializable {
     @OneToMany(mappedBy = "result")
     private List<Combination> combinations;
 
+    @Column
+    private int depth;
+
+    @Column
+    private double difficultyScore;
+
     public Word() {
     }
 
     public Word(String name) {
-        name = name.replaceAll("[^A-Za-z0-9]","");
+        name = name.replaceAll("[^A-Za-z0-9]", "");
         name = name.toLowerCase();
         this.name = name;
     }
@@ -53,9 +59,25 @@ public class Word implements Serializable {
     }
 
     public void setName(String name) {
-        name = name.replaceAll("[^A-Za-z0-9]","");
+        name = name.replaceAll("[^A-Za-z0-9]", "");
         name = name.toLowerCase();
         this.name = name;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
+    public double getDifficultyScore() {
+        return difficultyScore;
+    }
+
+    public void setDifficultyScore(double difficultyScore) {
+        this.difficultyScore = difficultyScore;
     }
 
     public List<Combination> getCombinations() {
