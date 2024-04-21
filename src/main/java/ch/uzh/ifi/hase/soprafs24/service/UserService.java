@@ -130,7 +130,7 @@ public class UserService {
     }
 
     public void usernameValidation(String username){
-        if(username.isEmpty()){
+        if(username == null || username.isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username may not be left empty");
         }
 
@@ -140,6 +140,10 @@ public class UserService {
     }
 
     public void favouriteValidation(String favourite){
+        if(favourite == null){
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username may not be left empty");
+        }
+
         if(favourite.contains(" ")){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Favourite word may not contain blank spaces");
         }
