@@ -10,7 +10,6 @@ import io.github.cdimascio.dotenv.DotenvException;
 
 @Service
 public class APIService {
-
     public String generateCombinationResult(String word1, String word2) {
         return getAwanLLMWord(word1, word2);
     }

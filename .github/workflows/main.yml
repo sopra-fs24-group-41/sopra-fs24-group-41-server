@@ -23,6 +23,10 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
+      - name: Insert API Token
+        run:
+          echo "AWAN_LLM_KEY=${{ secrets.API_TOKEN }}" > src/main/resources/.env
+
       - name: Test and analyze
         run: ./gradlew test jacocoTestReport sonar
         env:
