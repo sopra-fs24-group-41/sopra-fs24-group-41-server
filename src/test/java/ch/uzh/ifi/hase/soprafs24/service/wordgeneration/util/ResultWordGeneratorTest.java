@@ -4,7 +4,6 @@ import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.exceptions.WordNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.service.CombinationService;
-import ch.uzh.ifi.hase.soprafs24.service.WordGenerationService;
 import ch.uzh.ifi.hase.soprafs24.service.WordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,14 +40,14 @@ class ResultWordGeneratorTest {
 
         Mockito.when(combinationService.getCombination(any(), any()))
                 .thenReturn(new Combination(word1, word2, expectedResultWord));
-        Mockito.when(wordService.findWord(any()))
-                .thenThrow(new WordNotFoundException(expectedResultWord.getName()));
+        Mockito.when(wordService.getWord(any()))
+                .thenReturn(new Word(expectedResultWord.getName()));
 
         Word actualResultWord = resultWordGenerator.generateResultWord(word1, word2);
 
         assertEquals(expectedResultWord.getName(), actualResultWord.getName());
         assertEquals(expectedResultWord.getDepth(), actualResultWord.getDepth());
-        assertEquals(expectedResultWord.getDifficultyScore(), actualResultWord.getDifficultyScore());
+        assertEquals(expectedResultWord.getReachability(), actualResultWord.getReachability());
     }
 
     @Test
@@ -60,14 +59,12 @@ class ResultWordGeneratorTest {
 
         Mockito.when(combinationService.getCombination(any(), any()))
                 .thenReturn(new Combination(word1, word2, new Word("Apocalypse")));
-        Mockito.when(wordService.findWord(any()))
-                .thenReturn(oldResultWord);
-        Mockito.when(wordService.updateWord(any())).thenReturn(updatedResultWord);
+        Mockito.when(wordService.getWord(any())).thenReturn(oldResultWord);
 
         Word actualResultWord = resultWordGenerator.generateResultWord(word1, word2);
 
         assertEquals(updatedResultWord.getName(), actualResultWord.getName());
         assertEquals(updatedResultWord.getDepth(), actualResultWord.getDepth());
-        assertEquals(updatedResultWord.getDifficultyScore(), actualResultWord.getDifficultyScore());
+        assertEquals(updatedResultWord.getReachability(), actualResultWord.getReachability());
     }
 }

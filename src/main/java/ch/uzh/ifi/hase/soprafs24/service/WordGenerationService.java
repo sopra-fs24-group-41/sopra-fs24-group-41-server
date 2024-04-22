@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
+import ch.uzh.ifi.hase.soprafs24.exceptions.CombinationNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.service.wordgeneration.util.ResultWordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,11 +23,14 @@ public class WordGenerationService {
         this.resultWordGenerator = resultWordGenerator;
     }
 
-    public void pregenerateDatabase(int numberOfSteps, List<Word> startingWords) throws Exception {
-        for (Word word : startingWords)
-            wordService.addWord(word);
+    public void makeCombinations(int numberOfCombinations, List<Word> startingWords) throws Exception {
+        for (Word word : startingWords) {
+            Word foundWord = wordService.getWord(word);
+            foundWord.setDepth(0);
+            foundWord.setReachability(1e6);
+        }
 
-        for (int step = 1; step <= numberOfSteps; step++) {
+        for (int step = 1; step <= numberOfCombinations; step++) {
             while (true) {
                 Word word1 = wordService.findRandomWord();
                 Word word2 = wordService.findRandomWord();
@@ -34,7 +38,7 @@ public class WordGenerationService {
                 try {
                     combinationService.findCombination(word1, word2);
                 }
-                catch (Exception e) {
+                catch (CombinationNotFoundException e) {
                     resultWordGenerator.generateResultWord(word1, word2);
                     break;
                 }

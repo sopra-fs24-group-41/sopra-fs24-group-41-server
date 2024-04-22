@@ -14,7 +14,6 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @WebAppConfiguration
@@ -53,7 +52,7 @@ class WordGenerationServiceIntegrationTest {
         Word word2 = new Word("Fire");
         ArrayList<Word> startingWords = new ArrayList<>(Arrays.asList(word1, word2));
 
-        wordGenerationService.pregenerateDatabase(10, startingWords);
+        wordGenerationService.makeCombinations(10, startingWords);
         Word targetWord = wordGenerationService.getTargetWord(0.25);
 
         assertEquals(10, combinationRepository.findAll().size());

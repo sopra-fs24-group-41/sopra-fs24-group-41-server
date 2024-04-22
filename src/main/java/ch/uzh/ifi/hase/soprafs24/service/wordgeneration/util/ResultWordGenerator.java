@@ -22,24 +22,17 @@ public class ResultWordGenerator {
         this.wordService = wordService;
         this.combinationService = combinationService;
     }
-    public Word generateResultWord(Word word1, Word word2) throws Exception {
+
+    public Word generateResultWord(Word word1, Word word2) {
         int generatedDepth = max(word1.getDepth(), word2.getDepth()) + 1;
         Combination newCombination = combinationService.getCombination(word1, word2);
         Word resultWord = newCombination.getResult();
         resultWord.setDepth(generatedDepth);
-        resultWord.setDifficultyScore((double) 1 / (1L << generatedDepth));
+        resultWord.setReachability((double) 1 / (1L << generatedDepth));
 
-        try {
-            // The resulting word has been seen before
-            Word foundWord = wordService.findWord(resultWord);
-            resultWord.setDepth(min(foundWord.getDepth(), resultWord.getDepth()));
-            resultWord.setDifficultyScore(foundWord.getDifficultyScore() + resultWord.getDifficultyScore());
-            wordService.updateWord(resultWord);
-        }
-        catch (Exception f) {
-            // The resulting word is seen for the first time
-            wordService.addWord(resultWord);
-        }
-        return resultWord;
+        Word foundWord = wordService.getWord(resultWord);
+        foundWord.setDepth(min(foundWord.getDepth(), resultWord.getDepth()));
+        foundWord.setReachability(foundWord.getReachability() + resultWord.getReachability());
+        return foundWord;
     }
 }

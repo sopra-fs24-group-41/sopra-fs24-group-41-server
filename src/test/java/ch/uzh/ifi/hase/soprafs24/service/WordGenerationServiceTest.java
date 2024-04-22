@@ -1,10 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 
-import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.exceptions.CombinationNotFoundException;
-import ch.uzh.ifi.hase.soprafs24.exceptions.WordNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.service.wordgeneration.util.ResultWordGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,16 +47,16 @@ class WordGenerationServiceTest {
         ArrayList<Word> expectedResultList = new ArrayList<Word>(Arrays.asList(word1, word2, expectedResultWord));
         ArrayList<Word> actualResultList = new ArrayList<>();
 
-        Mockito.when(wordService.addWord(any())).thenAnswer(new Answer() {
-            private int count = 0;
-
+        Mockito.when(wordService.getWord(word1)).thenAnswer(new Answer() {
             public Object answer(InvocationOnMock invocation) {
-                if (count == 0)
-                    actualResultList.add(word1);
-                if (count == 1)
-                    actualResultList.add(word2);
-                count++;
+                actualResultList.add(word1);
                 return word1;
+            }
+        });
+        Mockito.when(wordService.getWord(word2)).thenAnswer(new Answer() {
+            public Object answer(InvocationOnMock invocation) {
+                actualResultList.add(word2);
+                return word2;
             }
         });
 
@@ -74,7 +72,7 @@ class WordGenerationServiceTest {
                     }
                 });
 
-        wordGenerationService.pregenerateDatabase(1, startingWords);
+        wordGenerationService.makeCombinations(1, startingWords);
 
         assertEquals(expectedResultList, actualResultList);
     }
