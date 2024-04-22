@@ -16,7 +16,7 @@ import org.mockito.MockitoAnnotations;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
-public class ResultWordGeneratorTest {
+class ResultWordGeneratorTest {
 
     @Mock
     private WordService wordService;
@@ -34,7 +34,7 @@ public class ResultWordGeneratorTest {
     }
 
     @Test
-    public void generateResultWord_whenResultWordFirstTimeSeen_success() throws Exception {
+    void generateResultWord_whenResultWordFirstTimeSeen_success() throws Exception {
         Word word1 = new Word("Earthquake", 4, 0.07);
         Word word2 = new Word("Volcano", 3, 0.11);
         Word expectedResultWord = new Word("Apocalypse", 5, (double) 1 / (1L << 5));
@@ -52,7 +52,7 @@ public class ResultWordGeneratorTest {
     }
 
     @Test
-    public void generateResultWord_whenResultWordSeenBefore_updatesDepthAndScore() throws Exception {
+    void generateResultWord_whenResultWordSeenBefore_updatesDepthAndScore() throws Exception {
         Word word1 = new Word("Earthquake", 4, 0.07);
         Word word2 = new Word("Volcano", 3, 0.11);
         Word oldResultWord = new Word("Apocalypse", 6, (double) 1 / (1L << 6));

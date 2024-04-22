@@ -21,7 +21,7 @@ import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 
-public class WordGenerationServiceTest {
+class WordGenerationServiceTest {
 
     @Mock
     private WordService wordService;
@@ -41,7 +41,7 @@ public class WordGenerationServiceTest {
     }
 
     @Test
-    public void pregenerateDatabase_oneCombination_success() throws Exception {
+    void pregenerateDatabase_oneCombination_success() throws Exception {
         Word word1 = new Word("Water");
         Word word2 = new Word("Fire");
         ArrayList<Word> startingWords = new ArrayList<>(Arrays.asList(word1, word2));

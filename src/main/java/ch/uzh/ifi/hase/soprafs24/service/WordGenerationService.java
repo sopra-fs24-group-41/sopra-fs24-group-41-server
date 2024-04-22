@@ -1,16 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.service.wordgeneration.util.ResultWordGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import javax.xml.transform.Result;
 import java.util.List;
-
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 @Service
 public class WordGenerationService {
