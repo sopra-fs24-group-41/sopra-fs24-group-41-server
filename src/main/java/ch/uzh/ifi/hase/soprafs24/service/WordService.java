@@ -46,4 +46,8 @@ public class WordService {
         }
         return word;
     }
+
+    public Word getTargetWord(double targetDifficultyScore) {
+        return findRandomWord();
+    }
 }
