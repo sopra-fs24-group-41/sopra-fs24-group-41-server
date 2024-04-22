@@ -65,6 +65,9 @@ Worked on:
 ## 15.04 - 21.04 Week 4
 **na50r - Rosan Shanmuganathan**
 - Worked on the result page and completed it. (Still not integrated with server yet, waiting for web socket setup to be complete) [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/71)
+- Implemented Profile Picture Persistance, Worked Full stack
+- Implemented Persistance on Client Side, Added More profile pictures, fixed bugs [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/74)
+- Adjusted Server side to match Client, Added Tests for all things Edit User Info related [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server)
 
  **JacquelineUlken - Jacqueline Ulken**
  - Added endpoint for creating and starting a new game in an existing lobby [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/134)
