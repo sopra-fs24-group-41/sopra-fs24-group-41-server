@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import javassist.compiler.ast.Symbol;
 import org.json.JSONException;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -25,9 +26,10 @@ public class APIService {
         String apiKey = dotenv.get("AWAN_LLM_KEY");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + apiKey);
+        headers.set("Authorization", "Bearer " + "");
 
         HttpEntity<String> httpEntity = new HttpEntity<>(requestBody, headers);
+        System.out.println(httpEntity);
 
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, String.class);
