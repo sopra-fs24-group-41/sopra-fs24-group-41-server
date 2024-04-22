@@ -32,4 +32,13 @@ public class APIServiceTest {
         assertNotEquals("", result);
         assertFalse(result.contains(" "));
     }
+
+    @Test
+    public void getMistralWord_success() {
+        String result = apiService.getMistralWord("water", "fire");
+
+        assertNotNull(result);
+        assertNotEquals("", result);
+        assertFalse(result.contains(" "));
+    }
 }
