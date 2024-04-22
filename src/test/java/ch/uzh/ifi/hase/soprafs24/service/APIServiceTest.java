@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -34,8 +35,8 @@ public class APIServiceTest {
     }
 
     @Test
-    public void getMistralWord_success() {
-        String result = apiService.getMistralWord("water", "fire");
+    public void getAwanLLMWord_success() throws JSONException {
+        String result = apiService.getAwanLLMWord("water", "fire");
 
         assertNotNull(result);
         assertNotEquals("", result);
