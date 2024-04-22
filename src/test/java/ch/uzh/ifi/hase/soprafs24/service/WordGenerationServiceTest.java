@@ -5,6 +5,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.exceptions.CombinationNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.exceptions.WordNotFoundException;
+import ch.uzh.ifi.hase.soprafs24.service.wordgeneration.util.ResultWordGenerator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -28,50 +29,53 @@ public class WordGenerationServiceTest {
     @Mock
     private CombinationService combinationService;
 
+    @Mock
+    private ResultWordGenerator resultWordGenerator;
+
     @InjectMocks
     private WordGenerationService wordGenerationService;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-
     }
 
     @Test
-    public void generateResultWord_whenResultWordFirstTimeSeen_success() throws Exception {
-        Word word1 = new Word("Earthquake", 4, 0.07);
-        Word word2 = new Word("Volcano", 3, 0.11);
-        Word expectedResultWord = new Word("Apocalypse", 5, (double) 1 / (1L << 5));
+    public void pregenerateDatabase_oneCombination_success() throws Exception {
+        Word word1 = new Word("Water");
+        Word word2 = new Word("Fire");
+        ArrayList<Word> startingWords = new ArrayList<>(Arrays.asList(word1, word2));
+        Word expectedResultWord = new Word("Steam", 1, (double) 1 / (1L << 1));
+        ArrayList<Word> expectedResultList = new ArrayList<Word>(Arrays.asList(word1, word2, expectedResultWord));
+        ArrayList<Word> actualResultList = new ArrayList<>();
 
-        Mockito.when(combinationService.getCombination(any(), any()))
-                .thenReturn(new Combination(word1, word2, expectedResultWord));
-        Mockito.when(wordService.findWord(any()))
-                .thenThrow(new WordNotFoundException(expectedResultWord.getName()));
+        Mockito.when(wordService.addWord(any())).thenAnswer(new Answer() {
+            private int count = 0;
 
-        Word actualResultWord = wordGenerationService.generateResultWord(word1, word2);
+            public Object answer(InvocationOnMock invocation) {
+                if (count == 0)
+                    actualResultList.add(word1);
+                if (count == 1)
+                    actualResultList.add(word2);
+                count++;
+                return word1;
+            }
+        });
 
-        assertEquals(expectedResultWord.getName(), actualResultWord.getName());
-        assertEquals(expectedResultWord.getDepth(), actualResultWord.getDepth());
-        assertEquals(expectedResultWord.getDifficultyScore(), actualResultWord.getDifficultyScore());
-    }
+        Mockito.when(wordService.findRandomWord()).thenReturn(word1, word2);
+        Mockito.when(combinationService.findCombination(any(), any()))
+                .thenThrow(new CombinationNotFoundException(word1.getName(), word2.getName()));
 
-    @Test
-    public void generateResultWord_whenResultWordSeenBefore_updatesDepthAndScore() throws Exception {
-        Word word1 = new Word("Earthquake", 4, 0.07);
-        Word word2 = new Word("Volcano", 3, 0.11);
-        Word oldResultWord = new Word("Apocalypse", 6, (double) 1 / (1L << 6));
-        Word updatedResultWord = new Word("Apocalypse", 5, (double) 1 / (1L << 5) + (double) 1 / (1L << 6));
+        Mockito.when(resultWordGenerator.generateResultWord(any(), any()))
+                .thenAnswer(new Answer() {
+                    public Object answer(InvocationOnMock invocation) {
+                        actualResultList.add(expectedResultWord);
+                        return expectedResultWord;
+                    }
+                });
 
-        Mockito.when(combinationService.getCombination(any(), any()))
-                .thenReturn(new Combination(word1, word2, new Word("Apocalypse")));
-        Mockito.when(wordService.findWord(any()))
-                .thenReturn(oldResultWord);
-        Mockito.when(wordService.updateWord(any())).thenReturn(updatedResultWord);
+        wordGenerationService.pregenerateDatabase(1, startingWords);
 
-        Word actualResultWord = wordGenerationService.generateResultWord(word1, word2);
-
-        assertEquals(updatedResultWord.getName(), actualResultWord.getName());
-        assertEquals(updatedResultWord.getDepth(), actualResultWord.getDepth());
-        assertEquals(updatedResultWord.getDifficultyScore(), actualResultWord.getDifficultyScore());
+        assertEquals(expectedResultList, actualResultList);
     }
 }
