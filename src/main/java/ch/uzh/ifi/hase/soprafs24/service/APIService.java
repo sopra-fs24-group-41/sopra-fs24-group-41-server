@@ -21,10 +21,9 @@ public class APIService {
         String userMessage = String.format("%s + %s", word1, word2);
         String requestBody = String.format("{\"model\": \"%s\", \"messages\": [{\"role\":\"system\",\"content\": \"%s\"}, {\"role\": \"user\",\"content\": \"%s\"}]}", model, systemMessage, userMessage);
         String apiUrl = "https://api.awanllm.com/v1/chat/completions";
-//        String apiKey = System.getenv("MISTRAL_API_KEY");
-//        Dotenv dotenv = Dotenv.load();
-//        System.out.println("Load worked" + dotenv.get("AWANLLM_KEY"));
-        String apiKey = "04a4c00e-7a56-4c42-b513-d19c467e0f8a";
+
+        Dotenv dotenv = Dotenv.configure().directory("src/main/resources").load();
+        String apiKey = dotenv.get("AWAN_LLM_KEY");
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + apiKey);
