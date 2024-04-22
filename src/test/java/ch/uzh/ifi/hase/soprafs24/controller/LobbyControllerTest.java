@@ -247,6 +247,26 @@ public class LobbyControllerTest {
     }
 
     @Test
+    public void updateLobby_validInputs_thenUpdatedLobbyReturned() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void updateLobby_InvalidToken_throwsNotFoundException() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void updateLobby_InvalidCode_throwsBadRequestException() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void updateLobby_NotOwner_throwsForbiddenException() throws Exception {
+        // TODO
+    }
+
+    @Test
     public void joinLobbyByUser_validToken_thenLobbyAndPlayerTokenReturned() throws Exception {
         // given
         testUser1.setPlayer(null);
@@ -431,7 +451,7 @@ public class LobbyControllerTest {
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
         // when
-        MockHttpServletRequestBuilder deleteRequest = delete(String.format("/lobbies/4twothree1/players/%s", testLobby.getCode(), testPlayer2.getId()))
+        MockHttpServletRequestBuilder deleteRequest = delete(String.format("/lobbies/4twothree1/players/%s", testPlayer2.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .header("playerToken", testPlayer1.getToken());

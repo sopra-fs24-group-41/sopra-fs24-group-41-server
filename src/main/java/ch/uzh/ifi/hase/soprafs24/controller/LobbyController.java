@@ -5,16 +5,13 @@ import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
-import ch.uzh.ifi.hase.soprafs24.exceptions.WebsocketLobbyException;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
-import ch.uzh.ifi.hase.soprafs24.websocket.Message;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.handler.annotation.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -99,56 +96,40 @@ public class LobbyController {
         }
     }
 
-    @MessageMapping("/lobbies/{code}")
-    @SendTo("/lobbies/{code}")
-    public LobbyGetDTO updateLobby(@DestinationVariable String code, @Payload LobbyPutDTO lobbyUpdateDTO) {
-        Player player;
-        Lobby lobby;
-        long lobbyCodeLong;
-
-        try { // get player by token
-            player = playerService.findPlayerByToken(lobbyUpdateDTO.getPlayerToken());
-        } catch (ResponseStatusException e) {
-            throw new WebsocketLobbyException("include playerToken in your request", code);
-        }
-        lobby = player.getOwnedLobby(); // try to get owned lobby from player
+    @PutMapping("/lobbies/{code}")
+    @ResponseStatus(HttpStatus.OK)
+    public LobbyGetDTO updateLobby(@PathVariable String code, @RequestBody LobbyPutDTO lobbyPutDTO) {
+        Player player = playerService.findPlayerByToken(lobbyPutDTO.getPlayerToken());
+        Lobby lobby = player.getOwnedLobby();
+        long lobbyCodeLong = parseLobbyCode(code);
         if (lobby == null) {
-            try { // try to parse supplied code
-                lobbyCodeLong = parseLobbyCode(code);
-                throw new WebsocketLobbyException(String.format("You are not the owner of lobby with code %d", lobbyCodeLong),
-                        String.format("%d", lobbyCodeLong));
-            } catch (ResponseStatusException e) { // invalid code supplied and player does not own a lobby
-                throw new WebsocketLobbyException(e.getMessage(), code);
-            }
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("You are not the owner of lobby with code %d", lobbyCodeLong));
         }
-        try { // try to parse supplied code
-            lobbyCodeLong = parseLobbyCode(code);
-        } catch (ResponseStatusException e) { // invalid formatting of lobby code, but we know the lobby code
-            throw new WebsocketLobbyException(e.getMessage(), String.format("%d", lobby.getCode()));
-        }
-
         if (lobby.getCode() != lobbyCodeLong) {
-            throw new WebsocketLobbyException(String.format("Incorrect channel! You own lobby with code %d", lobby.getCode()),
-                    String.format("%d", lobby.getCode()));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    String.format("You own lobby with code %d, but you supplied the code %d", lobby.getCode(), lobbyCodeLong));
         }
 
-        if (lobbyUpdateDTO.getMode() != null && !Objects.equals(lobbyUpdateDTO.getMode(), lobby.getMode())) {
-            lobby.setMode(lobbyUpdateDTO.getMode());
+        boolean changed = false;
+        if (lobbyPutDTO.getMode() != null && !Objects.equals(lobbyPutDTO.getMode(), lobby.getMode())) {
+            lobby.setMode(lobbyPutDTO.getMode());
+            changed = true;
         }
-        if (lobbyUpdateDTO.getName() != null && !Objects.equals(lobbyUpdateDTO.getName(), lobby.getName())) {
-            lobby.setName(lobbyUpdateDTO.getName());
+        if (lobbyPutDTO.getName() != null && !Objects.equals(lobbyPutDTO.getName(), lobby.getName())) {
+            lobby.setName(lobbyPutDTO.getName());
+            changed = true;
         }
-        if (Objects.equals(lobbyUpdateDTO.getPublicAccess(), lobby.getPublicAccess())) {
-            lobby.setPublicAccess(lobbyUpdateDTO.getPublicAccess());
+        if (Objects.equals(lobbyPutDTO.getPublicAccess(), lobby.getPublicAccess())) {
+            lobby.setPublicAccess(lobbyPutDTO.getPublicAccess());
             messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
+            changed = true;
+        }
+        if (changed) {
+            messagingTemplate.convertAndSend("topic/lobbies/" + lobbyCodeLong,
+                    DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
         }
 
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
-    }
-
-    @MessageExceptionHandler(WebsocketLobbyException.class)
-    public void handleException(WebsocketLobbyException e) {
-        messagingTemplate.convertAndSend("/topic/errors/lobbies/" + e.getLobbyCode(), new Message(e.getMessage()));
     }
 
     @PostMapping("/lobbies/{code}/games")
@@ -172,8 +153,16 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removePlayerFromLobby(@PathVariable String lobbyCode, @PathVariable String playerId, @RequestHeader String playerToken) {
         Player player = getAuthenticatedPlayer(lobbyCode, playerId, playerToken);
-        if (player.getOwnedLobby() == null) playerService.removePlayer(player);
-        else lobbyService.removeLobby(player.getOwnedLobby());
+        if (player.getOwnedLobby() == null) {
+            Lobby lobby = player.getLobby();
+            playerService.removePlayer(player);
+            messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode(), DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
+        }
+        else {
+            lobbyService.removeLobby(player.getOwnedLobby());
+            // TODO: send command that all remaining players should be redirected to overview screen because the lobby was closed
+            messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
+        }
     }
 
     private Player getAuthenticatedPlayer(String lobbyCode, String playerId, String playerToken) {
