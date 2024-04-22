@@ -3,7 +3,12 @@ package ch.uzh.ifi.hase.soprafs24.websocket;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.messaging.MessageChannel;
+import org.springframework.messaging.simp.SimpMessageType;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
+import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.messaging.support.ChannelInterceptor;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -33,4 +38,19 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         this.messageBrokerTaskScheduler = taskScheduler;
     }
 
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        registration.interceptors(new ChannelInterceptor() {
+            @Override
+            public org.springframework.messaging.Message<?> preSend(org.springframework.messaging.Message<?> message, MessageChannel channel) {
+                StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+                // block messages sent to /topic/** (stops cheating)
+                if (SimpMessageType.MESSAGE.equals(accessor.getMessageType()) && accessor.getDestination() != null
+                        && accessor.getDestination().startsWith("/topic/")) {
+                    return null;
+                }
+                return message;
+            }
+        });
+    }
 }
