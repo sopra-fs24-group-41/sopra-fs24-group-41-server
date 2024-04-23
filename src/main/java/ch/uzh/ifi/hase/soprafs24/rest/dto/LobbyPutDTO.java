@@ -4,21 +4,11 @@ import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 
 public class LobbyPutDTO {
 
-    private String playerToken;
-
     private GameMode mode;
 
     private boolean publicAccess;
 
     private String name;
-
-    public String getPlayerToken() {
-        return playerToken;
-    }
-
-    public void setPlayerToken(String playerToken) {
-        this.playerToken = playerToken;
-    }
 
     public GameMode getMode() {
         return mode;
