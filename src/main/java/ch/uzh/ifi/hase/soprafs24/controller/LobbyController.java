@@ -102,6 +102,13 @@ public class LobbyController {
         lobby.setStatus(LobbyStatus.INGAME);
     }
 
+    @GetMapping("/lobbies/{lobbyCode}/players/{playerId}")
+    @ResponseStatus(HttpStatus.OK)
+    public PlayerGetDTO getPlayer(@PathVariable String lobbyCode, @PathVariable String playerId, @RequestHeader String playerToken) {
+        Player player = getAuthenticatedPlayer(lobbyCode, playerId, playerToken);
+        return DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(player);
+    }
+
     @PutMapping("/lobbies/{lobbyCode}/players/{playerId}")
     @ResponseStatus(HttpStatus.OK)
     public PlayerPlayedDTO play(@PathVariable String lobbyCode, @PathVariable String playerId,
