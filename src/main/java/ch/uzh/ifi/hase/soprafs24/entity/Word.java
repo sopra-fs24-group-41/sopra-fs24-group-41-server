@@ -23,13 +23,29 @@ public class Word implements Serializable {
     @OneToMany(mappedBy = "result")
     private List<Combination> combinations;
 
+    @Column
+    private int depth;
+
+    @Column
+    private double reachability;
+
     public Word() {
     }
 
     public Word(String name) {
-        name = name.replaceAll("[^A-Za-z0-9]","");
+        name = name.replaceAll("[^A-Za-z0-9]", "");
         name = name.toLowerCase();
         this.name = name;
+        this.depth = 1000;
+        this.reachability = 0;
+    }
+
+    public Word(String name, int depth, double reachability) {
+        name = name.replaceAll("[^A-Za-z0-9]", "");
+        name = name.toLowerCase();
+        this.name = name;
+        this.depth = depth;
+        this.reachability = reachability;
     }
 
     @Override
@@ -53,9 +69,25 @@ public class Word implements Serializable {
     }
 
     public void setName(String name) {
-        name = name.replaceAll("[^A-Za-z0-9]","");
+        name = name.replaceAll("[^A-Za-z0-9]", "");
         name = name.toLowerCase();
         this.name = name;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
+    public double getReachability() {
+        return reachability;
+    }
+
+    public void setReachability(double difficultyScore) {
+        this.reachability = difficultyScore;
     }
 
     public List<Combination> getCombinations() {

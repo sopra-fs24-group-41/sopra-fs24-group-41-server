@@ -9,6 +9,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 @Service
 @Transactional
 public class CombinationService {
@@ -42,15 +47,48 @@ public class CombinationService {
         throw new CombinationNotFoundException(word1.getName(), word2.getName());
     }
 
-    private Combination createCombination(Word word1, Word word2) {
-        Word resultWord = generateCombinationResult(word1, word2);
-        Combination newCombination = new Combination(wordService.getWord(word1), wordService.getWord(word2), wordService.getWord(resultWord));
-        return combinationRepository.saveAndFlush(newCombination);
+    Combination createCombination(Word word1, Word word2) {
+        int depth = max(word1.getDepth(), word2.getDepth()) + 1;
+        double reachability = 1.0 / (1L << depth);
+
+        Word combinationResult = generateCombinationResult(word1, word2);
+        Combination newCombination = new Combination(wordService.getWord(word1), wordService.getWord(word2), wordService.getWord(combinationResult));
+        Combination combination = combinationRepository.saveAndFlush(newCombination);
+
+        Word resultWord = combination.getResult();
+        resultWord.setDepth(min(resultWord.getDepth(), depth));
+        resultWord.setReachability(resultWord.getReachability() + reachability);
+        return combination;
     }
 
-    private Word generateCombinationResult(Word word1, Word word2) {
+    Word generateCombinationResult(Word word1, Word word2) {
         String resultString = apiService.generateCombinationResult(word1.getName(), word2.getName());
         return new Word(resultString);
     }
 
+    public void makeCombinations(int numberOfCombinations, List<Word> startingWords) {
+        for (Word word : startingWords) {
+            Word foundWord = wordService.getWord(word);
+            foundWord.setDepth(0);
+            foundWord.setReachability(1e6);
+        }
+
+        for (int step = 1; step <= numberOfCombinations; step++) {
+            while (true) {
+                Word word1 = wordService.findRandomWord();
+                Word word2 = wordService.findRandomWord();
+
+                try {
+                    findCombination(word1, word2);
+                }
+                catch (CombinationNotFoundException e) {
+                    Combination newCombination = createCombination(word1, word2);
+                    Word foundWord = wordService.getWord(newCombination.getResult());
+                    foundWord.setDepth(foundWord.getDepth());
+                    foundWord.setReachability(foundWord.getReachability());
+                    break;
+                }
+            }
+        }
+    }
 }

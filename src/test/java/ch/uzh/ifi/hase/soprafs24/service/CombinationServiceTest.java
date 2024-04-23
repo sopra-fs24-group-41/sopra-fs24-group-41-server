@@ -7,9 +7,15 @@ import ch.uzh.ifi.hase.soprafs24.repository.CombinationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 
 public class CombinationServiceTest {
 
@@ -22,6 +28,7 @@ public class CombinationServiceTest {
     @Mock
     private WordService wordService;
 
+    @Spy
     @InjectMocks
     private CombinationService combinationService;
 
@@ -119,5 +126,70 @@ public class CombinationServiceTest {
         assertEquals(testWord1, newCombination.getWord1());
         assertEquals(testWord2, newCombination.getWord2());
         assertEquals(testResult, newCombination.getResult());
+    }
+
+    @Test
+    void createCombination_whenResultWordFirstTimeSeen_success() throws Exception {
+        Word word1 = new Word("Earthquake", 4, 0.07);
+        Word word2 = new Word("Volcano", 3, 0.11);
+        Word resultWord = new Word("Apocalypse", 5, (double) 1 / (1L << 5));
+        Combination expectedCombination = new Combination(word1, word2, resultWord);
+
+        Mockito.doReturn(new Word("Apocalypse"))
+                .when(combinationService).generateCombinationResult(word1, word2);
+        Mockito.doReturn(new Combination(word1, word2, new Word("Apocalypse")))
+                .when(combinationRepository).saveAndFlush(any());
+
+        Combination actualCombination = combinationService.createCombination(word1, word2);
+
+        assertEquals(expectedCombination, actualCombination);
+    }
+
+    @Test
+    void generateResultWord_whenResultWordSeenBefore_updatesDepthAndScore() throws Exception {
+        Word word1 = new Word("Earthquake", 4, 0.07);
+        Word word2 = new Word("Volcano", 3, 0.11);
+        Word oldResultWord = new Word("Apocalypse", 6, (double) 1 / (1L << 6));
+        Word updatedResultWord = new Word("Apocalypse", 5, (double) 1 / (1L << 5) + (double) 1 / (1L << 6));
+        Combination expectedCombination = new Combination(word1, word2, updatedResultWord);
+
+        Mockito.doReturn(new Word("Apocalypse"))
+                .when(combinationService).generateCombinationResult(word1, word2);
+        Mockito.doReturn(new Combination(word1, word2, oldResultWord))
+                .when(combinationRepository).saveAndFlush(any());
+
+        Combination actualCombination = combinationService.createCombination(word1, word2);
+
+        assertEquals(expectedCombination, actualCombination);
+    }
+
+    @Test
+    void makeCombinations_oneCombination_success() {
+        Word word1 = new Word("Water");
+        Word word2 = new Word("Fire");
+        ArrayList<Word> startingWords = new ArrayList<>(Arrays.asList(word1, word2));
+        Word resultWord = new Word("Steam", 1, (double) 1 / (1L << 1));
+        ArrayList<Word> expectedResultList = new ArrayList<Word>(Arrays.asList(word1, word2, resultWord));
+        ArrayList<Word> actualResultList = new ArrayList<>();
+
+        ArrayList<Word> returnedWords = new ArrayList<>(Arrays.asList(word1, word2, new Word("Steam")));
+        Mockito.when(wordService.getWord(any())).thenAnswer(new Answer() {
+            private int counter = 0;
+
+            public Object answer(InvocationOnMock invocation) {
+                actualResultList.add(returnedWords.get(counter));
+                return returnedWords.get(counter++);
+            }
+        });
+        Mockito.when(wordService.findRandomWord()).thenReturn(word1, word2);
+        Mockito.doThrow(new CombinationNotFoundException(word1.getName(), word2.getName()))
+                .when(combinationService).findCombination(word1, word2);
+
+        Mockito.doReturn(new Combination(word1, word2, resultWord))
+                .when(combinationService).createCombination(word1, word2);
+
+        combinationService.makeCombinations(1, startingWords);
+
+        assertEquals(expectedResultList, actualResultList);
     }
 }

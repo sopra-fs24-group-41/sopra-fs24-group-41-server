@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @WebAppConfiguration
@@ -24,6 +27,9 @@ public class CombinationServiceIntegrationTest {
     @Qualifier("wordRepository")
     @Autowired
     private WordRepository wordRepository;
+
+    @Autowired
+    private WordService wordService;
 
     @Autowired
     private CombinationService combinationService;
@@ -46,5 +52,17 @@ public class CombinationServiceIntegrationTest {
 
         assertEquals(combo1.getWord1().getName(), combo3.getWord1().getName());
         assertNotEquals(combo1.getWord2().getName(), combo3.getWord2().getName());
+    }
+
+    @Test
+    public void makeCombinations_multipleCombinations_success() {
+        Word word1 = new Word("Water");
+        Word word2 = new Word("Fire");
+        ArrayList<Word> startingWords = new ArrayList<>(Arrays.asList(word1, word2));
+
+        combinationService.makeCombinations(5, startingWords);
+        Word targetWord = wordService.getTargetWord(0.25);
+
+        assertEquals(5, combinationRepository.findAll().size());
     }
 }
