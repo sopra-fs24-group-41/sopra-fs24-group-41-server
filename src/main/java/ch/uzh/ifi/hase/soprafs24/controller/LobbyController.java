@@ -98,17 +98,8 @@ public class LobbyController {
 
     @PutMapping("/lobbies/{code}")
     @ResponseStatus(HttpStatus.OK)
-    public LobbyGetDTO updateLobby(@PathVariable String code, @RequestBody LobbyPutDTO lobbyPutDTO) {
-        Player player = playerService.findPlayerByToken(lobbyPutDTO.getPlayerToken());
-        Lobby lobby = player.getOwnedLobby();
-        long lobbyCodeLong = parseLobbyCode(code);
-        if (lobby == null) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, String.format("You are not the owner of lobby with code %d", lobbyCodeLong));
-        }
-        if (lobby.getCode() != lobbyCodeLong) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                    String.format("You own lobby with code %d, but you supplied the code %d", lobby.getCode(), lobbyCodeLong));
-        }
+    public LobbyGetDTO updateLobby(@PathVariable String code, @RequestBody LobbyPutDTO lobbyPutDTO, @RequestHeader String playerToken) {
+        Lobby lobby = getAuthenticatedLobby(code, playerToken);
 
         boolean changed = false;
         if (lobbyPutDTO.getMode() != null && !Objects.equals(lobbyPutDTO.getMode(), lobby.getMode())) {
@@ -125,7 +116,7 @@ public class LobbyController {
             changed = true;
         }
         if (changed) {
-            messagingTemplate.convertAndSend("topic/lobbies/" + lobbyCodeLong,
+            messagingTemplate.convertAndSend("/topic/lobbies/" + code,
                     DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
         }
 
@@ -138,6 +129,7 @@ public class LobbyController {
         Lobby lobby = getAuthenticatedLobby(code, playerToken);
         gameService.createNewGame(lobby);
         lobby.setStatus(LobbyStatus.INGAME);
+        // TODO: communicate that lobby started to /topic/lobbies/code/game
     }
 
     @PutMapping("/lobbies/{lobbyCode}/players/{playerId}")
