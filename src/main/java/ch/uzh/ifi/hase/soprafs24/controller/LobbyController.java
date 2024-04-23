@@ -114,8 +114,10 @@ public class LobbyController {
     public PlayerPlayedDTO play(@PathVariable String lobbyCode, @PathVariable String playerId,
                                 @RequestHeader String playerToken, @RequestBody List<Word> words) {
         Player player = getAuthenticatedPlayer(lobbyCode, playerId, playerToken);
-        gameService.play(player, words);
-        return DTOMapper.INSTANCE.convertEntityToPlayerPlayedDTO(player);
+        Word result = gameService.play(player, words);
+        PlayerPlayedDTO playerPlayedDTO = DTOMapper.INSTANCE.convertEntityToPlayerPlayedDTO(player);
+        playerPlayedDTO.setResultWord(DTOMapper.INSTANCE.convertEntityToWordDTO(result));
+        return playerPlayedDTO;
     }
 
     @DeleteMapping("/lobbies/{lobbyCode}/players/{playerId}")

@@ -47,16 +47,18 @@ public class GameService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
-    public void play(Player player, List<Word> words) {
+    public Word play(Player player, List<Word> words) {
         Lobby lobby = player.getLobby();
         Game game = instantiateGame(lobby.getMode());
-        game.makeCombination(player, words);
+        Word result = game.makeCombination(player, words);
 
         if (game.winConditionReached(player)) {
-            return;  // notify that player has won
+            // notify that player has won
         }
 
         // notify that the player did something
+
+        return result;
     }
 
     private Game instantiateGame(GameMode gameMode) {
