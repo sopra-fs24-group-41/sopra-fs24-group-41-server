@@ -1,15 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
-import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerWordDTO;
-import ch.uzh.ifi.hase.soprafs24.entity.Word;
-
-import java.util.List;
 import java.util.Set;
 
 public class PlayerPlayedDTO {
     private long points;
     private Set<PlayerWordDTO> playerWords;
     private WordDTO targetWord;
+    private WordDTO resultWord;
 
     public long getPoints() {
         return points;
@@ -33,5 +30,13 @@ public class PlayerPlayedDTO {
 
     public void setTargetWord(WordDTO targetWord) {
         this.targetWord = targetWord;
+    }
+
+    public WordDTO getResultWord() {
+        return resultWord;
+    }
+
+    public void setResultWord(WordDTO resultWord) {
+        this.resultWord = resultWord;
     }
 }

@@ -39,11 +39,12 @@ public class Game {
         }
     }
 
-    public void makeCombination(Player player, List<Word> words) {
+    public Word makeCombination(Player player, List<Word> words) {
         if (words.size() == 2) {
             Combination combination = combinationService.getCombination(words.get(0), words.get(1));
-            player.addWord(combination.getResult());
-            return;
+            Word result = combination.getResult();
+            player.addWord(result);
+            return result;
         }
 
         String errorMessage = "Standard game only allows combination of exactly two words!";
