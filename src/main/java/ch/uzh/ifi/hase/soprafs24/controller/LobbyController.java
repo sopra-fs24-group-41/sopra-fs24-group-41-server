@@ -1,10 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
-import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs24.entity.Player;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.entity.Word;
+import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.GameService;
@@ -18,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Lobby Controller
@@ -92,6 +90,14 @@ public class LobbyController {
         else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "joining lobby as anonymous user not supported, please supply userToken as header field");
         }
+    }
+
+    @GetMapping("/lobbies/{code}/players")
+    @ResponseStatus(HttpStatus.OK)
+    public List<PlayerGetDTO> getPlayers(@PathVariable String code) {
+        long lobbyCodeLong = parseLobbyCode(code);
+        Lobby lobby = lobbyService.getLobbyByCode(lobbyCodeLong);
+        return lobby.getPlayers().stream().map(DTOMapper.INSTANCE::convertEntityToPlayerGetDTO).collect(Collectors.toList());
     }
 
     @PostMapping("/lobbies/{code}/games")

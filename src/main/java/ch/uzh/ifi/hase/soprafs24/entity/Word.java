@@ -33,7 +33,7 @@ public class Word implements Serializable {
     }
 
     public Word(String name) {
-        name = name.replaceAll("[^A-Za-z0-9]", "");
+        name = name.replaceAll("[^A-Za-z0-9 ]", "");
         name = name.toLowerCase();
         this.name = name;
         this.depth = 1000;
@@ -41,7 +41,7 @@ public class Word implements Serializable {
     }
 
     public Word(String name, int depth, double reachability) {
-        name = name.replaceAll("[^A-Za-z0-9]", "");
+        name = name.replaceAll("[^A-Za-z0-9 ]", "");
         name = name.toLowerCase();
         this.name = name;
         this.depth = depth;
