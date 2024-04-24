@@ -16,9 +16,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Lobby Controller
@@ -101,21 +99,11 @@ public class LobbyController {
     public LobbyGetDTO updateLobby(@PathVariable String code, @RequestBody LobbyPutDTO lobbyPutDTO, @RequestHeader String playerToken) {
         Lobby lobby = getAuthenticatedLobby(code, playerToken);
 
-        boolean changed = false;
-        if (lobbyPutDTO.getMode() != null && !Objects.equals(lobbyPutDTO.getMode(), lobby.getMode())) {
-            lobby.setMode(lobbyPutDTO.getMode());
-            changed = true;
-        }
-        if (lobbyPutDTO.getName() != null && !Objects.equals(lobbyPutDTO.getName(), lobby.getName())) {
-            lobby.setName(lobbyPutDTO.getName());
-            changed = true;
-        }
-        if (Objects.equals(lobbyPutDTO.getPublicAccess(), lobby.getPublicAccess())) {
-            lobby.setPublicAccess(lobbyPutDTO.getPublicAccess());
+        Map<String, Boolean> updates = lobbyService.updateLobby(lobby, lobbyPutDTO, this);
+        if (updates.get("publicAccess") || updates.get("name")) {
             messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
-            changed = true;
         }
-        if (changed) {
+        if (updates.containsValue(true)) {
             messagingTemplate.convertAndSend("/topic/lobbies/" + code,
                     DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
         }

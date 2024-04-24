@@ -1,10 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
+import ch.uzh.ifi.hase.soprafs24.controller.LobbyController;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.LobbyRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPutDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -84,6 +84,27 @@ public class LobbyService {
         log.debug("updated lobby {}", foundLobby);
         log.debug("created new player from user {}", player);
         return player;
+    }
+
+    public Map<String, Boolean> updateLobby(Lobby lobby, LobbyPutDTO lobbyPutDTO, LobbyController controller) {
+        Map<String, Boolean> updates = new HashMap<>();
+        updates.put("mode", false);
+        updates.put("name", false);
+        updates.put("publicAccess", false);
+
+        if (lobbyPutDTO.getMode() != null && !lobbyPutDTO.getMode().equals(lobby.getMode())) {
+            lobby.setMode(lobbyPutDTO.getMode());
+            updates.put("mode", true);
+        }
+        if (lobbyPutDTO.getName() != null && !Objects.equals(lobbyPutDTO.getName(), lobby.getName())) {
+            lobby.setName(lobbyPutDTO.getName());
+            updates.put("name", true);
+        }
+        if (lobbyPutDTO.getPublicAccess() != null && !Objects.equals(lobbyPutDTO.getPublicAccess(), lobby.getPublicAccess())) {
+            lobby.setPublicAccess(lobbyPutDTO.getPublicAccess());
+            updates.put("publicAccess", true);
+        }
+        return updates;
     }
 
     public void removeLobby(Lobby lobby) {
