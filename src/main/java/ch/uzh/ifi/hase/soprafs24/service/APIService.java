@@ -40,7 +40,8 @@ public class APIService {
     }
 
     public String getVertexAIWord(String word1, String word2) throws JSONException {
-        String apiUrl = "https://us-central1-aiplatform.googleapis.com/v1/projects/sopra-fs24-rshanm-server/locations/us-central1/publishers/google/models/text-bison:predict";
+        String projectID = "sopra-fs24-rshanm-server"; //Write here your ProjectID
+        String apiUrl = String.format("https://us-central1-aiplatform.googleapis.com/v1/projects/%s/locations/us-central1/publishers/google/models/text-bison:predict", projectID);
         JSONObject requestBody = new JSONObject();
         JSONArray instancesArray = new JSONArray();
         JSONObject instance = new JSONObject();
