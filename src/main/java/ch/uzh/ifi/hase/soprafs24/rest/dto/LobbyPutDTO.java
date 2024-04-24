@@ -6,7 +6,7 @@ public class LobbyPutDTO {
 
     private GameMode mode;
 
-    private boolean publicAccess;
+    private Boolean publicAccess;
 
     private String name;
 
@@ -18,11 +18,11 @@ public class LobbyPutDTO {
         this.mode = mode;
     }
 
-    public boolean getPublicAccess() {
+    public Boolean getPublicAccess() {
         return publicAccess;
     }
 
-    public void setPublicAccess(boolean publicAccess) {
+    public void setPublicAccess(Boolean publicAccess) {
         this.publicAccess = publicAccess;
     }
 

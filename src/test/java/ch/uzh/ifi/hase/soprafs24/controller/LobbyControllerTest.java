@@ -267,6 +267,11 @@ public class LobbyControllerTest {
     }
 
     @Test
+    public void updateLobby_InvalidGameMode_throwsNotFoundException() throws Exception {
+        // TODO
+    }
+
+    @Test
     public void joinLobbyByUser_validToken_thenLobbyAndPlayerTokenReturned() throws Exception {
         // given
         testUser1.setPlayer(null);
