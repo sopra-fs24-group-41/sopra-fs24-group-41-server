@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
@@ -11,6 +12,7 @@ import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -117,7 +119,8 @@ public class LobbyController {
         Lobby lobby = getAuthenticatedLobby(code, playerToken);
         gameService.createNewGame(lobby);
         lobby.setStatus(LobbyStatus.INGAME);
-        // TODO: communicate that lobby started to /topic/lobbies/code/game
+        messagingTemplate.convertAndSend("topic/lobbies", getPublicLobbiesGetDTOList());
+        messagingTemplate.convertAndSend("/topic/lobbies/" + code + "/game", new InstructionDTO(Instruction.start));
     }
 
     @PutMapping("/lobbies/{lobbyCode}/players/{playerId}")
@@ -140,8 +143,8 @@ public class LobbyController {
         }
         else {
             lobbyService.removeLobby(player.getOwnedLobby());
-            // TODO: send command that all remaining players should be redirected to overview screen because the lobby was closed
             messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
+            messagingTemplate.convertAndSend("/topic/lobbies/" + lobbyCode + "/game", new InstructionDTO(Instruction.kick));
         }
     }
 
