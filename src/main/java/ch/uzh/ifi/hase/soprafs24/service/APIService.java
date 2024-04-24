@@ -65,7 +65,12 @@ public class APIService {
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, String.class);
         System.out.println(response.getBody());
-        return response.getBody();
+
+        JSONObject jsonResponse = new JSONObject(response.getBody());
+        String content = jsonResponse.getJSONArray("predictions").getJSONObject(0).getString("content");
+        content = content.replace(" ", "");
+        System.out.println(content);
+        return content;
     }
 
 
