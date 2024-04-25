@@ -57,14 +57,14 @@ public class Vertex {
             throws IOException {
         PredictionServiceSettings predictionServiceSettings =
                 PredictionServiceSettings.newBuilder()
-                        .setEndpoint("us-central1-aiplatform.googleapis.com:443")
+                        .setEndpoint("europe-west4-aiplatform.googleapis.com:443")
                         .build();
 
         String content = null;
 
         try (PredictionServiceClient predictionServiceClient =
                      PredictionServiceClient.create(predictionServiceSettings)) {
-            String location = "us-central1";
+            String location = "europe-west4";
             final EndpointName endpointName =
                     EndpointName.ofProjectLocationPublisherModelName(project, location, publisher, model);
 
