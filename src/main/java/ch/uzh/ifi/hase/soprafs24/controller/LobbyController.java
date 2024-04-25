@@ -125,7 +125,7 @@ public class LobbyController {
         Lobby lobby = getAuthenticatedLobby(code, playerToken);
         gameService.createNewGame(lobby);
         lobby.setStatus(LobbyStatus.INGAME);
-        messagingTemplate.convertAndSend("topic/lobbies", getPublicLobbiesGetDTOList());
+        messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
         messagingTemplate.convertAndSend("/topic/lobbies/" + code + "/game", new InstructionDTO(Instruction.start));
     }
 
@@ -199,7 +199,7 @@ public class LobbyController {
             return Long.parseLong(codeString);
         }
         catch (NumberFormatException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted lobby code");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted lobby code. Full error message: " + e.getMessage());
         }
     }
 
@@ -208,7 +208,7 @@ public class LobbyController {
             return Long.parseLong(idString);
         }
         catch (NumberFormatException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted id");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted id. Full error message: " + e.getMessage());
         }
     }
 
