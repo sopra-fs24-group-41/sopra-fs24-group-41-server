@@ -10,10 +10,14 @@ import org.json.JSONObject;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.github.cdimascio.dotenv.DotenvException;
 
+import java.io.IOException;
+
+import static ch.uzh.ifi.hase.soprafs24.service.Vertex.predictChatPrompt;
+
 @Service
 public class APIService {
     public String generateCombinationResult(String word1, String word2) {
-        return getVertexAIWord(word1, word2);
+        return getVertexAIWordV2(word1, word2);
     }
 
     public String getAwanLLMWord(String word1, String word2) throws JSONException {
@@ -74,6 +78,45 @@ public class APIService {
         return content;
     }
 
+
+    public String getVertexAIWordV2(String word1, String word2){
+        String instance = String.format(
+                "{\n"
+                        + "   \"context\":  \"You are an AI that only returns the combination of two given words. Reply only with the element that comes by combining two elements using the logic on the examples below.\n" +
+                        "\n.\",\n"
+                        + "   \"examples\": [ { \n"
+                        + "       \"input\": {\"content\": \"Earth + Water\"},\n"
+                        + "       \"output\": {\"content\": \"Steam\"}\n"
+                        + "    },\n"
+                        + "    { \n"
+                        + "       \"input\": {\"content\": \"Earth + Lava\"},\n"
+                        + "       \"output\": {\"content\": \"Stone\"}\n"
+                        + "    }],\n"
+                        + "   \"messages\": [\n"
+                        + "    { \n"
+                        + "       \"author\": \"user\",\n"
+                        + "       \"content\": \"%s + %s\"\n"
+                        + "    }]\n"
+                        + "}", word1, word2);
+        String parameters =
+                "{\n"
+                        + "  \"temperature\": 0.3,\n"
+                        + "  \"maxDecodeSteps\": 200,\n"
+                        + "  \"topP\": 0.8,\n"
+                        + "  \"topK\": 40\n"
+                        + "}";
+        String project = "sopra-fs24-rshanm-server";
+        String publisher = "google";
+        String model = "chat-bison@001";
+
+        String output = null;
+        try {
+            output = predictChatPrompt(instance, parameters, project, publisher, model);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return output;
+    }
 
 
     public String getRandomWord() {

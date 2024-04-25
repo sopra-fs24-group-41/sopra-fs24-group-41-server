@@ -48,10 +48,11 @@ public class Vertex {
         String publisher = "google";
         String model = "chat-bison@001";
 
-        predictChatPrompt(instance, parameters, project, publisher, model);
+        String output = predictChatPrompt(instance, parameters, project, publisher, model);
+        System.out.println(output);
     }
 
-    static void predictChatPrompt(
+    static String predictChatPrompt(
             String instance, String parameters, String project, String publisher, String model)
             throws IOException {
         PredictionServiceSettings predictionServiceSettings =
@@ -59,8 +60,8 @@ public class Vertex {
                         .setEndpoint("us-central1-aiplatform.googleapis.com:443")
                         .build();
 
-        // Initialize client that will be used to send requests. This client only needs to be created
-        // once, and can be reused for multiple requests.
+        String content = null;
+
         try (PredictionServiceClient predictionServiceClient =
                      PredictionServiceClient.create(predictionServiceSettings)) {
             String location = "us-central1";
@@ -79,17 +80,13 @@ public class Vertex {
             PredictResponse predictResponse = predictionServiceClient.predict(endpointName, instances, parameterValue);
 
             List<Value> predictionsList = predictResponse.getPredictionsList();
-            for (Value predictionValue : predictionsList) {
-                Struct predictionStruct = predictionValue.getStructValue();
-                // Access the 'candidates' field inside 'predictions'
+            if (!predictionsList.isEmpty()) {
+                Struct predictionStruct = predictionsList.get(0).getStructValue();
                 Value candidatesValue = predictionStruct.getFieldsOrThrow("candidates");
-                // Access the first element of the list inside 'candidates'
                 Struct firstCandidate = candidatesValue.getListValue().getValues(0).getStructValue();
-                // Access the 'content' field inside the first candidate
-                String content = firstCandidate.getFieldsOrThrow("content").getStringValue();
-                // Print the content
-                System.out.println("Content: " + content);
+                content = firstCandidate.getFieldsOrThrow("content").getStringValue();
             }
         }
+        return content;
     }
 }
