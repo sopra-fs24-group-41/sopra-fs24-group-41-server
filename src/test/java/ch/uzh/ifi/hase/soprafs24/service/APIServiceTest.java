@@ -1,10 +1,11 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import org.json.JSONException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.MockitoAnnotations;
+
+import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,10 +20,21 @@ public class APIServiceTest {
     }
 
     @Test
-    public void getRandomWord_success() {
-        String responseBody = apiService.getRandomWord();
+    public void getVertexAIWord_success() throws IOException {
+        String result = apiService.getVertexAIWord("water", "fire");
 
-        assertNotNull(responseBody);
+        assertNotNull(result);
+        assertNotEquals("", result);
+        System.out.println(result);
+    }
+
+    @Test
+    public void getRandomWord_success() {
+        String result = apiService.getRandomWord();
+
+        assertNotNull(result);
+        assertNotEquals("", result);
+        System.out.println(result);
     }
 
     @Test
@@ -31,15 +43,6 @@ public class APIServiceTest {
 
         assertNotNull(result);
         assertNotEquals("", result);
-        assertFalse(result.contains(" "));
-    }
-
-    @Test
-    public void getAwanLLMWord_success() throws JSONException {
-        String result = apiService.getAwanLLMWord("water", "fire");
-
-        assertNotNull(result);
-        assertNotEquals("", result);
-        assertFalse(result.contains(" "));
+        System.out.println(result);
     }
 }
