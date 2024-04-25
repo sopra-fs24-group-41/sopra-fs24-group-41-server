@@ -66,7 +66,7 @@ public class APIService {
                         + "  \"topP\": 0.8,\n"
                         + "  \"topK\": 40\n"
                         + "}";
-        String project = "sopra-fs24-rshanm-server"; //Unsure if this matters actually, for the Credential confirmation
+        String project = "sopra-fs24-group-41-server"; //Unsure if this matters actually, for the Credential confirmation
         String publisher = "google";
         String model = "chat-bison@001"; //Unsure about this one, could be changed.
 

@@ -42,6 +42,3 @@ local.properties
 .vscode
 
 /bin
-
-#API Keys
-*.env

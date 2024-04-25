@@ -44,7 +44,7 @@ public class Vertex {
                         + "  \"topP\": 0.8,\n"
                         + "  \"topK\": 40\n"
                         + "}";
-        String project = "sopra-fs24-rshanm-server";
+        String project = "sopra-fs24-group-41-server";
         String publisher = "google";
         String model = "chat-bison@001";
 
