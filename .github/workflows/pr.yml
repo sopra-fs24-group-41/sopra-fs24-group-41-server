@@ -22,8 +22,6 @@ jobs:
            java-version: '17'
 
       - name: Build with Gradle
-        env:        
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.SERVICE_ACCOUNT }}  
         run: ./gradlew build
 
       - name: Test with Gradle
