@@ -9,11 +9,10 @@ import ch.uzh.ifi.hase.soprafs24.service.WordService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FusionFrenzyGame extends Game {
-    private Word target;
+    private Word targetWord;
 
     public FusionFrenzyGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
@@ -22,13 +21,13 @@ public class FusionFrenzyGame extends Game {
 
     void setup() {
         super.setup();
-        target = wordService.findRandomWord();
+        targetWord = wordService.findRandomWord();
     }
 
     public void setupPlayers(List<Player> players) {
         for (Player player : players) {
             player.setWords(startingWords);
-            player.setTargetWord(target);
+            player.setTargetWord(targetWord);
         }
     }
 
@@ -45,6 +44,6 @@ public class FusionFrenzyGame extends Game {
     }
 
     public boolean winConditionReached(Player player) {
-        return player.getWords().contains(target);
+        return player.getWords().contains(targetWord);
     }
 }
