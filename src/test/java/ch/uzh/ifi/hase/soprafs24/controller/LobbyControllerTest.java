@@ -22,6 +22,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.server.ResponseStatusException;
@@ -65,6 +66,9 @@ public class LobbyControllerTest {
 
     @MockBean
     private GameService gameService;
+
+    @MockBean
+    private SimpMessagingTemplate messagingTemplate;
 
     @BeforeEach
     public void setup() {
@@ -240,6 +244,31 @@ public class LobbyControllerTest {
 
         //then
         mockMvc.perform(postRequest).andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void updateLobby_validInputs_thenUpdatedLobbyReturned() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void updateLobby_InvalidToken_throwsNotFoundException() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void updateLobby_InvalidCode_throwsBadRequestException() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void updateLobby_NotOwner_throwsForbiddenException() throws Exception {
+        // TODO
+    }
+
+    @Test
+    public void updateLobby_InvalidGameMode_throwsNotFoundException() throws Exception {
+        // TODO
     }
 
     @Test
@@ -427,7 +456,7 @@ public class LobbyControllerTest {
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
         // when
-        MockHttpServletRequestBuilder deleteRequest = delete(String.format("/lobbies/4twothree1/players/%s", testLobby.getCode(), testPlayer2.getId()))
+        MockHttpServletRequestBuilder deleteRequest = delete(String.format("/lobbies/4twothree1/players/%s", testPlayer2.getId()))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .header("playerToken", testPlayer1.getToken());
