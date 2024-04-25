@@ -65,6 +65,9 @@ Worked on:
 ## 15.04 - 21.04 Week 4
 **na50r - Rosan Shanmuganathan**
 - Worked on the result page and completed it. (Still not integrated with server yet, waiting for web socket setup to be complete) [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/71)
+- Implemented Profile Picture Persistance, Worked Full stack
+- Implemented Persistance on Client Side, Added More profile pictures, fixed bugs [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/74)
+- Adjusted Server side to match Client, Added Tests for all things Edit User Info related [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server)
 
  **JacquelineUlken - Jacqueline Ulken**
  - Added endpoint for creating and starting a new game in an existing lobby [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/134)
@@ -75,6 +78,9 @@ Worked on:
  **Grizzlytron - Lucas Timothy Leo Bär**
 - Implemented creating and joining lobbies from client side (on both lobby and lobbyoverview page). Also implemented design and a few other functions. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/72). 
 
+**Aquamarine-12 - Alexandru-Mihai Hurjui**
+
+- Designed the algorithm for generating the target word and implemented it (apart from the unit tests). Issue: [#137](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/137), pull request: [link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/138) 
 
 **Tmmn - Timon Leupp**
 - Spent many hours getting websockets to work. I have a working demo [here](https://sopra-fs24-leupp-timon-client.oa.r.appspot.com/websocket-demo)
@@ -82,3 +88,7 @@ Worked on:
 - Updated our endpoint specification [here](https://docs.google.com/document/d/17lbypcjihu_So1mG5_hbFzTprMyhldP0R6PDwxjIpnU/edit?usp=sharing)
 
 ## 22.04 - 28.04 Week 5
+
+**Aquamarine-12 - Alexandru-Mihai Hurjui**
+
+- Wrote unit tests for target word generation

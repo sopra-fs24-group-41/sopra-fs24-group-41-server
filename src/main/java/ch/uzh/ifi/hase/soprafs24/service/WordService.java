@@ -1,8 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
-import ch.uzh.ifi.hase.soprafs24.exceptions.CombinationNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.exceptions.WordNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.repository.WordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +38,7 @@ public class WordService {
 
     public Word findRandomWord() {
         Long qty = wordRepository.count();
-        int idx = (int)(Math.random() * qty);
+        int idx = (int) (Math.random() * qty);
         Page<Word> wordPage = wordRepository.findAll(PageRequest.of(idx, 1));
         Word word = null;
         if (wordPage.hasContent()) {
@@ -49,4 +47,7 @@ public class WordService {
         return word;
     }
 
+    public Word getTargetWord(double targetDifficultyScore) {
+        return findRandomWord();
+    }
 }
