@@ -15,6 +15,10 @@ jobs:
       - name: Checkout repository code
         uses: actions/checkout@v2
 
+      - name: Hello world action
+        env: # Or as an environment variable
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.SERVICE_ACCOUNT }}  
+
       - name: Install Java 17
         uses: actions/setup-java@v3
         with:
