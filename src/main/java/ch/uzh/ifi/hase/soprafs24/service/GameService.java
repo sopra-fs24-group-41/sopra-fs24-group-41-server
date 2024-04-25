@@ -1,11 +1,14 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
+import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.game.FusionFrenzyGame;
 import ch.uzh.ifi.hase.soprafs24.game.Game;
+import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -22,12 +25,14 @@ public class GameService {
     private final CombinationService combinationService;
     private final WordService wordService;
     private final EnumMap<GameMode, Class<? extends Game>> gameModes = new EnumMap<>(GameMode.class);
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Autowired
-    public GameService(PlayerService playerService, CombinationService combinationService, WordService wordService) {
+    public GameService(PlayerService playerService, CombinationService combinationService, WordService wordService, SimpMessagingTemplate messagingTemplate) {
         this.playerService = playerService;
         this.combinationService = combinationService;
         this.wordService = wordService;
+        this.messagingTemplate = messagingTemplate;
         setupGameModes();
     }
 
@@ -53,9 +58,8 @@ public class GameService {
         Word result = game.makeCombination(player, words);
 
         if (game.winConditionReached(player)) {
+            messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
         }
-
-        // notify that the player did something
 
         return result;
     }

@@ -43,7 +43,11 @@ public class Game {
         if (words.size() == 2) {
             Combination combination = combinationService.getCombination(words.get(0), words.get(1));
             Word result = combination.getResult();
-            player.addWord(result);
+            if (!player.getWords().contains(result)) {
+                player.addPoints(1);
+                player.addWord(result);
+                return result;
+            }
             return result;
         }
 
@@ -52,6 +56,6 @@ public class Game {
     }
 
     public boolean winConditionReached(Player player) {
-        return false;
+        return player.getPoints() >= 1;
     }
 }
