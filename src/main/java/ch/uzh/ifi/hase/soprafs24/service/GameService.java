@@ -53,7 +53,6 @@ public class GameService {
         Word result = game.makeCombination(player, words);
 
         if (game.winConditionReached(player)) {
-            // notify that player has won
         }
 
         // notify that the player did something
