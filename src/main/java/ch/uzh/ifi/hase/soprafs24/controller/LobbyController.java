@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
@@ -8,14 +9,13 @@ import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
+import java.util.*;
 
 /**
  * Lobby Controller
@@ -30,25 +30,24 @@ public class LobbyController {
     private final UserService userService;
 
     private final PlayerService playerService;
+
     private final GameService gameService;
 
-    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService, GameService gameService) {
+    private final SimpMessagingTemplate messagingTemplate;
+
+    LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService,
+                    GameService gameService, SimpMessagingTemplate messagingTemplate) {
         this.lobbyService = lobbyService;
         this.userService = userService;
         this.playerService = playerService;
         this.gameService = gameService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @GetMapping("/lobbies")
     @ResponseStatus(HttpStatus.OK)
     public List<LobbyGetDTO> getAllLobbies() {
-        List<Lobby> lobbies = lobbyService.getPublicLobbies();
-        List<LobbyGetDTO> lobbyGetDTOS = new ArrayList<>();
-
-        for (Lobby lobby : lobbies) {
-            lobbyGetDTOS.add(DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
-        }
-        return lobbyGetDTOS;
+        return getPublicLobbiesGetDTOList();
     }
 
     @GetMapping("/lobbies/{code}")
@@ -67,6 +66,7 @@ public class LobbyController {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before creating a new one.");
             }
             Player player = lobbyService.createLobbyFromUser(user, lobbyPostDTO.getPublicAccess());
+            messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
         }
         else {
@@ -85,6 +85,7 @@ public class LobbyController {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before joining a new one.");
             }
             Player player = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
+            messagingTemplate.convertAndSend("/topic/lobbies/" + code, DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(player.getLobby()));
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
         }
         else {
@@ -100,12 +101,31 @@ public class LobbyController {
         return lobby.getPlayers().stream().map(DTOMapper.INSTANCE::convertEntityToPlayerGetDTO).collect(Collectors.toList());
     }
 
+    @PutMapping("/lobbies/{code}")
+    @ResponseStatus(HttpStatus.OK)
+    public LobbyGetDTO updateLobby(@PathVariable String code, @RequestBody LobbyPutDTO lobbyPutDTO, @RequestHeader String playerToken) {
+        Lobby lobby = getAuthenticatedLobby(code, playerToken);
+
+        Map<String, Boolean> updates = lobbyService.updateLobby(lobby, lobbyPutDTO, this);
+        if (updates.get("publicAccess") || updates.get("name")) {
+            messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
+        }
+        if (updates.containsValue(true)) {
+            messagingTemplate.convertAndSend("/topic/lobbies/" + code,
+                    DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
+        }
+
+        return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
+    }
+
     @PostMapping("/lobbies/{code}/games")
     @ResponseStatus(HttpStatus.CREATED)
     public void startGame(@PathVariable String code, @RequestHeader String playerToken) {
         Lobby lobby = getAuthenticatedLobby(code, playerToken);
         gameService.createNewGame(lobby);
         lobby.setStatus(LobbyStatus.INGAME);
+        messagingTemplate.convertAndSend("topic/lobbies", getPublicLobbiesGetDTOList());
+        messagingTemplate.convertAndSend("/topic/lobbies/" + code + "/game", new InstructionDTO(Instruction.start));
     }
 
     @GetMapping("/lobbies/{lobbyCode}/players/{playerId}")
@@ -130,8 +150,16 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removePlayerFromLobby(@PathVariable String lobbyCode, @PathVariable String playerId, @RequestHeader String playerToken) {
         Player player = getAuthenticatedPlayer(lobbyCode, playerId, playerToken);
-        if (player.getOwnedLobby() == null) playerService.removePlayer(player);
-        else lobbyService.removeLobby(player.getOwnedLobby());
+        if (player.getOwnedLobby() == null) {
+            Lobby lobby = player.getLobby();
+            playerService.removePlayer(player);
+            messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode(), DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
+        }
+        else {
+            lobbyService.removeLobby(player.getOwnedLobby());
+            messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
+            messagingTemplate.convertAndSend("/topic/lobbies/" + lobbyCode + "/game", new InstructionDTO(Instruction.kick));
+        }
     }
 
     private Player getAuthenticatedPlayer(String lobbyCode, String playerId, String playerToken) {
@@ -181,5 +209,15 @@ public class LobbyController {
         catch (NumberFormatException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted id");
         }
+    }
+
+    private List<LobbyGetDTO> getPublicLobbiesGetDTOList() {
+        List<Lobby> lobbies = lobbyService.getPublicLobbies();
+        List<LobbyGetDTO> lobbyGetDTOS = new ArrayList<>();
+
+        for (Lobby lobby : lobbies) {
+            lobbyGetDTOS.add(DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
+        }
+        return lobbyGetDTOS;
     }
 }
