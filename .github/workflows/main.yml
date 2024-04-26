@@ -33,11 +33,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
 
   deploy:
     name: Deploying to Google Cloud
     runs-on: ubuntu-latest
-    # needs: test
 
     steps:
       - name: Checkout
@@ -50,6 +52,10 @@ jobs:
           deliverables: app.yaml
           version: v1
           credentials: ${{ secrets.GCP_SERVICE_CREDENTIALS }}
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
 
       - name: Test
         run: curl "${{ steps.deploy.outputs.url }}"
