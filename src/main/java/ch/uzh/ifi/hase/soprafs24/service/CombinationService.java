@@ -40,7 +40,7 @@ public class CombinationService {
         startingWords.add(new Word("air"));
 
         makeDefaultCombinations(startingWords);
-        makeCombinations(20, startingWords);
+        makeCombinations(20);
     }
 
     public Combination getCombination(Word word1, Word word2) {
@@ -118,17 +118,12 @@ public class CombinationService {
         createCustomCombination(new Word("air"), new Word("air"), new Word("air"));
     }
 
-    public void makeCombinations(int numberOfCombinations, List<Word> startingWords) {
-        for (Word word : startingWords) {
-            Word foundWord = wordService.getWord(word);
-            foundWord.setDepth(0);
-            foundWord.setReachability(1e6);
-        }
-
+    public void makeCombinations(int numberOfCombinations) {
         for (int step = 1; step <= numberOfCombinations; step++) {
             int maxIter = 1000;
             int iter = 0;
-            while (true) {
+            boolean newCombinationFound = false;
+            while (!newCombinationFound) {
                 Word word1 = wordService.getRandomWord();
                 Word word2 = wordService.getRandomWord();
 
@@ -137,7 +132,7 @@ public class CombinationService {
                 }
                 catch (CombinationNotFoundException e) {
                     createCombination(word1, word2);
-                    break;
+                    newCombinationFound = true;
                 }
 
                 iter += 1;

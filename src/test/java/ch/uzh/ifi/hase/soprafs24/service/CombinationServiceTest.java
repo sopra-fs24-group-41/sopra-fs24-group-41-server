@@ -172,19 +172,8 @@ public class CombinationServiceTest {
         Word word2 = new Word("fire");
         Word resultWord = new Word("steam", 1, (double) 1 / (1L << 1));
 
-        ArrayList<Word> startingWords = new ArrayList<>(Arrays.asList(word1, word2));
-        ArrayList<Word> expectedResultList = new ArrayList<Word>(Arrays.asList(word1, word2, resultWord));
-
-        ArrayList<Word> actualResultList = new ArrayList<>();
-        ArrayList<Word> returnedWords = new ArrayList<>(Arrays.asList(word1, word2, new Word("steam")));
-        Mockito.when(wordService.getWord(any())).thenAnswer(new Answer() {
-            private int counter = 0;
-
-            public Object answer(InvocationOnMock invocation) {
-                actualResultList.add(returnedWords.get(counter));
-                return returnedWords.get(counter++);
-            }
-        });
+        ArrayList<Word> expectedResultList = new ArrayList<>(Arrays.asList(word1, word2, resultWord));
+        ArrayList<Word> actualResultList = new ArrayList<>(Arrays.asList(word1, word2));
 
         Mockito.when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
         Mockito.when(wordService.getRandomWord()).thenReturn(word1, word2);
@@ -192,10 +181,15 @@ public class CombinationServiceTest {
         Mockito.doThrow(new CombinationNotFoundException(word1.getName(), word2.getName()))
                 .when(combinationService).findCombination(word1, word2);
 
-        Mockito.doReturn(new Combination(word1, word2, resultWord))
+        Mockito.doAnswer(new Answer() {
+                    public Object answer(InvocationOnMock invocation) {
+                        actualResultList.add(resultWord);
+                        return new Combination(word1, word2, resultWord);
+                    }
+                })
                 .when(combinationService).createCombination(word1, word2);
 
-        combinationService.makeCombinations(1, startingWords);
+        combinationService.makeCombinations(1);
 
         assertEquals(expectedResultList, actualResultList);
     }

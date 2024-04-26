@@ -59,7 +59,14 @@ public class CombinationServiceIntegrationTest {
         ArrayList<Word> startingWords = new ArrayList<>(Arrays.asList(new Word("water"), new Word("earth"),
                 new Word("fire"), new Word("air")));
 
-        combinationService.makeCombinations(5, startingWords);
+        for (Word word : startingWords) {
+            Word foundWord = wordService.getWord(word);
+            foundWord.setDepth(0);
+            foundWord.setReachability(1e6);
+            wordService.saveWord(foundWord);
+        }
+
+        combinationService.makeCombinations(5);
 
         assertEquals(5, combinationRepository.findAll().size());
     }
