@@ -90,5 +90,15 @@ Worked on:
 ## 22.04 - 28.04 Week 5
 
 **Aquamarine-12 - Alexandru-Mihai Hurjui**
-
 - Wrote unit tests for target word generation
+- Created functionality to display target word on screen ([issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/50))
+- Fixed bugs in the word board (front-end: [link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/commit/cb0ec31898b5650cffe9ef58f2e9ba079b6e1aa0)) and word target generation (back-end: [link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/commit/c41c2cf605336e606383a17141392c5692018d42))
+  
+ **Grizzlytron - Lucas Timothy Leo Bär**
+- Finished connecting frontend with backend mainly on Lobby and LobbyOverview Page. Implemented further functionalities on client side and adapted page. Refactored some models and also adjusted styling. [Commit](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/72/commits/519aee47512f4524433d8f68997fa0d2604d58e4)
+- Also worked on a bit of bug fixing. [Commit](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/72/commits/2d7078da6e341b60f16e2a89b9275c2ae5cc4f5e)
+
+**na50r - Rosan Shanmuganathan**
+- Helped with the Integration of Lobby Management (mainly client side), added option to edit lobbyname / set public/private status [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/72) 
+- Figured out how to integrate Vertex AI as an external API and modified the corresponding `Llm-api` branch accordingly, played with `main.yml` and `pr.yml` until it worked even post-deployment [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/146)
+- I mainly worked on aiding other on-going issues / bug fixing, I didn't tackle any new features, Jackie did most of the Java setup for `Llm-api`whereas I tried to find working APIs and figured out how they work for the most part. 
