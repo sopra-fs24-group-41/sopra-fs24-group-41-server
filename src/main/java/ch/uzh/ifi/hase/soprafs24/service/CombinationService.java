@@ -6,9 +6,12 @@ import ch.uzh.ifi.hase.soprafs24.exceptions.CombinationNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.repository.CombinationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.lang.Math.max;
@@ -26,6 +29,18 @@ public class CombinationService {
         this.combinationRepository = combinationRepository;
         this.apiService = apiService;
         this.wordService = wordService;
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void setupCombinationDatabase() {
+        List<Word> startingWords = new ArrayList<Word>();
+        startingWords.add(new Word("water"));
+        startingWords.add(new Word("earth"));
+        startingWords.add(new Word("fire"));
+        startingWords.add(new Word("air"));
+
+        makeDefaultCombinations(startingWords);
+        makeCombinations(20, startingWords);
     }
 
     public Combination getCombination(Word word1, Word word2) {
@@ -83,6 +98,26 @@ public class CombinationService {
         return new Word(resultString);
     }
 
+    public void makeDefaultCombinations(List<Word> startingWords) {
+        for (Word word : startingWords) {
+            Word foundWord = wordService.getWord(word);
+            foundWord.setDepth(0);
+            foundWord.setReachability(1e6);
+            wordService.saveWord(foundWord);
+        }
+
+        createCustomCombination(new Word("water"), new Word("water"), new Word("water"));
+        createCustomCombination(new Word("water"), new Word("earth"), new Word("mud"));
+        createCustomCombination(new Word("water"), new Word("fire"), new Word("steam"));
+        createCustomCombination(new Word("water"), new Word("air"), new Word("mist"));
+        createCustomCombination(new Word("earth"), new Word("earth"), new Word("earth"));
+        createCustomCombination(new Word("earth"), new Word("fire"), new Word("lava"));
+        createCustomCombination(new Word("earth"), new Word("air"), new Word("dust"));
+        createCustomCombination(new Word("fire"), new Word("fire"), new Word("fire"));
+        createCustomCombination(new Word("fire"), new Word("air"), new Word("smoke"));
+        createCustomCombination(new Word("air"), new Word("air"), new Word("air"));
+    }
+
     public void makeCombinations(int numberOfCombinations, List<Word> startingWords) {
         for (Word word : startingWords) {
             Word foundWord = wordService.getWord(word);
@@ -94,17 +129,14 @@ public class CombinationService {
             int maxIter = 1000;
             int iter = 0;
             while (true) {
-                Word word1 = wordService.findRandomWord();
-                Word word2 = wordService.findRandomWord();
+                Word word1 = wordService.getRandomWord();
+                Word word2 = wordService.getRandomWord();
 
                 try {
                     findCombination(word1, word2);
                 }
                 catch (CombinationNotFoundException e) {
-                    Combination newCombination = createCombination(word1, word2);
-                    Word foundWord = wordService.getWord(newCombination.getResult());
-                    foundWord.setDepth(foundWord.getDepth());
-                    foundWord.setReachability(foundWord.getReachability());
+                    createCombination(word1, word2);
                     break;
                 }
 
