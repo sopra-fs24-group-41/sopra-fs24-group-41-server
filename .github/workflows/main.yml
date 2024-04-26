@@ -23,6 +23,11 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
+      - name: Set GOOGLE_APPLICATION_CREDENTIALS (Secure Approach)
+        uses: google-github-actions/auth@v2  # Assuming you have this action installed
+        with:
+          credentials_json: ${{ secrets.SERVICE_ACCOUNT }}
+
       - name: Test and analyze
         run: ./gradlew test jacocoTestReport sonar
         env:
