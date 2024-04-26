@@ -29,6 +29,10 @@ public class WordService {
         }
     }
 
+    public Word saveWord(Word word) {
+        return wordRepository.saveAndFlush(word);
+    }
+
     public Word findWord(Word word) {
         Word foundWord = wordRepository.findByName(word.getName());
         if (foundWord != null) return foundWord;

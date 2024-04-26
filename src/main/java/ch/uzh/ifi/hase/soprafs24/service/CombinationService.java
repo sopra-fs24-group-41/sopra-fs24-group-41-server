@@ -47,17 +47,34 @@ public class CombinationService {
         throw new CombinationNotFoundException(word1.getName(), word2.getName());
     }
 
-    Combination createCombination(Word word1, Word word2) {
+    public Combination createCombination(Word word1, Word word2) {
+        Word combinationResult = generateCombinationResult(word1, word2);
+        Combination combination = new Combination(wordService.getWord(word1), wordService.getWord(word2), wordService.getWord(combinationResult));
+        combination = saveCombination(combination);
+        return combination;
+    }
+
+    public Combination saveCombination(Combination combination) {
+        Word word1 = combination.getWord1();
+        Word word2 = combination.getWord2();
+
         int depth = max(word1.getDepth(), word2.getDepth()) + 1;
         double reachability = 1.0 / (1L << depth);
 
-        Word combinationResult = generateCombinationResult(word1, word2);
-        Combination newCombination = new Combination(wordService.getWord(word1), wordService.getWord(word2), wordService.getWord(combinationResult));
-        Combination combination = combinationRepository.saveAndFlush(newCombination);
+        combination = combinationRepository.saveAndFlush(combination);
 
         Word resultWord = combination.getResult();
         resultWord.setDepth(min(resultWord.getDepth(), depth));
         resultWord.setReachability(resultWord.getReachability() + reachability);
+
+        wordService.saveWord(resultWord);
+
+        return combination;
+    }
+
+    public Combination createCustomCombination(Word word1, Word word2, Word result) {
+        Combination combination = new Combination(wordService.getWord(word1), wordService.getWord(word2), wordService.getWord(result));
+        combination = saveCombination(combination);
         return combination;
     }
 
