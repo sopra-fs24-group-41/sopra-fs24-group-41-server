@@ -95,7 +95,8 @@ public class GameServiceTest {
         playingWords.add(earth);
 
         Combination testCombination = new Combination(water, earth, mud);
-
+        Mockito.when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        Mockito.when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
         Mockito.when(combinationService.getCombination(water, earth)).thenReturn(testCombination);
         Mockito.doNothing().when(messagingTemplate).convertAndSend(Mockito.any());
 
