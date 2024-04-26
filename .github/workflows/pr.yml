@@ -35,7 +35,3 @@ jobs:
 
       - name: Test with Gradle
         run: ./gradlew test
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
-          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
