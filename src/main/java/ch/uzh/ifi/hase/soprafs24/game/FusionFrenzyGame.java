@@ -21,7 +21,7 @@ public class FusionFrenzyGame extends Game {
 
     void setup() {
         super.setup();
-        targetWord = wordService.findRandomWord();
+        targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
     }
 
     public void setupPlayers(List<Player> players) {

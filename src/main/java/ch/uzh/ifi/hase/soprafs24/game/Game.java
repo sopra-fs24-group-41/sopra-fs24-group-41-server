@@ -42,13 +42,8 @@ public class Game {
     public Word makeCombination(Player player, List<Word> words) {
         if (words.size() == 2) {
             Combination combination = combinationService.getCombination(words.get(0), words.get(1));
-            Word result = combination.getResult();
-            if (!player.getWords().contains(result)) {
-                player.addPoints(1);
-                player.addWord(result);
-                return result;
-            }
-            return result;
+            player.addWord(combination.getResult());
+            return combination.getResult();
         }
 
         String errorMessage = "Standard game only allows combination of exactly two words!";
@@ -56,6 +51,6 @@ public class Game {
     }
 
     public boolean winConditionReached(Player player) {
-        return player.getPoints() >= 1;
+        return false;
     }
 }
