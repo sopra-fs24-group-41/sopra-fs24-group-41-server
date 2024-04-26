@@ -103,3 +103,8 @@ Worked on:
 - Helped with the Integration of Lobby Management (mainly client side), added option to edit lobbyname / set public/private status [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/72) 
 - Figured out how to integrate Vertex AI as an external API and modified the corresponding `Llm-api` branch accordingly, played with `main.yml` and `pr.yml` until it worked even post-deployment [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/146)
 - I mainly worked on aiding other on-going issues / bug fixing, I didn't tackle any new features, Jackie did most of the Java setup for `Llm-api`whereas I tried to find working APIs and figured out how they work for the most part. 
+
+ **JacquelineUlken - Jacqueline Ulken**
+ - Fixed various bugs, got the gameplay communication between server and client to run properly
+ - Worked on connecting core gameplay to the client [#76](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/76)
+ - Worked on displaying other player's activity during a game [#77](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/77)
