@@ -74,6 +74,8 @@ public class CombinationService {
         }
 
         for (int step = 1; step <= numberOfCombinations; step++) {
+            int maxIter = 1000;
+            int iter = 0;
             while (true) {
                 Word word1 = wordService.findRandomWord();
                 Word word2 = wordService.findRandomWord();
@@ -87,6 +89,11 @@ public class CombinationService {
                     foundWord.setDepth(foundWord.getDepth());
                     foundWord.setReachability(foundWord.getReachability());
                     break;
+                }
+
+                iter += 1;
+                if (iter >= maxIter) {
+                    throw new RuntimeException("Maximum iteration exceeded");
                 }
             }
         }
