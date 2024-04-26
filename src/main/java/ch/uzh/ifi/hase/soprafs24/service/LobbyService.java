@@ -1,7 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
-import ch.uzh.ifi.hase.soprafs24.controller.LobbyController;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
@@ -86,7 +85,7 @@ public class LobbyService {
         return player;
     }
 
-    public Map<String, Boolean> updateLobby(Lobby lobby, LobbyPutDTO lobbyPutDTO, LobbyController controller) {
+    public Map<String, Boolean> updateLobby(Lobby lobby, LobbyPutDTO lobbyPutDTO) {
         Map<String, Boolean> updates = new HashMap<>();
         updates.put("mode", false);
         updates.put("name", false);

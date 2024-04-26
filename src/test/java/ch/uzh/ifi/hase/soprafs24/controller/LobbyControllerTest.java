@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
-
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
@@ -8,10 +7,10 @@ import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPostDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPutDTO;
 import ch.uzh.ifi.hase.soprafs24.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.api.core.ApiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -25,10 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
@@ -42,7 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * without actually sending them over the network. This tests if the LobbyController works.
  */
 @WebMvcTest(LobbyController.class)
-public class LobbyControllerTest {
+class LobbyControllerTest {
     private Lobby testLobby;
     private List<Lobby> allLobbies;
     private User testUser1;
@@ -122,7 +118,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void givenLobbies_whenGetLobbies_thenReturnJsonArray() throws Exception {
+    void givenLobbies_whenGetLobbies_thenReturnJsonArray() throws Exception {
         // given
         given(lobbyService.getPublicLobbies()).willReturn(allLobbies);
 
@@ -151,7 +147,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void givenLobbies_validCode_thenReturnsLobby() throws Exception {
+    void givenLobbies_validCode_thenReturnsLobby() throws Exception {
         //given
         given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
 
@@ -179,7 +175,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void givenLobbies_badlyFormattedCode_throwsBadRequestError() throws Exception {
+    void givenLobbies_badlyFormattedCode_throwsBadRequestError() throws Exception {
         // when
         MockHttpServletRequestBuilder getRequest = get("/lobbies/onetwothreefour")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -190,7 +186,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void givenLobbies_unknownCode_throwsNotFoundException() throws Exception {
+    void givenLobbies_unknownCode_throwsNotFoundException() throws Exception {
         given(lobbyService.getLobbyByCode(Mockito.anyLong())).willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         // when
@@ -203,7 +199,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void createLobbyByUser_validToken_thenLobbyAndPlayerTokenReturned() throws Exception {
+    void createLobbyByUser_validToken_thenLobbyAndPlayerTokenReturned() throws Exception {
         // given
         testUser1.setPlayer(null);
         LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
@@ -231,7 +227,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void createLobbyByUser_InvalidToken_throwsExceptionUnauthorized() throws Exception {
+    void createLobbyByUser_InvalidToken_throwsExceptionUnauthorized() throws Exception {
         // given
         given(userService.checkToken(Mockito.any()))
                 .willThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED, "This user token has insufficient access rights"));
@@ -251,32 +247,118 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void updateLobby_validInputs_thenUpdatedLobbyReturned() throws Exception {
-        // TODO
+    void updateLobby_validInputs_thenUpdatedLobbyReturned() throws Exception {
+        // given
+        given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
+        Map<String, Boolean> updates = new HashMap<>();
+        updates.put("mode", true);
+        updates.put("name", true);
+        updates.put("publicAccess", true);
+
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setPublicAccess(false);
+        lobbyPutDTO.setMode(GameMode.FUSIONFRENZY);
+        lobbyPutDTO.setName("new name");
+
+        given(lobbyService.updateLobby(Mockito.any(), Mockito.any()))
+                .willAnswer(invocationOnMock -> {testLobby.setMode(lobbyPutDTO.getMode());
+                    testLobby.setPublicAccess(lobbyPutDTO.getPublicAccess()); testLobby.setName(lobbyPutDTO.getName());
+                    return updates;});
+
+        // when
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/"+testLobby.getCode())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(lobbyPutDTO))
+                .header("playerToken", testPlayer1.getToken());
+
+        //then
+        mockMvc.perform(putRequest).andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is(lobbyPutDTO.getName())))
+                .andExpect(jsonPath("$.publicAccess", is(lobbyPutDTO.getPublicAccess())))
+                .andExpect(jsonPath("$.mode", is(lobbyPutDTO.getMode().toString())));
+
     }
 
     @Test
-    public void updateLobby_InvalidToken_throwsNotFoundException() throws Exception {
-        // TODO
+    void updateLobby_InvalidToken_throwsForbiddenException() throws Exception {
+        given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
+
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setPublicAccess(false);
+        lobbyPutDTO.setMode(GameMode.FUSIONFRENZY);
+        lobbyPutDTO.setName("new name");
+
+        // when
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/"+testLobby.getCode())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(lobbyPutDTO))
+                .header("playerToken", testPlayer1.getToken()+"123");
+
+        //then
+        mockMvc.perform(putRequest).andExpect(status().isForbidden());
     }
 
     @Test
-    public void updateLobby_InvalidCode_throwsBadRequestException() throws Exception {
-        // TODO
+    void updateLobby_InvalidCode_throwsBadRequestException() throws Exception {
+        given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
+
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setPublicAccess(false);
+        lobbyPutDTO.setMode(GameMode.FUSIONFRENZY);
+        lobbyPutDTO.setName("new name");
+
+        // when
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/asdf")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(lobbyPutDTO))
+                .header("playerToken", testPlayer1.getToken());
+
+        //then
+        mockMvc.perform(putRequest).andExpect(status().isBadRequest());
     }
 
     @Test
-    public void updateLobby_NotOwner_throwsForbiddenException() throws Exception {
-        // TODO
+    void updateLobby_NotOwner_throwsForbiddenException() throws Exception {
+        given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
+
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setPublicAccess(false);
+        lobbyPutDTO.setMode(GameMode.FUSIONFRENZY);
+        lobbyPutDTO.setName("new name");
+
+        // when
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/"+testLobby.getCode())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(lobbyPutDTO))
+                .header("playerToken", testPlayer2.getToken());
+
+        //then
+        mockMvc.perform(putRequest).andExpect(status().isForbidden());
     }
 
     @Test
-    public void updateLobby_InvalidGameMode_throwsNotFoundException() throws Exception {
-        // TODO
+    void updateLobby_InvalidGameMode_throwsBadRequestException() throws Exception {
+        given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
+
+        String lobbyPutRequestString = "{\"publicAccess\": false, \"name\": \"new name\", \"mode\": \"unknown\"}";
+
+        // when
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/"+testLobby.getCode())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(lobbyPutRequestString)
+                .header("playerToken", testPlayer1.getToken());
+
+        //then
+        mockMvc.perform(putRequest).andExpect(status().isBadRequest());
     }
 
     @Test
-    public void joinLobbyByUser_validToken_thenLobbyAndPlayerTokenReturned() throws Exception {
+    void joinLobbyByUser_validToken_thenLobbyAndPlayerTokenReturned() throws Exception {
         // given
         testUser1.setPlayer(null);
         LobbyPostDTO lobbyPostDTO = new LobbyPostDTO();
@@ -304,7 +386,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void joinLobbyByUser_InvalidLobbyCode_throwsNotFoundException() throws Exception {
+    void joinLobbyByUser_InvalidLobbyCode_throwsNotFoundException() throws Exception {
         // given
         testUser1.setPlayer(null);
         given(userService.checkToken(Mockito.any())).willReturn(testUser1);
@@ -326,7 +408,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void startGame_standard_success() throws Exception {
+    void startGame_standard_success() throws Exception {
         // given
         given(lobbyService.getLobbyByCode(testLobby.getCode())).willReturn(testLobby);
 
@@ -342,10 +424,10 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void play_standard_success() throws Exception {
+    void play_standard_success() throws Exception {
         // given
         given(playerService.findPlayerByToken(testPlayer1.getToken())).willReturn(testPlayer1);
-        List<Word> words = new ArrayList<Word>();
+        List<Word> words = new ArrayList<>();
         words.add(new Word("water"));
         words.add(new Word("fire"));
 
@@ -367,7 +449,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void play_invalidId_throwsExceptionUnauthorized() throws Exception {
+    void play_invalidId_throwsExceptionUnauthorized() throws Exception {
         // given
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
@@ -384,7 +466,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void removePlayerNotOwner_validInputs_success() throws Exception {
+    void removePlayerNotOwner_validInputs_success() throws Exception {
         // given
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer2);
         Mockito.doNothing().when(playerService).removePlayer(Mockito.any());
@@ -404,7 +486,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void removePlayerOwner_validInputs_success() throws Exception {
+    void removePlayerOwner_validInputs_success() throws Exception {
         // given
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
         Mockito.doNothing().when(lobbyService).removeLobby(Mockito.any());
@@ -424,7 +506,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void removePlayer_noToken_throwsBadRequestError() throws Exception {
+    void removePlayer_noToken_throwsBadRequestError() throws Exception {
         // given
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
@@ -439,7 +521,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void removePlayer_invalidCode_throwsBadRequestError() throws Exception {
+    void removePlayer_invalidCode_throwsBadRequestError() throws Exception {
         // given
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
@@ -455,7 +537,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void removePlayer_badlyFormattedCode_throwsBadRequestError() throws Exception {
+    void removePlayer_badlyFormattedCode_throwsBadRequestError() throws Exception {
         // given
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
@@ -471,7 +553,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void removePlayer_invalidId_throwsForbiddenException() throws Exception {
+    void removePlayer_invalidId_throwsForbiddenException() throws Exception {
         // given
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
@@ -487,7 +569,7 @@ public class LobbyControllerTest {
     }
 
     @Test
-    public void removePlayer_badlyFormattedId_throwsBadRequestException() throws Exception {
+    void removePlayer_badlyFormattedId_throwsBadRequestException() throws Exception {
         // given
         given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
 
