@@ -59,9 +59,9 @@ jobs:
           deliverables: app.yaml
           version: v1
           env_vars: |-
-            DATABASE_URL: ${{ secrets.DATABASE_URL }}
-            DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
-            DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
+            DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
 
       - name: Test
         run: curl "${{ steps.deploy.outputs.url }}"
