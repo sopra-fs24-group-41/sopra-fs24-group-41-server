@@ -147,4 +147,31 @@ public class CombinationService {
             }
         }
     }
+
+    public Word generateWordWithinReachability(double minReachability, double maxReachability) {
+        int maxIter = 1000;
+        int iter = 0;
+        while (true) {
+            minReachability *= 0.75;
+            maxReachability *= 1.25;
+
+            Word word1 = wordService.getRandomWordWithinReachability(minReachability, maxReachability);
+            Word word2 = wordService.getRandomWordWithinReachability(minReachability, maxReachability);
+
+            try {
+                findCombination(word1, word2);
+            }
+            catch (CombinationNotFoundException e) {
+                Word result = createCombination(word1, word2).getResult();
+                if (minReachability <= result.getReachability() && result.getReachability() <= maxReachability) {
+                    return result;
+                }
+            }
+
+            iter += 1;
+            if (iter >= maxIter) {
+                throw new RuntimeException("Maximum iteration exceeded");
+            }
+        }
+    }
 }
