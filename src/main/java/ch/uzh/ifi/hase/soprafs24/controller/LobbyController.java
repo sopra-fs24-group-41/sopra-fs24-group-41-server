@@ -3,18 +3,17 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
+import ch.uzh.ifi.hase.soprafs24.exceptions.CombinationNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
-import ch.uzh.ifi.hase.soprafs24.service.GameService;
-import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
-import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
-import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.service.*;
 import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,14 +34,18 @@ public class LobbyController {
     private final GameService gameService;
 
     private final SimpMessagingTemplate messagingTemplate;
+    private final CombinationService combinationService;
+    private final APIService apiService;
 
     LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService,
-                    GameService gameService, SimpMessagingTemplate messagingTemplate) {
+                    GameService gameService, SimpMessagingTemplate messagingTemplate, CombinationService combinationService, APIService apiService) {
         this.lobbyService = lobbyService;
         this.userService = userService;
         this.playerService = playerService;
         this.gameService = gameService;
         this.messagingTemplate = messagingTemplate;
+        this.combinationService = combinationService;
+        this.apiService = apiService;
     }
 
     @GetMapping("/lobbies")
@@ -161,6 +164,38 @@ public class LobbyController {
             messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
             messagingTemplate.convertAndSend("/topic/lobbies/" + lobbyCode + "/game", new InstructionDTO(Instruction.kick));
         }
+    }
+
+    @GetMapping("/combinations/{word1}/{word2}")
+    @ResponseStatus(HttpStatus.OK)
+    public WordDTO getCombinationResult(@PathVariable String word1, @PathVariable String word2, @RequestHeader String method) {
+        if (method.equalsIgnoreCase("default")) {
+            Word result = combinationService.getCombination(new Word(word1), new Word(word2)).getResult();
+            return DTOMapper.INSTANCE.convertEntityToWordDTO(result);
+        }
+        if (method.equalsIgnoreCase("vertex")){
+            try {
+                Word result = new Word(apiService.getVertexAIWord(word1, word2));
+                return DTOMapper.INSTANCE.convertEntityToWordDTO(result);
+            }
+            catch (Exception e) {
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong getting the result from VertexAI. Error message: " + e.getMessage());
+            }
+        }
+        if (method.equalsIgnoreCase("random")){
+            Word result = new Word(apiService.getRandomWord());
+            return DTOMapper.INSTANCE.convertEntityToWordDTO(result);
+        }
+        if (method.equalsIgnoreCase("find")){
+            try {
+                Word result = combinationService.findCombination(new Word(word1), new Word(word2)).getResult();
+                return DTOMapper.INSTANCE.convertEntityToWordDTO(result);
+            }
+            catch (CombinationNotFoundException e) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+            }
+        }
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid method: " + method + ". Available methods: default, vertex, random");
     }
 
     private Player getAuthenticatedPlayer(String lobbyCode, String playerId, String playerToken) {
