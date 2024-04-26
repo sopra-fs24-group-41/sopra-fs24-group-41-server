@@ -14,4 +14,6 @@ public interface PlayerWordRepository extends JpaRepository<PlayerWord, PlayerWo
     List<PlayerWord> findAllByPlayer(Player player);
 
     List<PlayerWord> findAllByWord(Word word);
+
+    void deleteAllByPlayer(Player player);
 }

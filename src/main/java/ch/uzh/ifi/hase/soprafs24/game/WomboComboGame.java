@@ -24,6 +24,7 @@ public class WomboComboGame extends Game {
 
     public void setupPlayers(List<Player> players) {
         for (Player player : players) {
+            player = playerService.resetPlayer(player);
             player.setWords(startingWords);
             Word targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
             player.setTargetWord(targetWord);
@@ -71,10 +72,9 @@ public class WomboComboGame extends Game {
             }
         }
         player.setTargetWord(targetWord);
-        System.out.println("Set new target word");
     }
 
     public boolean winConditionReached(Player player) {
-        return player.getPoints() >= 50;
+        return player.getPoints() >= 10;
     }
 }

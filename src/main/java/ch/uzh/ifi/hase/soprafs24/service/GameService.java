@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
+import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.game.WomboComboGame;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
@@ -60,6 +61,7 @@ public class GameService {
         Word result = game.makeCombination(player, words);
 
         if (game.winConditionReached(player)) {
+            lobby.setStatus(LobbyStatus.PREGAME);
             messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
         }
 
