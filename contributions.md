@@ -108,3 +108,8 @@ Worked on:
  - Fixed various bugs, got the gameplay communication between server and client to run properly
  - Worked on connecting core gameplay to the client [#76](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/76)
  - Worked on displaying other player's activity during a game [#77](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/77)
+
+**Tmmn - Timon Leupp**
+ - Implemented websockets for frontend lobby display and made it possible to update lobby information (backend) [pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/139)
+ - Changed Google Cloud environment to flexible
+ - Setup [postgres](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/147) database
