@@ -92,3 +92,7 @@ Worked on:
 **Aquamarine-12 - Alexandru-Mihai Hurjui**
 
 - Wrote unit tests for target word generation
+  
+ **Grizzlytron - Lucas Timothy Leo Bär**
+- Finished connecting frontend with backend mainly on Lobby and LobbyOverview Page. Implemented further functionalities on client side and adapted page. Refactored some models and also adjusted styling. [Commit](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/72/commits/519aee47512f4524433d8f68997fa0d2604d58e4)
+- Also worked on a bit of bug fixing. [Commit](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/72/commits/2d7078da6e341b60f16e2a89b9275c2ae5cc4f5e)
