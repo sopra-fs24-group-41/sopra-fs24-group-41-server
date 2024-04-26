@@ -26,7 +26,6 @@ public class FusionFrenzyGame extends Game {
 
     public void setupPlayers(List<Player> players) {
         for (Player player : players) {
-            player = playerService.resetPlayer(player);
             player.setWords(startingWords);
             player.setTargetWord(targetWord);
         }

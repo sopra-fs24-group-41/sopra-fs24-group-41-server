@@ -42,7 +42,6 @@ public class PlayerService {
 
     public Player resetPlayer(Player player) {
         player.setPoints(0);
-        player.setPlayerWords(new HashSet<PlayerWord>());
         playerWordRepository.deleteAllByPlayer(player);
         playerWordRepository.flush();
         return playerRepository.save(player);

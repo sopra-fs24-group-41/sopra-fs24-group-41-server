@@ -70,18 +70,23 @@ public class CombinationService {
     }
 
     public Combination saveCombination(Combination combination) {
+        try {
+            combination = findCombination(combination.getWord1(), combination.getWord2());
+        }
+        catch (CombinationNotFoundException ignored) {
+        }
+
         Word word1 = combination.getWord1();
         Word word2 = combination.getWord2();
 
         int depth = max(word1.getDepth(), word2.getDepth()) + 1;
         double reachability = 1.0 / (1L << depth);
 
-        combination = combinationRepository.saveAndFlush(combination);
-
         Word resultWord = combination.getResult();
         resultWord.setDepth(min(resultWord.getDepth(), depth));
         resultWord.setReachability(resultWord.getReachability() + reachability);
 
+        combinationRepository.saveAndFlush(combination);
         wordService.saveWord(resultWord);
 
         return combination;
