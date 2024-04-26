@@ -74,6 +74,6 @@ public class WomboComboGame extends Game {
     }
 
     public boolean winConditionReached(Player player) {
-        return player.getPoints() >= 10;
+        return player.getPoints() >= 50;
     }
 }

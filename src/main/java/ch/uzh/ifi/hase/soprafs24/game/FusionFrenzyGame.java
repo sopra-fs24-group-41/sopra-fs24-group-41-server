@@ -44,6 +44,10 @@ public class FusionFrenzyGame extends Game {
     }
 
     public boolean winConditionReached(Player player) {
-        return player.getWords().contains(targetWord);
+        if (player.getWords().contains(targetWord)) {
+            player.addPoints(1000);
+            return true;
+        };
+        return false;
     }
 }
