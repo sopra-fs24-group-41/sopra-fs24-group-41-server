@@ -195,7 +195,7 @@ public class LobbyController {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
             }
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid method: " + method + ". Available methods: default, vertex, random");
+        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid method: " + method + ". Available methods: default, vertex, random, find.");
     }
 
     private Player getAuthenticatedPlayer(String lobbyCode, String playerId, String playerToken) {
