@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
+import ch.uzh.ifi.hase.soprafs24.entity.PlayerWord;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerWordRepository;
@@ -13,6 +14,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Service
 @Transactional
 public class PlayerService {
@@ -20,10 +24,12 @@ public class PlayerService {
     private final Logger log = LoggerFactory.getLogger(LobbyService.class);
 
     private final PlayerRepository playerRepository;
+    private final PlayerWordRepository playerWordRepository;
 
     @Autowired
-    public PlayerService(@Qualifier("playerRepository") PlayerRepository playerRepository, PlayerWordRepository playerWordRepository, WordService wordService) {
+    public PlayerService(@Qualifier("playerRepository") PlayerRepository playerRepository, PlayerWordRepository playerWordRepository, WordService wordService, PlayerWordRepository playerWordRepository1) {
         this.playerRepository = playerRepository;
+        this.playerWordRepository = playerWordRepository1;
     }
 
     public Player findPlayerByToken(String token) {
@@ -32,6 +38,13 @@ public class PlayerService {
 
         String errorMessage = String.format("Player with token %s not found.", token);
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
+    }
+
+    public Player resetPlayer(Player player) {
+        player.setPoints(0);
+        playerWordRepository.deleteAllByPlayer(player);
+        playerWordRepository.flush();
+        return playerRepository.save(player);
     }
 
     public void removePlayer(Player player) {

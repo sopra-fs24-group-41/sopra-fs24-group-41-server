@@ -68,6 +68,13 @@ public interface DTOMapper {
     @Mapping(source = "targetWord", target = "targetWord")
     PlayerPlayedDTO convertEntityToPlayerPlayedDTO(Player player);
 
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "points", target = "points")
+    @Mapping(source = "playerWords", target = "playerWords")
+    @Mapping(source = "targetWord", target = "targetWord")
+    PlayerGetDTO convertEntityToPlayerGetDTO(Player player);
+
     @Mapping(source = "username", target = "username")
     @Mapping(source = "favourite", target = "favourite")
     @Mapping(source = "profilePicture", target = "profilePicture")

@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
+import java.util.Set;
+
 public class PlayerGetDTO {
 
     private long id;
@@ -8,11 +10,9 @@ public class PlayerGetDTO {
 
     private long points;
 
-    private UserGetDTO user;
+    private Set<PlayerWordDTO> playerWords;
 
-    private LobbyGetDTO ownedLobby;
-
-    private LobbyGetDTO lobby;
+    private WordDTO targetWord;
 
     public long getId() {
         return id;
@@ -38,27 +38,19 @@ public class PlayerGetDTO {
         this.points = points;
     }
 
-    public UserGetDTO getUser() {
-        return user;
+    public Set<PlayerWordDTO> getPlayerWords() {
+        return playerWords;
     }
 
-    public void setUser(UserGetDTO user) {
-        this.user = user;
+    public void setPlayerWords(Set<PlayerWordDTO> playerWords) {
+        this.playerWords = playerWords;
     }
 
-    public LobbyGetDTO getOwnedLobby() {
-        return ownedLobby;
+    public WordDTO getTargetWord() {
+        return targetWord;
     }
 
-    public void setOwnedLobby(LobbyGetDTO ownedLobby) {
-        this.ownedLobby = ownedLobby;
-    }
-
-    public LobbyGetDTO getLobby() {
-        return lobby;
-    }
-
-    public void setLobby(LobbyGetDTO lobby) {
-        this.lobby = lobby;
+    public void setTargetWord(WordDTO targetWord) {
+        this.targetWord = targetWord;
     }
 }

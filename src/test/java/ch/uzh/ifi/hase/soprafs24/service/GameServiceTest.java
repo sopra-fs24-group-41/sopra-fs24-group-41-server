@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -32,6 +33,9 @@ public class GameServiceTest {
 
     @Mock
     private WordService wordService;
+
+    @Mock
+    private SimpMessagingTemplate messagingTemplate;
 
     @InjectMocks
     private GameService gameService;
@@ -63,6 +67,7 @@ public class GameServiceTest {
         assertEquals(0, testPlayer1.getWords().size());
         assertEquals(0, testPlayer2.getWords().size());
 
+        Mockito.when(playerService.resetPlayer(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
         gameService.createNewGame(testLobby);
 
         assertEquals(4, testPlayer1.getWords().size());
@@ -91,8 +96,10 @@ public class GameServiceTest {
         playingWords.add(earth);
 
         Combination testCombination = new Combination(water, earth, mud);
-
+        Mockito.when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        Mockito.when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
         Mockito.when(combinationService.getCombination(water, earth)).thenReturn(testCombination);
+        Mockito.doNothing().when(messagingTemplate).convertAndSend(Mockito.any());
 
         assertEquals(startingWords, testPlayer1.getWords());
 

@@ -130,14 +130,16 @@ public class CombinationServiceTest {
 
     @Test
     void createCombination_whenResultWordFirstTimeSeen_success() throws Exception {
-        Word word1 = new Word("Earthquake", 4, 0.07);
-        Word word2 = new Word("Volcano", 3, 0.11);
-        Word resultWord = new Word("Apocalypse", 5, (double) 1 / (1L << 5));
+        Word word1 = new Word("earthquake", 4, 0.07);
+        Word word2 = new Word("volcano", 3, 0.11);
+        Word resultWord = new Word("apocalypse", 5, (double) 1 / (1L << 5));
         Combination expectedCombination = new Combination(word1, word2, resultWord);
 
-        Mockito.doReturn(new Word("Apocalypse"))
+        Mockito.when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        Mockito.when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        Mockito.doReturn(new Word("apocalypse"))
                 .when(combinationService).generateCombinationResult(word1, word2);
-        Mockito.doReturn(new Combination(word1, word2, new Word("Apocalypse")))
+        Mockito.doReturn(new Combination(word1, word2, new Word("apocalypse")))
                 .when(combinationRepository).saveAndFlush(any());
 
         Combination actualCombination = combinationService.createCombination(word1, word2);
@@ -152,7 +154,8 @@ public class CombinationServiceTest {
         Word oldResultWord = new Word("Apocalypse", 6, (double) 1 / (1L << 6));
         Word updatedResultWord = new Word("Apocalypse", 5, (double) 1 / (1L << 5) + (double) 1 / (1L << 6));
         Combination expectedCombination = new Combination(word1, word2, updatedResultWord);
-
+        Mockito.when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        Mockito.when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
         Mockito.doReturn(new Word("Apocalypse"))
                 .when(combinationService).generateCombinationResult(word1, word2);
         Mockito.doReturn(new Combination(word1, word2, oldResultWord))
@@ -165,30 +168,28 @@ public class CombinationServiceTest {
 
     @Test
     void makeCombinations_oneCombination_success() {
-        Word word1 = new Word("Water");
-        Word word2 = new Word("Fire");
-        ArrayList<Word> startingWords = new ArrayList<>(Arrays.asList(word1, word2));
-        Word resultWord = new Word("Steam", 1, (double) 1 / (1L << 1));
-        ArrayList<Word> expectedResultList = new ArrayList<Word>(Arrays.asList(word1, word2, resultWord));
-        ArrayList<Word> actualResultList = new ArrayList<>();
+        Word word1 = new Word("water");
+        Word word2 = new Word("fire");
+        Word resultWord = new Word("steam", 1, (double) 1 / (1L << 1));
 
-        ArrayList<Word> returnedWords = new ArrayList<>(Arrays.asList(word1, word2, new Word("Steam")));
-        Mockito.when(wordService.getWord(any())).thenAnswer(new Answer() {
-            private int counter = 0;
+        ArrayList<Word> expectedResultList = new ArrayList<>(Arrays.asList(word1, word2, resultWord));
+        ArrayList<Word> actualResultList = new ArrayList<>(Arrays.asList(word1, word2));
 
-            public Object answer(InvocationOnMock invocation) {
-                actualResultList.add(returnedWords.get(counter));
-                return returnedWords.get(counter++);
-            }
-        });
-        Mockito.when(wordService.findRandomWord()).thenReturn(word1, word2);
+        Mockito.when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        Mockito.when(wordService.getRandomWord()).thenReturn(word1, word2);
+
         Mockito.doThrow(new CombinationNotFoundException(word1.getName(), word2.getName()))
                 .when(combinationService).findCombination(word1, word2);
 
-        Mockito.doReturn(new Combination(word1, word2, resultWord))
+        Mockito.doAnswer(new Answer() {
+                    public Object answer(InvocationOnMock invocation) {
+                        actualResultList.add(resultWord);
+                        return new Combination(word1, word2, resultWord);
+                    }
+                })
                 .when(combinationService).createCombination(word1, word2);
 
-        combinationService.makeCombinations(1, startingWords);
+        combinationService.makeCombinations(1);
 
         assertEquals(expectedResultList, actualResultList);
     }

@@ -10,6 +10,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 @Transactional
 public class WordService {
@@ -29,6 +31,10 @@ public class WordService {
         }
     }
 
+    public Word saveWord(Word word) {
+        return wordRepository.saveAndFlush(word);
+    }
+
     public Word findWord(Word word) {
         Word foundWord = wordRepository.findByName(word.getName());
         if (foundWord != null) return foundWord;
@@ -36,7 +42,7 @@ public class WordService {
         throw new WordNotFoundException(word.getName());
     }
 
-    public Word findRandomWord() {
+    public Word getRandomWord() {
         Long qty = wordRepository.count();
         int idx = (int) (Math.random() * qty);
         Page<Word> wordPage = wordRepository.findAll(PageRequest.of(idx, 1));
@@ -47,7 +53,15 @@ public class WordService {
         return word;
     }
 
-    public Word getTargetWord(double targetDifficultyScore) {
-        return findRandomWord();
+    public Word getRandomWordWithinReachability(double minReachability, double maxReachability) {
+        List<Word> wordList = wordRepository.findAllByReachabilityBetween(minReachability, maxReachability);
+        int count = wordList.size();
+        if (count == 0) {
+            throw new WordNotFoundException("Couldn't find a word within the reachability");
+        }
+
+        int idx = (int) (Math.random() * count);
+
+        return wordList.get(idx);
     }
 }

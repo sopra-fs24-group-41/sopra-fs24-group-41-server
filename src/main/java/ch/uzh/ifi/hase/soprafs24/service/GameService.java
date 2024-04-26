@@ -2,6 +2,9 @@ package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
+import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
+import ch.uzh.ifi.hase.soprafs24.game.WomboComboGame;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
@@ -10,7 +13,6 @@ import ch.uzh.ifi.hase.soprafs24.game.Game;
 import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -39,6 +41,7 @@ public class GameService {
     private void setupGameModes() {
         gameModes.put(GameMode.STANDARD, Game.class);
         gameModes.put(GameMode.FUSIONFRENZY, FusionFrenzyGame.class);
+        gameModes.put(GameMode.WOMBOCOMBO, WomboComboGame.class);
     }
 
     public void createNewGame(Lobby lobby) {
@@ -52,17 +55,17 @@ public class GameService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
-    public void play(Player player, List<Word> words) {
+    public Word play(Player player, List<Word> words) {
         Lobby lobby = player.getLobby();
         Game game = instantiateGame(lobby.getMode());
-        game.makeCombination(player, words);
+        Word result = game.makeCombination(player, words);
 
         if (game.winConditionReached(player)) {
-            messagingTemplate.convertAndSend("/topic/lobbies/"+lobby.getCode()+"/game", new InstructionDTO(Instruction.stop));
-            return;  // notify that player has won
+            lobby.setStatus(LobbyStatus.PREGAME);
+            messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
         }
 
-        // notify that the player did something
+        return result;
     }
 
     private Game instantiateGame(GameMode gameMode) {

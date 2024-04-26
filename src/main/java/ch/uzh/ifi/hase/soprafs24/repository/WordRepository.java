@@ -6,8 +6,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository("wordRepository")
 public interface WordRepository extends JpaRepository<Word, Long> {
     Word findByName(String name);
     Page<Word> findAll(Pageable pageable);
+    List<Word> findAllByReachabilityBetween(double start, double end);
 }

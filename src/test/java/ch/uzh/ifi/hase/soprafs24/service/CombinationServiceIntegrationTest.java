@@ -56,12 +56,17 @@ public class CombinationServiceIntegrationTest {
 
     @Test
     public void makeCombinations_multipleCombinations_success() {
-        Word word1 = new Word("Water");
-        Word word2 = new Word("Fire");
-        ArrayList<Word> startingWords = new ArrayList<>(Arrays.asList(word1, word2));
+        ArrayList<Word> startingWords = new ArrayList<>(Arrays.asList(new Word("water"), new Word("earth"),
+                new Word("fire"), new Word("air")));
 
-        combinationService.makeCombinations(5, startingWords);
-        Word targetWord = wordService.getTargetWord(0.25);
+        for (Word word : startingWords) {
+            Word foundWord = wordService.getWord(word);
+            foundWord.setDepth(0);
+            foundWord.setReachability(1e6);
+            wordService.saveWord(foundWord);
+        }
+
+        combinationService.makeCombinations(5);
 
         assertEquals(5, combinationRepository.findAll().size());
     }

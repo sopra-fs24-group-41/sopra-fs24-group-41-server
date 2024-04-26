@@ -8,12 +8,10 @@ import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPostDTO;
-import ch.uzh.ifi.hase.soprafs24.service.GameService;
-import ch.uzh.ifi.hase.soprafs24.service.LobbyService;
-import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
-import ch.uzh.ifi.hase.soprafs24.service.UserService;
+import ch.uzh.ifi.hase.soprafs24.service.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.core.ApiService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -66,6 +64,12 @@ public class LobbyControllerTest {
 
     @MockBean
     private GameService gameService;
+
+    @MockBean
+    private APIService apiService;
+
+    @MockBean
+    private CombinationService combinationService;
 
     @MockBean
     private SimpMessagingTemplate messagingTemplate;
