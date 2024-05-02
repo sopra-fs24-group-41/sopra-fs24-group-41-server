@@ -58,7 +58,7 @@ jobs:
         uses: google-github-actions/deploy-appengine@v2
         with:
           deliverables: app.yaml
-          version: v3-1
+          version: v4
           env_vars: |-
             SPRING_PROFILES_ACTIVE="postgres-cloud"
             DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
