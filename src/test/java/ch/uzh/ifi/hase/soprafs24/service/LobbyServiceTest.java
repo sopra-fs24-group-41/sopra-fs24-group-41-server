@@ -9,6 +9,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.LobbyRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPutDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -17,10 +18,7 @@ import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -81,7 +79,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void getPublicLobbies_returnsPublicLobbies() {
+    void getPublicLobbies_returnsPublicLobbies() {
         Mockito.when(lobbyRepository.findAllByPublicAccess(true)).thenReturn(Collections.singletonList(testLobby));
 
         List<Lobby> foundLobbies = lobbyService.getPublicLobbies();
@@ -92,7 +90,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void getLobby_validCode_returnsLobby() {
+    void getLobby_validCode_returnsLobby() {
         Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
         Lobby foundLobby = lobbyService.getLobbyByCode(1234);
 
@@ -102,13 +100,13 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void getLobby_invalidCode_throwsNotFoundException() {
+    void getLobby_invalidCode_throwsNotFoundException() {
         Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(null);
         assertThrows(ResponseStatusException.class, () -> lobbyService.getLobbyByCode(Mockito.anyLong()));
     }
 
     @Test
-    public void createLobbyByUser_validInputs_success() {
+    void createLobbyByUser_validInputs_success() {
         Player createdPlayer = lobbyService.createLobbyFromUser(testUser, true);
 
         // then
@@ -122,9 +120,24 @@ public class LobbyServiceTest {
         assertEquals(testLobby.getOwner(), createdPlayer.getLobby().getOwner());
         assertArrayEquals(testLobby.getPlayers().toArray(), createdPlayer.getLobby().getPlayers().toArray());
     }
+    @Test
+    void updateLobby_validInput_success() {
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setPublicAccess(true);
+        lobbyPutDTO.setMode(GameMode.FUSIONFRENZY);
+        lobbyPutDTO.setName("new name");
+
+        Map<String, Boolean> updates = lobbyService.updateLobby(testLobby, lobbyPutDTO);
+        assertEquals(true, updates.get("publicAccess"));
+        assertEquals(true, updates.get("mode"));
+        assertEquals(true, updates.get("name"));
+        assertEquals(lobbyPutDTO.getPublicAccess(), testLobby.getPublicAccess());
+        assertEquals(lobbyPutDTO.getMode(), testLobby.getMode());
+        assertEquals(lobbyPutDTO.getName(), testLobby.getName());
+    }
 
     @Test
-    public void joinLobbyByUser_validInputs_success() {
+    void joinLobbyByUser_validInputs_success() {
         Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
         Player createdPlayer = lobbyService.joinLobbyFromUser(testUser, testLobby.getCode());
 
@@ -139,14 +152,14 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void joinLobbyByUser_invalidCode_throwsNotFoundError() {
+    void joinLobbyByUser_invalidCode_throwsNotFoundError() {
         Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(null);
 
         assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyFromUser(testUser, 232));
     }
 
     @Test
-    public void joinLobbyByUser_lobbyNotPregame_throwsForbiddenError() {
+    void joinLobbyByUser_lobbyNotPregame_throwsForbiddenError() {
         testLobby.setStatus(LobbyStatus.INGAME);
         Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
 
@@ -154,7 +167,7 @@ public class LobbyServiceTest {
     }
 
     @Test
-    public void removeLobby_success() {
+    void removeLobby_success() {
         // given
         Player testPlayer2 = new Player("234", "testPlayer2", testLobby);
         testLobby.getPlayers().add(testPlayer2);
