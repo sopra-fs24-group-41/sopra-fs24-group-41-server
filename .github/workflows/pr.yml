@@ -29,9 +29,10 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
-          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          SPRING_PROFILES_ACTIVE: postgres-cloud
+          DATABASE_URL: ${{ secrets.TESTING_DATABASE_URL }}
+          DATABASE_USERNAME: ${{ secrets.TESTING_DATABASE_USERNAME }}
+          DATABASE_PASSWORD: ${{ secrets.TESTING_DATABASE_PASSWORD }}
 
       - name: Test with Gradle
         run: ./gradlew test

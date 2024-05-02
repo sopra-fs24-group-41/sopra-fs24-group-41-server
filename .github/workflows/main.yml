@@ -33,9 +33,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
-          DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
-          DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+          SPRING_PROFILES_ACTIVE: postgres-cloud
+          DATABASE_URL: ${{ secrets.TESTING_DATABASE_URL }}
+          DATABASE_USERNAME: ${{ secrets.TESTING_DATABASE_USERNAME }}
+          DATABASE_PASSWORD: ${{ secrets.TESTING_DATABASE_PASSWORD }}
 
   deploy:
     name: Deploying to Google Cloud
@@ -57,11 +58,12 @@ jobs:
         uses: google-github-actions/deploy-appengine@v2
         with:
           deliverables: app.yaml
-          version: v3
+          version: v3.1
           env_vars: |-
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
-            DATABASE_USERNAME=${{ secrets.DATABASE_USERNAME }}
-            DATABASE_PASSWORD=${{ secrets.DATABASE_PASSWORD }}
+            SPRING_PROFILES_ACTIVE=postgres-cloud
+            DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
+            DATABASE_USERNAME=${{ secrets.PRODUCTION_DATABASE_USERNAME }}
+            DATABASE_PASSWORD=${{ secrets.PRODUCTION_DATABASE_PASSWORD }}
 
       - name: Test
         run: curl "${{ steps.deploy.outputs.url }}"
