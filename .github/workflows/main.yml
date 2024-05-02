@@ -60,7 +60,7 @@ jobs:
           deliverables: app.yaml
           version: v3-1
           env_vars: |-
-            SPRING_PROFILES_ACTIVE=postgres-cloud
+            SPRING_PROFILES_ACTIVE="postgres-cloud"
             DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
             DATABASE_USERNAME=${{ secrets.PRODUCTION_DATABASE_USERNAME }}
             DATABASE_PASSWORD=${{ secrets.PRODUCTION_DATABASE_PASSWORD }}
