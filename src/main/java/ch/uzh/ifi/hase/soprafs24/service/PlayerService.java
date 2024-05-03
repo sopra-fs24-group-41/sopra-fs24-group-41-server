@@ -33,10 +33,10 @@ public class PlayerService {
         throw new ResponseStatusException(HttpStatus.NOT_FOUND, errorMessage);
     }
 
-    public Player resetPlayer(Player player) {
+    public void resetPlayer(Player player) {
         player.setPoints(0);
         player.clearPlayerWords();
-        return playerRepository.saveAndFlush(player);
+        playerRepository.flush();
     }
 
     public void removePlayer(Player player) {

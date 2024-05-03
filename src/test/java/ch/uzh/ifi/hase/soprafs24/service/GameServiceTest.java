@@ -67,7 +67,7 @@ public class GameServiceTest {
         assertEquals(0, testPlayer1.getWords().size());
         assertEquals(0, testPlayer2.getWords().size());
 
-        Mockito.when(playerService.resetPlayer(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        Mockito.doNothing().when(playerService).resetPlayer(Mockito.any());
         gameService.createNewGame(testLobby);
 
         assertEquals(4, testPlayer1.getWords().size());

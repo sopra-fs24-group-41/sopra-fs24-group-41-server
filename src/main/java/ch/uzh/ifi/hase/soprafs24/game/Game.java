@@ -35,7 +35,7 @@ public class Game {
 
     public void setupPlayers(List<Player> players) {
         for (Player player : players) {
-            player = playerService.resetPlayer(player);
+            playerService.resetPlayer(player);
             player.addWords(startingWords);
         }
     }
