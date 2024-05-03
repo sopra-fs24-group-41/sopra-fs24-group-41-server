@@ -19,6 +19,16 @@ import static org.mockito.ArgumentMatchers.any;
 
 public class CombinationServiceTest {
 
+    private Word word1;
+    private Word word2;
+    private Word result1;
+    private Combination combination1;
+
+    private Word word3;
+    private Word word4;
+    private Word result2;
+    private Combination combination2;
+
     @Mock
     private CombinationRepository combinationRepository;
 
@@ -35,156 +45,83 @@ public class CombinationServiceTest {
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
+
+        word1 = new Word("water");
+        word2 = new Word("earth");
+        result1 = new Word("mud");
+        combination1 = new Combination(word1, word2, result1);
+
+        word3 = new Word("earthquake", 4, 0.07);
+        word4 = new Word("volcano", 3, 0.11);
+        result2 = new Word("apocalypse", 5, (double) 1 / (1L << 5));
+        combination2 = new Combination(word3, word4, result2);
+
+        Mockito.when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        Mockito.when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        Mockito.when(combinationRepository.saveAndFlush(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        Mockito.when(combinationRepository.save(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        Mockito.when(combinationRepository.findByWord1AndWord2(word1, word2)).thenReturn(combination1);
+        Mockito.when(apiService.generateCombinationResult(word1.getName(), word2.getName())).thenReturn(result1.getName());
     }
 
     @Test
     public void findCombination_success() {
-        Word testWord1 = new Word("Water");
-        Word testWord2 = new Word("Fire");
-        Word testResult = new Word("Steam");
-
-        Combination testCombination = new Combination(testWord1, testWord2, testResult);
-
-        Mockito.when(combinationRepository.save(Mockito.any())).thenReturn(testCombination);
-        Mockito.when(combinationRepository.findByWord1AndWord2(testWord1, testWord2)).thenReturn(testCombination);
-
-        Combination foundCombination = combinationService.findCombination(testWord1, testWord2);
-
-        assertEquals(testCombination.getId(), foundCombination.getId());
-        assertEquals(testCombination.getWord1(), foundCombination.getWord1());
-        assertEquals(testCombination.getWord2(), foundCombination.getWord2());
-        assertEquals(testCombination.getResult(), foundCombination.getResult());
+        Combination foundCombination = combinationService.findCombination(word1, word2);
+        assertEquals(combination1, foundCombination);
     }
 
     @Test
     public void findSwappedCombination_success() {
-        Word testWord1 = new Word("Water");
-        Word testWord2 = new Word("Fire");
-        Word testResult = new Word("Steam");
-
-        Combination testCombination = new Combination(testWord1, testWord2, testResult);
-
-        Mockito.when(combinationRepository.save(Mockito.any())).thenReturn(testCombination);
-        Mockito.when(combinationRepository.findByWord1AndWord2(testWord1, testWord2)).thenReturn(testCombination);
-
-        Combination foundCombination = combinationService.findCombination(testWord2, testWord1);  // swapped words
-
-        assertEquals(testCombination.getId(), foundCombination.getId());
-        assertEquals(testCombination.getWord1(), foundCombination.getWord1());
-        assertEquals(testCombination.getWord2(), foundCombination.getWord2());
-        assertEquals(testCombination.getResult(), foundCombination.getResult());
+        Combination foundCombination = combinationService.findCombination(word2, word1);  // swapped words
+        assertEquals(combination1, foundCombination);
     }
 
     @Test
     public void findCombination_throwsException() {
-        Word testWord1 = new Word("Water");
-        Word testWord2 = new Word("Fire");
-
-        Mockito.when(combinationRepository.findByWord1AndWord2(testWord1, testWord2)).thenReturn(null);
-
-        assertThrows(CombinationNotFoundException.class, () -> combinationService.findCombination(testWord1, testWord2));
+        assertThrows(CombinationNotFoundException.class, () -> combinationService.findCombination(word1, word3));
     }
 
     @Test
     public void getCombination_existingCombination_success() {
-        Word testWord1 = new Word("Water");
-        Word testWord2 = new Word("Fire");
-        Word testResult = new Word("Steam");
-
-        Combination testCombination = new Combination(testWord1, testWord2, testResult);
-
-        Mockito.when(combinationRepository.findByWord1AndWord2(testWord1, testWord2)).thenReturn(testCombination);
-        Mockito.when(combinationRepository.findByWord1AndWord2(testWord2, testWord1)).thenReturn(testCombination);
-
-        Combination foundCombination = combinationService.getCombination(testWord1, testWord2);
-
-        assertEquals(testCombination.getId(), foundCombination.getId());
-        assertEquals(testWord1, foundCombination.getWord1());
-        assertEquals(testWord2, foundCombination.getWord2());
-        assertEquals(testResult, foundCombination.getResult());
+        Combination foundCombination = combinationService.getCombination(word1, word2);
+        assertEquals(combination1, foundCombination);
     }
 
     @Test
     public void getCombination_newCombination_success() {
-        Word testWord1 = new Word("Water");
-        Word testWord2 = new Word("Fire");
-        Word testResult = new Word("Steam");
-
-        Combination testCombination = new Combination(testWord1, testWord2, testResult);
-
-        Mockito.when(combinationRepository.findByWord1AndWord2(testWord1, testWord2)).thenReturn(null);
-        Mockito.when(combinationRepository.findByWord1AndWord2(testWord2, testWord1)).thenReturn(null);
-        Mockito.when(combinationRepository.saveAndFlush(Mockito.any())).thenReturn(testCombination);
-        Mockito.doReturn(testResult.getName()).when(apiService).generateCombinationResult(testWord1.getName(), testWord2.getName());
-
-        Mockito.when(wordService.getWord(testWord1)).thenReturn(testWord1);
-        Mockito.when(wordService.getWord(testWord2)).thenReturn(testWord2);
-        Mockito.when(wordService.getWord(testResult)).thenReturn(testResult);
-
-        Combination newCombination = combinationService.getCombination(testWord1, testWord2);
-
-        assertEquals(testWord1, newCombination.getWord1());
-        assertEquals(testWord2, newCombination.getWord2());
-        assertEquals(testResult, newCombination.getResult());
+        Combination newCombination = combinationService.getCombination(word1, word2);
+        assertEquals(combination1, newCombination);
     }
 
     @Test
-    void createCombination_whenResultWordFirstTimeSeen_success() throws Exception {
-        Word word1 = new Word("earthquake", 4, 0.07);
-        Word word2 = new Word("volcano", 3, 0.11);
-        Word resultWord = new Word("apocalypse", 5, (double) 1 / (1L << 5));
-        Combination expectedCombination = new Combination(word1, word2, resultWord);
-
-        Mockito.when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
-        Mockito.when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
-        Mockito.doReturn(new Word("apocalypse"))
-                .when(combinationService).generateCombinationResult(word1, word2);
-        Mockito.doReturn(new Combination(word1, word2, new Word("apocalypse")))
-                .when(combinationRepository).saveAndFlush(any());
-
-        Combination actualCombination = combinationService.createCombination(word1, word2);
-
-        assertEquals(expectedCombination, actualCombination);
+    void createCombination_whenResultWordFirstTimeSeen_success() {
+        Mockito.when(apiService.generateCombinationResult(word3.getName(), word4.getName())).thenReturn(result2.getName());
+        Combination actualCombination = combinationService.createCombination(word3, word4);
+        assertEquals(combination2, actualCombination);
     }
 
     @Test
-    void generateResultWord_whenResultWordSeenBefore_updatesDepthAndScore() throws Exception {
-        Word word1 = new Word("Earthquake", 4, 0.07);
-        Word word2 = new Word("Volcano", 3, 0.11);
-        Word oldResultWord = new Word("Apocalypse", 6, (double) 1 / (1L << 6));
-        Word updatedResultWord = new Word("Apocalypse", 5, (double) 1 / (1L << 5) + (double) 1 / (1L << 6));
-        Combination expectedCombination = new Combination(word1, word2, updatedResultWord);
-        Mockito.when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
-        Mockito.when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
-        Mockito.doReturn(new Word("Apocalypse"))
-                .when(combinationService).generateCombinationResult(word1, word2);
-        Mockito.doReturn(new Combination(word1, word2, oldResultWord))
-                .when(combinationRepository).saveAndFlush(any());
-
-        Combination actualCombination = combinationService.createCombination(word1, word2);
-
+    void generateResultWord_whenResultWordSeenBefore_updatesDepthAndScore() {
+        Word updatedResultWord = new Word("apocalypse", 5, (double) 1 / (1L << 5) + (double) 1 / (1L << 6));
+        Combination expectedCombination = new Combination(word3, word4, updatedResultWord);
+        Mockito.when(apiService.generateCombinationResult(word3.getName(), word4.getName())).thenReturn(result2.getName());
+        Combination actualCombination = combinationService.createCombination(word3, word4);
         assertEquals(expectedCombination, actualCombination);
     }
 
     @Test
     void makeCombinations_oneCombination_success() {
-        Word word1 = new Word("water");
-        Word word2 = new Word("fire");
-        Word resultWord = new Word("steam", 1, (double) 1 / (1L << 1));
-
-        ArrayList<Word> expectedResultList = new ArrayList<>(Arrays.asList(word1, word2, resultWord));
+        ArrayList<Word> expectedResultList = new ArrayList<>(Arrays.asList(word1, word2, result1));
         ArrayList<Word> actualResultList = new ArrayList<>(Arrays.asList(word1, word2));
 
-        Mockito.when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
         Mockito.when(wordService.getRandomWord()).thenReturn(word1, word2);
 
-        Mockito.doThrow(new CombinationNotFoundException(word1.getName(), word2.getName()))
-                .when(combinationService).findCombination(word1, word2);
+        Mockito.doThrow(new CombinationNotFoundException(word1.getName(), word2.getName())).when(combinationService).findCombination(word1, word2);
 
         Mockito.doAnswer(new Answer() {
                     public Object answer(InvocationOnMock invocation) {
-                        actualResultList.add(resultWord);
-                        return new Combination(word1, word2, resultWord);
+                        actualResultList.add(result1);
+                        return new Combination(word1, word2, result1);
                     }
                 })
                 .when(combinationService).createCombination(word1, word2);
@@ -192,5 +129,18 @@ public class CombinationServiceTest {
         combinationService.makeCombinations(1);
 
         assertEquals(expectedResultList, actualResultList);
+    }
+
+    @Test
+    void generateCombinationResult_invalidResult_throwsException() {
+        Mockito.when(apiService.generateCombinationResult(Mockito.any(), Mockito.any())).thenReturn("          ");
+        assertThrows(RuntimeException.class, () -> combinationService.generateCombinationResult(word1, word2));
+    }
+
+    @Test
+    void generateCombinationResult_validResultAfterIterations_success() {
+        // Return the result after three tries
+        Mockito.when(apiService.generateCombinationResult(Mockito.any(), Mockito.any())).thenReturn(""," ", result1.getName());
+        assertEquals(result1, combinationService.generateCombinationResult(word1, word2));
     }
 }
