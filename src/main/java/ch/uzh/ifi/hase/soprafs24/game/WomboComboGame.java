@@ -24,7 +24,8 @@ public class WomboComboGame extends Game {
 
     public void setupPlayers(List<Player> players) {
         for (Player player : players) {
-            player.setWords(startingWords);
+            player = playerService.resetPlayer(player);
+            player.addWords(startingWords);
             Word targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
             player.setTargetWord(targetWord);
         }

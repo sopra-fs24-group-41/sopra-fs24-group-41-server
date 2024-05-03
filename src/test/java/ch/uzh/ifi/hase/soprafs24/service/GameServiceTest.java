@@ -79,8 +79,8 @@ public class GameServiceTest {
         Player testPlayer1 = new Player();
         Player testPlayer2 = new Player();
 
-        testPlayer1.setWords(startingWords);
-        testPlayer2.setWords(startingWords);
+        testPlayer1.addWords(startingWords);
+        testPlayer2.addWords(startingWords);
 
         List<Player> testPlayers = new ArrayList<Player>();
         testPlayers.add(testPlayer1);

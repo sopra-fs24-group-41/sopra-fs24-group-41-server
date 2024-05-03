@@ -431,7 +431,7 @@ class LobbyControllerTest {
         words.add(new Word("water"));
         words.add(new Word("fire"));
 
-        testPlayer1.setWords(words);
+        testPlayer1.addWords(words);
 
         // when
         MockHttpServletRequestBuilder putRequest = put(String.format("/lobbies/%s/players/%s", testLobby.getCode(), testPlayer1.getId()))
