@@ -12,19 +12,14 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 public class FusionFrenzyGame extends Game {
-    private Word targetWord;
 
     public FusionFrenzyGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
         setup();
     }
 
-    void setup() {
-        super.setup();
-        targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
-    }
-
     public void setupPlayers(List<Player> players) {
+        Word targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
         for (Player player : players) {
             player = playerService.resetPlayer(player);
             player.addWords(startingWords);
@@ -45,7 +40,7 @@ public class FusionFrenzyGame extends Game {
     }
 
     public boolean winConditionReached(Player player) {
-        if (player.getWords().contains(targetWord)) {
+        if (player.getWords().contains(player.getTargetWord())) {
             player.addPoints(1000);
             return true;
         };
