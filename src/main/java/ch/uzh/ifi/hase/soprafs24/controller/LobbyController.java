@@ -13,9 +13,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Lobby Controller
@@ -36,6 +34,8 @@ public class LobbyController {
     private final SimpMessagingTemplate messagingTemplate;
     private final CombinationService combinationService;
     private final APIService apiService;
+
+    private static final String LOBBY_MESSAGE_DESTINATION_BASE = "/topic/lobbies";
 
     LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService,
                     GameService gameService, SimpMessagingTemplate messagingTemplate, CombinationService combinationService, APIService apiService) {
@@ -70,7 +70,7 @@ public class LobbyController {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before creating a new one.");
             }
             Player player = lobbyService.createLobbyFromUser(user, lobbyPostDTO.getPublicAccess());
-            messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
+            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE, getPublicLobbiesGetDTOList());
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
         }
         else {
@@ -80,8 +80,11 @@ public class LobbyController {
 
     @PostMapping("/lobbies/{code}/players")
     @ResponseStatus(HttpStatus.CREATED)
-    public PlayerJoinedDTO joinPlayer(@PathVariable String code, @RequestHeader String userToken) {
+    public PlayerJoinedDTO joinPlayer(@PathVariable String code, @RequestHeader(required = false) String userToken, @RequestBody PlayerPostDTO playerPostDTO) {
         long lobbyCodeLong = parseLobbyCode(code);
+        if (playerPostDTO.getPlayerName() == null || playerPostDTO.getPlayerName().isEmpty()) {
+            playerPostDTO.setPlayerName("Randy");
+        }
 
         if (userToken != null && !userToken.isEmpty()) {
             User user = userService.checkToken(userToken);
@@ -89,11 +92,13 @@ public class LobbyController {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before joining a new one.");
             }
             Player player = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
-            messagingTemplate.convertAndSend("/topic/lobbies/" + code, DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(player.getLobby()));
+            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + code, DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(player.getLobby()));
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
         }
         else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "joining lobby as anonymous user not supported, please supply userToken as header field");
+            Player player = lobbyService.joinLobbyAnonymous(playerPostDTO.getPlayerName(), lobbyCodeLong);
+            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + code, DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(player.getLobby()));
+            return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
         }
     }
 
@@ -102,7 +107,7 @@ public class LobbyController {
     public List<PlayerGetDTO> getPlayers(@PathVariable String code) {
         long lobbyCodeLong = parseLobbyCode(code);
         Lobby lobby = lobbyService.getLobbyByCode(lobbyCodeLong);
-        return lobby.getPlayers().stream().map(DTOMapper.INSTANCE::convertEntityToPlayerGetDTO).collect(Collectors.toList());
+        return lobby.getPlayers().stream().map(DTOMapper.INSTANCE::convertEntityToPlayerGetDTO).toList();
     }
 
     @PutMapping("/lobbies/{code}")
@@ -112,10 +117,10 @@ public class LobbyController {
 
         Map<String, Boolean> updates = lobbyService.updateLobby(lobby, lobbyPutDTO);
         if (updates.get("publicAccess") || updates.get("name")) {
-            messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
+            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE, getPublicLobbiesGetDTOList());
         }
         if (updates.containsValue(true)) {
-            messagingTemplate.convertAndSend("/topic/lobbies/" + code,
+            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + code,
                     DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
         }
 
@@ -128,8 +133,8 @@ public class LobbyController {
         Lobby lobby = getAuthenticatedLobby(code, playerToken);
         gameService.createNewGame(lobby);
         lobby.setStatus(LobbyStatus.INGAME);
-        messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
-        messagingTemplate.convertAndSend("/topic/lobbies/" + code + "/game", new InstructionDTO(Instruction.start));
+        messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE, getPublicLobbiesGetDTOList());
+        messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + code + "/game", new InstructionDTO(Instruction.start));
     }
 
     @GetMapping("/lobbies/{lobbyCode}/players/{playerId}")
@@ -157,12 +162,12 @@ public class LobbyController {
         if (player.getOwnedLobby() == null) {
             Lobby lobby = player.getLobby();
             playerService.removePlayer(player);
-            messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode(), DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
+            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode(), DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
         }
         else {
             lobbyService.removeLobby(player.getOwnedLobby());
-            messagingTemplate.convertAndSend("/topic/lobbies", getPublicLobbiesGetDTOList());
-            messagingTemplate.convertAndSend("/topic/lobbies/" + lobbyCode + "/game", new InstructionDTO(Instruction.kick));
+            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE, getPublicLobbiesGetDTOList());
+            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobbyCode + "/game", new InstructionDTO(Instruction.kick));
         }
     }
 
