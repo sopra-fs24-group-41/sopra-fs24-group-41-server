@@ -119,4 +119,12 @@ Worked on:
 **na50r - Rosan Shanmuganathan**
 - I added a Quit button the Client side such that it's now possible to also quit mid-game, it uses the same functionality of a Lobby-Quit, i.e., if you're the owner of the lobby, the whole lobby is closed, otherwise, you just leave the lobby.
 - I made it possible that the Result page also indicates who the current player is in case of loss. I.e., if you win, your Player is highlighted in blue but if you lose, the winner's player is highlighted in blue and your player is highlighted in orange. 
-- A pull request was not made yet since we still have to discuss some details but the changes were made in this branch and will presumably be merged as well [Branch](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/tree/ui-improvement)
+- [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/90)
+
+**Tmmn - Timon Leupp**
+- Support for anonymous players (will make pull request by the end of the week)
+- [Change database setup](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/commit/9703e7f1da4fca0cc95ee6e743923ed394590b6d) so that running tests no longer empties our production database.
+- Support by finding bugs and fixing them.
+
+-  **Grizzlytron - Lucas Timothy Leo Bär**
+- Used Joker for this week, no contribution in form of development tasks.
