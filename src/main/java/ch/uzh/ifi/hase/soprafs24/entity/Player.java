@@ -36,7 +36,7 @@ public class Player implements Serializable {
     @OneToOne(mappedBy = "player")
     private User user;
 
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PlayerWord> playerWords = new HashSet<PlayerWord>();
 
     @ManyToOne
@@ -123,16 +123,16 @@ public class Player implements Serializable {
         return playerWords;
     }
 
-    public void setPlayerWords(Set<PlayerWord> playerWords) {
-        this.playerWords = playerWords;
+    public void clearPlayerWords() {
+        playerWords.clear();
     }
 
     public List<Word> getWords() {
         return playerWords.stream().map(PlayerWord::getWord).toList();
     }
 
-    public void setWords(List<Word> words) {
-        this.playerWords = words.stream().map(word -> new PlayerWord(this, word)).collect(Collectors.toSet());
+    public void addWords(List<Word> words) {
+        playerWords.addAll(words.stream().map(word -> new PlayerWord(this, word)).collect(Collectors.toSet()));
     }
 
     public void addWord(Word word) {

@@ -53,7 +53,7 @@ public class GameTest {
 
     @Test
     public void setupPlayers_success() {
-        Mockito.when(playerService.resetPlayer(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        Mockito.doNothing().when(playerService).resetPlayer(Mockito.any());
         game.setupPlayers(players);
 
         assertEquals(4, player1.getWords().size());

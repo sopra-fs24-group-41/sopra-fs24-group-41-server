@@ -100,8 +100,29 @@ public class CombinationService {
 
     Word generateCombinationResult(Word word1, Word word2) {
         String resultString = apiService.generateCombinationResult(word1.getName(), word2.getName());
+        Word word = new Word(resultString);
+
+        int maxIter = 10;
+        int iter = 0;
+        while (!validResult(word)) {
+            resultString = apiService.generateCombinationResult(word1.getName(), word2.getName());
+            word = new Word(resultString);
+
+            iter += 1;
+            if (iter >= maxIter) {
+                throw new RuntimeException("Maximum iteration exceeded, couldn't generate a valid result word!");
+            }
+        }
+
         return new Word(resultString);
     }
+
+    public Boolean validResult(Word result) {
+        // might add some more validation later, therefore separate method
+        return result.getName().trim().length() > 1;
+    }
+
+
 
     public void makeDefaultCombinations(List<Word> startingWords) {
         for (Word word : startingWords) {
