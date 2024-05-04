@@ -52,8 +52,11 @@ public class GameService {
     }
 
     public void createNewGame(Lobby lobby) {
-        gameTimeRefresh(); //So Java is happy and restarting games work.
-        startGameTimer(lobby);
+        int tmp = 1;
+        if(tmp != 0){
+            gameTimeRefresh(); //So Java is happy and restarting games work.
+            startGameTimer(lobby, tmp);
+        }
 
         List<Player> players = lobby.getPlayers();
         if (players != null && !players.isEmpty()) {
@@ -100,10 +103,10 @@ public class GameService {
         }
         this.gameTime = new Timer();
     }
-    public void startGameTimer(Lobby lobby) {
+    public void startGameTimer(Lobby lobby, int duration) {
         System.out.println("New Timer, New Game");
         TimerTask task = new TimerTask() {
-            int remainingTime = 60;
+            int remainingTime = 60 * duration;
 
             @Override
             public void run() {
