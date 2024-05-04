@@ -22,18 +22,18 @@ public class Game {
         this.playerService = playerService;
         this.combinationService = combinationService;
         this.wordService = wordService;
-        setup();
     }
 
-    void setup() {
+    void setupStartingWords() {
         this.startingWords = new ArrayList<>();
-        startingWords.add(wordService.getWord(new Word("water")));
+        startingWords.add(wordService.getWord(new Word("air")));
         startingWords.add(wordService.getWord(new Word("earth")));
         startingWords.add(wordService.getWord(new Word("fire")));
-        startingWords.add(wordService.getWord(new Word("air")));
+        startingWords.add(wordService.getWord(new Word("water")));
     }
 
     public void setupPlayers(List<Player> players) {
+        setupStartingWords();
         for (Player player : players) {
             playerService.resetPlayer(player);
             player.addWords(startingWords);

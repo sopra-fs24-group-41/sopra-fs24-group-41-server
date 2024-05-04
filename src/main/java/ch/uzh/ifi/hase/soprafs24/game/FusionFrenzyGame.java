@@ -15,10 +15,10 @@ public class FusionFrenzyGame extends Game {
 
     public FusionFrenzyGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
-        setup();
     }
 
     public void setupPlayers(List<Player> players) {
+        setupStartingWords();
         Word targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
         for (Player player : players) {
             playerService.resetPlayer(player);

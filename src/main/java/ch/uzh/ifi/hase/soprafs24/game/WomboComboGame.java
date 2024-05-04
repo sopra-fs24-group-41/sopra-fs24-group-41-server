@@ -15,14 +15,14 @@ public class WomboComboGame extends Game {
 
     public WomboComboGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
-        setup();
     }
 
-    void setup() {
-        super.setup();
+    void setupStartingWords() {
+        super.setupStartingWords();
     }
 
     public void setupPlayers(List<Player> players) {
+        setupStartingWords();
         for (Player player : players) {
             playerService.resetPlayer(player);
             player.addWords(startingWords);
