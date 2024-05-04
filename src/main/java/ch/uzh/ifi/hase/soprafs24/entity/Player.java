@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.*;
@@ -49,6 +50,9 @@ public class Player implements Serializable {
     @ManyToOne
     @JoinColumn(name = "lobby")
     private Lobby lobby;
+
+    @Column
+    private PlayerStatus status = PlayerStatus.WAITING;
 
     public Player() {
     }
@@ -193,5 +197,13 @@ public class Player implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public PlayerStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PlayerStatus status) {
+        this.status = status;
     }
 }
