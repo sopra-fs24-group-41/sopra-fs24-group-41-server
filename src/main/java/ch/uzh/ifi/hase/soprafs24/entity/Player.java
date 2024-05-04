@@ -123,6 +123,15 @@ public class Player implements Serializable {
         return playerWords;
     }
 
+    public PlayerWord getPlayerWord(Word word) {
+        for (PlayerWord playerWord : playerWords) {
+            if (Objects.equals(playerWord.getWord(), word)) {
+                return playerWord;
+            }
+        }
+        return null;
+    }
+
     public void clearPlayerWords() {
         playerWords.clear();
     }
@@ -135,8 +144,23 @@ public class Player implements Serializable {
         playerWords.addAll(words.stream().map(word -> new PlayerWord(this, word)).collect(Collectors.toSet()));
     }
 
+    public void addWords(List<Word> words, Integer uses) {
+        addWords(words);
+        playerWords.forEach(playerWord -> playerWord.setUses(uses));
+    }
+
     public void addWord(Word word) {
         playerWords.add(new PlayerWord(this, word));
+    }
+
+    public void addWord(Word word, int uses) {
+        PlayerWord playerWord = getPlayerWord(word);
+        if (playerWord != null) {
+            playerWord.addUses(uses);
+        }
+        else {
+            playerWords.add(new PlayerWord(this, word, uses));
+        }
     }
 
     public Word getTargetWord() {
