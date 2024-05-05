@@ -126,7 +126,8 @@ Worked on:
 - Encountered issues when testing as the testing DB on Postgres kept changing back and forth between an implementation that had a `gameTime` attribute and one that had not. Plan is to wait for @JacquelineUlken's implementation to get merged first, adapt to it and merge mine after.
 
 **Tmmn - Timon Leupp**
-- Support for anonymous players (will make pull request by the end of the week)
+- Support for anonymous players ([Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/188))
+- Wrote tests and improved overall test coverage [commit](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/commit/96aadd0b87658f381dd06f90f8924487af9a4136)
 - [Change database setup](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/commit/9703e7f1da4fca0cc95ee6e743923ed394590b6d) so that running tests no longer empties our production database.
 - Support by finding bugs and fixing them.
 
