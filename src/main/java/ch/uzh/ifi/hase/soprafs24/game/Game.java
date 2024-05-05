@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.game;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.service.CombinationService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
@@ -40,10 +41,27 @@ public class Game {
         }
     }
 
+    private void updatePlayerStatistics(Player player, Combination combination) {
+        User user = player.getUser();
+        Word resultWord = combination.getResult();
+        if (user == null) {
+            return;
+        }
+
+        user.setCombinationsMade(user.getCombinationsMade() + 1);
+        if (wordService.checkUniqueWord(resultWord)) {
+            user.setDiscoveredWords(user.getDiscoveredWords() + 1);
+        }
+        if (resultWord.getReachability() < user.getRarestFoundWord().getReachability()) {
+            user.setRarestFoundWord(resultWord);
+        }
+    }
+
     public Word makeCombination(Player player, List<Word> words) {
         if (words.size() == 2) {
             Combination combination = combinationService.getCombination(words.get(0), words.get(1));
             player.addWord(combination.getResult());
+            updatePlayerStatistics(player, combination);
             return combination.getResult();
         }
 

@@ -42,6 +42,18 @@ public class WordService {
         throw new WordNotFoundException(word.getName());
     }
 
+    public boolean checkUniqueWord(Word word) {
+        Word foundWord;
+        try {
+            foundWord = findWord(word);
+        }
+        catch (WordNotFoundException e) {
+            return false;
+        }
+
+        return foundWord.getReachability() == 1.0 / (1L << foundWord.getDepth());
+    }
+
     public Word getRandomWord() {
         Long qty = wordRepository.count();
         int idx = (int) (Math.random() * qty);

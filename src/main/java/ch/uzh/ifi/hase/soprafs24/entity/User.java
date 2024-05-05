@@ -68,7 +68,8 @@ public class User implements Serializable {
     private int discoveredWords;
 
     @Column
-    private String rarestFoundWord;
+    @ManyToOne
+    private Word rarestFoundWord;
 
     @Override
     public final boolean equals(Object o) {
@@ -190,11 +191,11 @@ public class User implements Serializable {
         this.discoveredWords = discoveredWords;
     }
 
-    public String getRarestFoundWord() {
+    public Word getRarestFoundWord() {
         return rarestFoundWord;
     }
 
-    public void setRarestFoundWord(String rarestFoundWord) {
+    public void setRarestFoundWord(Word rarestFoundWord) {
         this.rarestFoundWord = rarestFoundWord;
     }
 }
