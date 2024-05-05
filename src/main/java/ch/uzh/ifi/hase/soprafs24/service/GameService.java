@@ -105,7 +105,6 @@ public class GameService {
                     System.out.println("You have 30sec left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("30"));
                 }
-
                 if (remainingTime == 60) {
                     System.out.println("You have 1 min left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("60"));
@@ -114,13 +113,10 @@ public class GameService {
                     System.out.println("You have 3min left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("180"));
                 }
-
                 if (remainingTime == 300) {
                     System.out.println("You have 5min left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("300"));
                 }
-
-
                 if (remainingTime == 0) {
                     System.out.println("Time's up!");
                     gameTime.cancel(); // Stop the timer when time's up
@@ -133,7 +129,7 @@ public class GameService {
         };
 
         // Schedule the task to run every second (almost like a while-loop)
-        //Use a three second initial delay for the Client to receive the initial timer setup.
+        // Use a three-second initial delay for the Client to receive the initial timer setup.
         gameTime.scheduleAtFixedRate(task, 3000, 1000);
     }
 
