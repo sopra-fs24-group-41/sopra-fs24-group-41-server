@@ -52,8 +52,8 @@ public class Game {
         if (wordService.checkUniqueWord(resultWord)) {
             user.setDiscoveredWords(user.getDiscoveredWords() + 1);
         }
-        if (user.getRarestFoundWord() == null || resultWord.getReachability() < user.getRarestFoundWord().getReachability()) {
-            user.setRarestFoundWord(resultWord);
+        if (user.getRarestWordFound() == null || resultWord.getReachability() < user.getRarestWordFound().getReachability()) {
+            user.setRarestWordFound(resultWord);
         }
     }
 
