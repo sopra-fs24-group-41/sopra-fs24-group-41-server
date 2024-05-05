@@ -41,7 +41,7 @@ public class Game {
         }
     }
 
-    private void updatePlayerStatistics(Player player, Combination combination) {
+    void updatePlayerStatistics(Player player, Combination combination) {
         User user = player.getUser();
         Word resultWord = combination.getResult();
         if (user == null) {

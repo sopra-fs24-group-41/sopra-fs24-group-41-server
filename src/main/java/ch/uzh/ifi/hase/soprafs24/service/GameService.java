@@ -56,7 +56,7 @@ public class GameService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
-    private void updateWinsAndLosses(Player winner) {
+    void updateWinsAndLosses(Player winner) {
         Lobby lobby = winner.getLobby();
         for (Player player : lobby.getPlayers()) {
             User user = player.getUser();
