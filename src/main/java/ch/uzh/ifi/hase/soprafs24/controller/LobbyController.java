@@ -86,20 +86,19 @@ public class LobbyController {
             playerPostDTO.setPlayerName("Randy");
         }
 
+        Player player = null;
         if (userToken != null && !userToken.isEmpty()) {
             User user = userService.checkToken(userToken);
             if (user.getPlayer() != null) {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before joining a new one.");
             }
-            Player player = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
-            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + code, DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(player.getLobby()));
-            return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
+            player = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
         }
         else {
-            Player player = lobbyService.joinLobbyAnonymous(playerPostDTO.getPlayerName(), lobbyCodeLong);
-            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + code, DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(player.getLobby()));
-            return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
+            player = lobbyService.joinLobbyAnonymous(playerPostDTO.getPlayerName(), lobbyCodeLong);
         }
+        messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + code, DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(player.getLobby()));
+        return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
     }
 
     @GetMapping("/lobbies/{code}/players")
