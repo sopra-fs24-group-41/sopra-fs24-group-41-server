@@ -130,7 +130,7 @@ Worked on:
 - [Change database setup](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/commit/9703e7f1da4fca0cc95ee6e743923ed394590b6d) so that running tests no longer empties our production database.
 - Support by finding bugs and fixing them.
 
--  **Grizzlytron - Lucas Timothy Leo Bär**
+**Grizzlytron - Lucas Timothy Leo Bär**
 - Used Joker for this week, no contribution in form of development tasks.
 
 **Aquamarine-12 - Alexandru-Mihai Hurjui**
