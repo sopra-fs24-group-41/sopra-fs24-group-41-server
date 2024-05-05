@@ -3,12 +3,9 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.game.WomboComboGame;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs24.entity.Player;
-import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.game.FusionFrenzyGame;
 import ch.uzh.ifi.hase.soprafs24.game.Game;
 import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
@@ -73,10 +70,27 @@ public class GameService {
         }
     }
 
+    void updatePlayerStatistics(Player player, Combination combination) {
+        User user = player.getUser();
+        Word resultWord = combination.getResult();
+        if (user == null) {
+            return;
+        }
+
+        user.setCombinationsMade(user.getCombinationsMade() + 1);
+        if (wordService.checkUniqueWord(resultWord)) {
+            user.setDiscoveredWords(user.getDiscoveredWords() + 1);
+        }
+        if (user.getRarestWordFound() == null || resultWord.getReachability() < user.getRarestWordFound().getReachability()) {
+            user.setRarestWordFound(resultWord);
+        }
+    }
+
     public Word play(Player player, List<Word> words) {
         Lobby lobby = player.getLobby();
         Game game = instantiateGame(lobby.getMode());
         Word result = game.makeCombination(player, words);
+        updatePlayerStatistics(player, combinationService.getCombination(words.get(0), words.get(1)));
 
         if (game.winConditionReached(player)) {
             lobby.setStatus(LobbyStatus.PREGAME);

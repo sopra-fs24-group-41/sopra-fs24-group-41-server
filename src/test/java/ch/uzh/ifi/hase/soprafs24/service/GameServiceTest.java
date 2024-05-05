@@ -16,11 +16,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class GameServiceTest {
 
-    private final Word water = new Word("water");
-    private final Word earth = new Word("earth");
+    private final Word water = new Word("water", 0, 1e6);
+    private final Word earth = new Word("earth", 0, 1e6);
     private final Word fire = new Word("fire");
     private final Word air = new Word("air");
-    private final Word mud = new Word("mud");
+    private final Word mud = new Word("mud", 1, 0.5);
 
     private final List<Word> startingWords = new ArrayList<>();
 
@@ -172,5 +172,24 @@ public class GameServiceTest {
         assertEquals(0, testUsers.get(0).getLosses());
         assertEquals(1, testUsers.get(1).getLosses());
         assertEquals(1, testUsers.get(2).getLosses());
+    }
+
+    @Test
+    void play_updatesPlayerStatistics_success() {
+        User user = new User();
+        Player player = new Player();
+
+        player.setUser(user);
+        user.setPlayer(player);
+
+        Combination combination = new Combination(water, earth, mud);
+
+        Mockito.doReturn(true).when(wordService).checkUniqueWord(Mockito.any());
+
+        gameService.updatePlayerStatistics(player, combination);
+
+        assertEquals(1, user.getCombinationsMade());
+        assertEquals(1, user.getDiscoveredWords());
+        assertEquals(mud, user.getRarestWordFound());
     }
 }
