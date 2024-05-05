@@ -63,7 +63,7 @@ public class User implements Serializable {
     @Column
     private int combinationsMade;
 
-    // Number of new words that have been added to the DB as a result of combinations done by player.
+    // Number of new words that have been added to the word database as a result of combinations made by player.
     @Column
     private int discoveredWords;
 
