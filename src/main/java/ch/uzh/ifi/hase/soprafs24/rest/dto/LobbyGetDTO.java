@@ -13,6 +13,8 @@ public class LobbyGetDTO {
 
     private Boolean publicAccess;
 
+    private int gameTime;
+
     private LobbyStatus status;
 
     private GameMode mode;
@@ -76,4 +78,8 @@ public class LobbyGetDTO {
     public void setPlayers(List<PlayerNestedInLobbyGetDTO> players) {
         this.players = players;
     }
+
+    public void setGameTime(int gameTime) {this.gameTime = gameTime; }
+
+    public int getGameTime() {return gameTime;}
 }

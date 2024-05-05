@@ -52,10 +52,10 @@ public class GameService {
     }
 
     public void createNewGame(Lobby lobby) {
-        int tmp = 1;
-        if(tmp != 0){
+        System.out.println("Game time is: " + lobby.getGameTime());
+        if(lobby.getGameTime() != 0){
             gameTimeRefresh(); //So Java is happy and restarting games work.
-            startGameTimer(lobby, tmp);
+            startGameTimer(lobby);
         }
 
         List<Player> players = lobby.getPlayers();
@@ -103,19 +103,27 @@ public class GameService {
         }
         this.gameTime = new Timer();
     }
-    public void startGameTimer(Lobby lobby, int duration) {
+    public void startGameTimer(Lobby lobby) {
         System.out.println("New Timer, New Game");
         TimerTask task = new TimerTask() {
-            int remainingTime = 60 * duration;
+            int remainingTime = 60 * lobby.getGameTime();
 
             @Override
             public void run() {
                 if (remainingTime ==  30) {
                     System.out.println("You have 30sec left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("30"));
-                } else if (remainingTime == 10){
+                } else if (remainingTime == 10) {
                     System.out.println("You have 10sec left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("10"));
+
+                } else if(remainingTime == 60) {
+                    System.out.println("You have 1 min left");
+                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("60"));
+
+                } else if(remainingTime == 180) {
+                    System.out.println("You have 3min left");
+                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("180"));
 
                 } else if (remainingTime == 0) {
                     System.out.println("Time's up!");
