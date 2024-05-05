@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.game;
 
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
@@ -37,13 +38,18 @@ public class Game {
         for (Player player : players) {
             playerService.resetPlayer(player);
             player.addWords(startingWords);
+            player.setStatus(PlayerStatus.PLAYING);
         }
     }
 
     public Word makeCombination(Player player, List<Word> words) {
         if (words.size() == 2) {
             Combination combination = combinationService.getCombination(words.get(0), words.get(1));
-            player.addWord(combination.getResult());
+            Word result = combination.getResult();
+            if (!player.getWords().contains(result)) {
+                player.addPoints(1);
+                player.addWord(result);
+            }
             return combination.getResult();
         }
 

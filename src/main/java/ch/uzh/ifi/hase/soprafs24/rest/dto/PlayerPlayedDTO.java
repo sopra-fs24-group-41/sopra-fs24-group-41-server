@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
+
 import java.util.Set;
 
 public class PlayerPlayedDTO {
@@ -7,6 +9,7 @@ public class PlayerPlayedDTO {
     private Set<PlayerWordDTO> playerWords;
     private WordDTO targetWord;
     private WordDTO resultWord;
+    private PlayerStatus status;
 
     public long getPoints() {
         return points;
@@ -38,5 +41,13 @@ public class PlayerPlayedDTO {
 
     public void setResultWord(WordDTO resultWord) {
         this.resultWord = resultWord;
+    }
+
+    public PlayerStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PlayerStatus status) {
+        this.status = status;
     }
 }

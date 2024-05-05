@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.game;
 
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
@@ -24,6 +25,7 @@ public class FusionFrenzyGame extends Game {
             playerService.resetPlayer(player);
             player.addWords(startingWords);
             player.setTargetWord(targetWord);
+            player.setStatus(PlayerStatus.PLAYING);
         }
     }
 
@@ -31,7 +33,10 @@ public class FusionFrenzyGame extends Game {
         if (words.size() == 2) {
             Combination combination = combinationService.getCombination(words.get(0), words.get(1));
             Word result = combination.getResult();
-            player.addWord(result);
+            if (!player.getWords().contains(result)) {
+                player.addPoints(1);
+                player.addWord(result);
+            }
             return result;
         }
 
@@ -41,7 +46,7 @@ public class FusionFrenzyGame extends Game {
 
     public boolean winConditionReached(Player player) {
         if (player.getWords().contains(player.getTargetWord())) {
-            player.addPoints(1000);
+            player.setStatus(PlayerStatus.WON);
             return true;
         };
         return false;

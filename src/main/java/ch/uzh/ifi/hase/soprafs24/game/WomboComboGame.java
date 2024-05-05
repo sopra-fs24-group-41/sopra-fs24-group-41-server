@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.game;
 
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
@@ -28,6 +29,7 @@ public class WomboComboGame extends Game {
             player.addWords(startingWords);
             Word targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
             player.setTargetWord(targetWord);
+            player.setStatus(PlayerStatus.PLAYING);
         }
     }
 
@@ -75,6 +77,10 @@ public class WomboComboGame extends Game {
     }
 
     public boolean winConditionReached(Player player) {
-        return player.getPoints() >= 50;
+        if (player.getPoints() >= 50) {
+            player.setStatus(PlayerStatus.WON);
+            return true;
+        }
+        return false;
     }
 }

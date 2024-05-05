@@ -52,7 +52,7 @@ public class Player implements Serializable {
     private Lobby lobby;
 
     @Column
-    private PlayerStatus status = PlayerStatus.WAITING;
+    private PlayerStatus status = PlayerStatus.READY;
 
     public Player() {
     }
@@ -165,6 +165,10 @@ public class Player implements Serializable {
         else {
             playerWords.add(new PlayerWord(this, word, uses));
         }
+    }
+
+    public Integer getTotalUses() {
+        return playerWords.stream().mapToInt(PlayerWord::getUses).sum();
     }
 
     public Word getTargetWord() {
