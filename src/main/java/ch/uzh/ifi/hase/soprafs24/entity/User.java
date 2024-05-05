@@ -67,7 +67,6 @@ public class User implements Serializable {
     @Column
     private int discoveredWords = 0;
 
-    @Column
     @ManyToOne
     private Word rarestWordFound = null;
 
