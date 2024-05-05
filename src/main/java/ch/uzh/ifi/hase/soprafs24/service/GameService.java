@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.game.WomboComboGame;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
@@ -55,6 +56,23 @@ public class GameService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
+    private void updateWinsAndLosses(Player winner) {
+        Lobby lobby = winner.getLobby();
+        for (Player player : lobby.getPlayers()) {
+            User user = player.getUser();
+            if (user == null) {
+                continue;
+            }
+
+            if (player.equals(winner)) {
+                user.setWins(user.getWins() + 1);
+            }
+            else {
+                user.setLosses(user.getLosses() + 1);
+            }
+        }
+    }
+
     public Word play(Player player, List<Word> words) {
         Lobby lobby = player.getLobby();
         Game game = instantiateGame(lobby.getMode());
@@ -62,6 +80,7 @@ public class GameService {
 
         if (game.winConditionReached(player)) {
             lobby.setStatus(LobbyStatus.PREGAME);
+            updateWinsAndLosses(player);
             messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
         }
 
