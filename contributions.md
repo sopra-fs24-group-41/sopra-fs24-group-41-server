@@ -138,6 +138,7 @@ Worked on:
 - Added statistics attributes to `User`'s (number of discovered words, rarest word found etc.);
 - Added tracking for these statistics
 - Issues: #26, #97, #99. Pull request: [link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/187)
+- Added propagation of word depth whenever a new combination is generated
 
  **JacquelineUlken - Jacqueline Ulken**
  - Fixed various bugs [#166](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/166), [#164](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/164), [#163](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/163)
