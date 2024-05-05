@@ -118,8 +118,12 @@ Worked on:
 ## 29.04 - 05.05 Week 6
 **na50r - Rosan Shanmuganathan**
 - I added a Quit button the Client side such that it's now possible to also quit mid-game, it uses the same functionality of a Lobby-Quit, i.e., if you're the owner of the lobby, the whole lobby is closed, otherwise, you just leave the lobby.
-- I made it possible that the Result page also indicates who the current player is in case of loss. I.e., if you win, your Player is highlighted in blue but if you lose, the winner's player is highlighted in blue and your player is highlighted in orange. 
+- I made it possible that the Result page also indicates who the current player is in case of loss. I.e., if you win, your Player is highlighted in blue but if you lose, the winner's player is highlighted in blue and your player is highlighted in red. 
 - [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/90)
+- I also added an optional timer, i.e., it is now possible to set a timer for 1,2,3,4 or 5 minutes and the game ends if you run out of time. The timer runs on the server but informs the Client within certain intervals via WebSocket implementation.
+- [Pull Request (Client)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/105)
+- [Pull Request (Server)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/185)
+- Encountered issues when testing as the testing DB on Postgres kept changing back and forth between an implementation that had a `gameTime` attribute and one that had not. Plan is to wait for @JacquelineUlken's implementation to get merged first, adapt to it and merge mine after.
 
 **Tmmn - Timon Leupp**
 - Support for anonymous players (will make pull request by the end of the week)
