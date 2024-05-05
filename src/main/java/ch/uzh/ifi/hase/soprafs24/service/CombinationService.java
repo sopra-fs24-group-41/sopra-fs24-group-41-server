@@ -106,7 +106,8 @@ public class CombinationService {
         List<Combination> adjacencyList;
         while (!queue.isEmpty()) {
             firstWord = queue.remove();
-            adjacencyList = combinationRepository.findByWord1(firstWord);
+            adjacencyList = new LinkedList<>();
+            adjacencyList.addAll(combinationRepository.findByWord1(firstWord));
             adjacencyList.addAll(combinationRepository.findByWord2(firstWord));
 
             for (Combination combination : adjacencyList) {
