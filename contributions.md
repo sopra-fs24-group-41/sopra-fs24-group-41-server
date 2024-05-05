@@ -138,3 +138,9 @@ Worked on:
 - Added statistics attributes to `User`'s (number of discovered words, rarest word found etc.);
 - Added tracking for these statistics
 - Issues: #26, #97, #99. Pull request: [link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/187)
+
+ **JacquelineUlken - Jacqueline Ulken**
+ - Fixed various bugs [#166](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/166), [#164](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/164), [#163](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/163)
+ - Added Finite Fusion in backend [#155](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/155)
+ - Added Finite Fusion in frontend [#87](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/84), [#82](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/82), [#81](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/81)
+ - Added automatic updating of other players activity [#77](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/77),[#92](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/92)
