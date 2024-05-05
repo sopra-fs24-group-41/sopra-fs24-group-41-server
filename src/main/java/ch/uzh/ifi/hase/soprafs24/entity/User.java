@@ -61,15 +61,15 @@ public class User implements Serializable {
     private LocalDate creationDate;
 
     @Column
-    private int combinationsMade;
+    private int combinationsMade = 0;
 
     // Number of new words that have been added to the word database as a result of combinations made by player.
     @Column
-    private int discoveredWords;
+    private int discoveredWords = 0;
 
     @Column
     @ManyToOne
-    private Word rarestFoundWord;
+    private Word rarestFoundWord = null;
 
     @Override
     public final boolean equals(Object o) {

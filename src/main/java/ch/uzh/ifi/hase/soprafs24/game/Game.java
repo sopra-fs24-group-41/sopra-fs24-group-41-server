@@ -52,7 +52,7 @@ public class Game {
         if (wordService.checkUniqueWord(resultWord)) {
             user.setDiscoveredWords(user.getDiscoveredWords() + 1);
         }
-        if (resultWord.getReachability() < user.getRarestFoundWord().getReachability()) {
+        if (user.getRarestFoundWord() == null || resultWord.getReachability() < user.getRarestFoundWord().getReachability()) {
             user.setRarestFoundWord(resultWord);
         }
     }
