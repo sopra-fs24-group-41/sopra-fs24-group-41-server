@@ -10,7 +10,7 @@ public class LobbyPutDTO {
 
     private String name;
 
-    int gameTime;
+    Integer gameTime;
 
     public GameMode getMode() {
         return mode;
@@ -36,7 +36,7 @@ public class LobbyPutDTO {
         this.name = name;
     }
 
-    public void setGameTime(int gameTime) {this.gameTime = gameTime; }
+    public void setGameTime(Integer gameTime) {this.gameTime = gameTime; }
 
-    public int getGameTime() {return gameTime;}
+    public Integer getGameTime() {return gameTime;}
 }

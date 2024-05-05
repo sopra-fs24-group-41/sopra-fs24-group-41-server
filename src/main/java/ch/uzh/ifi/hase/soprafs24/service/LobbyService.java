@@ -106,7 +106,7 @@ public class LobbyService {
             updates.put("publicAccess", true);
         }
 
-        if (lobbyPutDTO.getGameTime()!=-1 && !Objects.equals(lobbyPutDTO.getGameTime(), lobby.getGameTime())) {
+        if (lobbyPutDTO.getGameTime()!=null && !Objects.equals(lobbyPutDTO.getGameTime(), lobby.getGameTime())) {
             lobby.setGameTime(lobbyPutDTO.getGameTime());
             updates.put("gameTime", true);
         }

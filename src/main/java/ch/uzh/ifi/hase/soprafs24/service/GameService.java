@@ -31,9 +31,6 @@ public class GameService {
     private final EnumMap<GameMode, Class<? extends Game>> gameModes = new EnumMap<>(GameMode.class);
     private final SimpMessagingTemplate messagingTemplate;
 
-    private Timer gameTime;
-
-
 
     @Autowired
     public GameService(PlayerService playerService, CombinationService combinationService, WordService wordService, SimpMessagingTemplate messagingTemplate) {
@@ -41,7 +38,6 @@ public class GameService {
         this.combinationService = combinationService;
         this.wordService = wordService;
         this.messagingTemplate = messagingTemplate;
-        this.gameTime = new Timer();
         setupGameModes();
     }
 
@@ -54,7 +50,6 @@ public class GameService {
     public void createNewGame(Lobby lobby) {
         System.out.println("Game time is: " + lobby.getGameTime());
         if(lobby.getGameTime() != 0){
-            gameTimeRefresh(); //So Java is happy and restarting games work.
             startGameTimer(lobby);
         }
 
@@ -75,9 +70,6 @@ public class GameService {
 
         if (game.winConditionReached(player)) {
             lobby.setStatus(LobbyStatus.PREGAME);
-            if(lobby.getMode().equals(GameMode.FUSIONFRENZY)){
-                gameTime.cancel();
-            }
             messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
         }
 
@@ -96,36 +88,40 @@ public class GameService {
         }
     }
 
-    public void gameTimeRefresh(){
-        //This part is needed, else Java complaints because of gameTime being cancelled and doesn't allow to restart new games.
-        if (this.gameTime != null) {
-            this.gameTime.cancel();
-        }
-        this.gameTime = new Timer();
-    }
     public void startGameTimer(Lobby lobby) {
         System.out.println("New Timer, New Game");
+        Timer gameTime = new Timer(); //New local timer in scope
+
         TimerTask task = new TimerTask() {
             int remainingTime = 60 * lobby.getGameTime();
 
             @Override
             public void run() {
-                if (remainingTime ==  30) {
-                    System.out.println("You have 30sec left");
-                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("30"));
-                } else if (remainingTime == 10) {
+                if (remainingTime == 10) {
                     System.out.println("You have 10sec left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("10"));
+                }
+                if (remainingTime == 30) {
+                    System.out.println("You have 30sec left");
+                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("30"));
+                }
 
-                } else if(remainingTime == 60) {
+                if (remainingTime == 60) {
                     System.out.println("You have 1 min left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("60"));
-
-                } else if(remainingTime == 180) {
+                }
+                if (remainingTime == 180) {
                     System.out.println("You have 3min left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("180"));
+                }
 
-                } else if (remainingTime == 0) {
+                if (remainingTime == 300) {
+                    System.out.println("You have 5min left");
+                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("300"));
+                }
+
+
+                if (remainingTime == 0) {
                     System.out.println("Time's up!");
                     gameTime.cancel(); // Stop the timer when time's up
                     lobby.setStatus(LobbyStatus.PREGAME);
@@ -135,7 +131,10 @@ public class GameService {
                 remainingTime--; // Decrement remaining time
             }
         };
-        // Schedule the task to run every second
-        gameTime.scheduleAtFixedRate(task, 0, 1000);
+
+        // Schedule the task to run every second (almost like a while-loop)
+        //Use a three second initial delay for the Client to receive the initial timer setup.
+        gameTime.scheduleAtFixedRate(task, 3000, 1000);
     }
+
 }

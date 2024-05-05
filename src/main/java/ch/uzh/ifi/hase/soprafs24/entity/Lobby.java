@@ -32,7 +32,7 @@ public class Lobby implements Serializable {
     private Boolean publicAccess = true;
 
     @Column(nullable = false)
-    private int gameTime = 0;
+    private Integer gameTime = 0;
 
     @Column
     private LocalDateTime startTime;
@@ -146,7 +146,7 @@ public class Lobby implements Serializable {
         this.players = players;
     }
 
-    public void setGameTime(int gameTime) {this.gameTime = gameTime; }
+    public void setGameTime(Integer gameTime) {this.gameTime = gameTime; }
 
-    public int getGameTime() {return gameTime;}
+    public Integer getGameTime() {return gameTime;}
 }

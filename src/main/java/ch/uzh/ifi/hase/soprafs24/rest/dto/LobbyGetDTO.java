@@ -13,7 +13,7 @@ public class LobbyGetDTO {
 
     private Boolean publicAccess;
 
-    private int gameTime;
+    private Integer gameTime;
 
     private LobbyStatus status;
 
@@ -79,7 +79,7 @@ public class LobbyGetDTO {
         this.players = players;
     }
 
-    public void setGameTime(int gameTime) {this.gameTime = gameTime; }
+    public void setGameTime(Integer gameTime) {this.gameTime = gameTime; }
 
-    public int getGameTime() {return gameTime;}
+    public Integer getGameTime() {return gameTime;}
 }
