@@ -145,6 +145,17 @@ public class LobbyController {
                                 @RequestHeader String playerToken, @RequestBody List<Word> words) {
         Player player = getAuthenticatedPlayer(lobbyCode, playerId, playerToken);
         Word result = gameService.play(player, words);
+
+        long lobbyCodeLong = parseLobbyCode(lobbyCode);
+        Lobby lobby = lobbyService.getLobbyByCode(lobbyCodeLong);
+
+        if (lobbyService.allPlayersLost(lobby)) {
+            lobby.setStatus(LobbyStatus.PREGAME);
+            messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
+        }
+
+        messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.update));
+
         PlayerPlayedDTO playerPlayedDTO = DTOMapper.INSTANCE.convertEntityToPlayerPlayedDTO(player);
         playerPlayedDTO.setResultWord(DTOMapper.INSTANCE.convertEntityToWordDTO(result));
         return playerPlayedDTO;
