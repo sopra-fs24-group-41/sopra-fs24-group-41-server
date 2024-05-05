@@ -85,8 +85,10 @@ public class LobbyController {
         if (playerPostDTO.getPlayerName() == null || playerPostDTO.getPlayerName().isEmpty()) {
             playerPostDTO.setPlayerName("Randy");
         }
+        // set maximum allowed length of playerName
+        playerPostDTO.setPlayerName(playerPostDTO.getPlayerName().substring(0, Math.min(playerPostDTO.getPlayerName().length(), 20)));
 
-        Player player = null;
+        Player player;
         if (userToken != null && !userToken.isEmpty()) {
             User user = userService.checkToken(userToken);
             if (user.getPlayer() != null) {
