@@ -132,3 +132,8 @@ Worked on:
 
 -  **Grizzlytron - Lucas Timothy Leo Bär**
 - Used Joker for this week, no contribution in form of development tasks.
+
+**Aquamarine-12 - Alexandru-Mihai Hurjui**
+- Added statistics attributes to `User`'s (number of discovered words, rarest word found etc.);
+- Added tracking for these statistics
+- Issues: #26, #97, #99. Pull request: [link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/187)
