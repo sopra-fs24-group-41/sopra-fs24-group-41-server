@@ -12,7 +12,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
@@ -89,7 +91,33 @@ public class CombinationService {
         combinationRepository.saveAndFlush(combination);
         wordService.saveWord(resultWord);
 
+        propagateWordUpdates(resultWord);
+
         return combination;
+    }
+
+    void propagateWordUpdates(Word startingWord) {
+        Queue<Word> queue = new LinkedList<>();
+        queue.add(startingWord);
+
+        Word firstWord;
+        Word secondWord;
+        Word resultWord;
+        List<Combination> adjacencyList;
+        while (!queue.isEmpty()) {
+            firstWord = queue.remove();
+            adjacencyList = combinationRepository.findByWord1(firstWord);
+            adjacencyList.addAll(combinationRepository.findByWord2(firstWord));
+
+            for (Combination combination : adjacencyList) {
+                secondWord = (firstWord == combination.getWord1()) ? combination.getWord2() : combination.getWord1();
+                resultWord = combination.getResult();
+                if (max(firstWord.getDepth(), secondWord.getDepth()) + 1 < resultWord.getDepth()) {
+                    saveCombination(combination);
+                    queue.add(resultWord);
+                }
+            }
+        }
     }
 
     public Combination createCustomCombination(Word word1, Word word2, Word result) {
