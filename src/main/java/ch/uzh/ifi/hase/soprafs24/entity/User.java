@@ -60,11 +60,11 @@ public class User implements Serializable {
     @Column(nullable = true, updatable = false)
     private LocalDate creationDate;
 
-    @Column
+    @Column(nullable = false)
     private int combinationsMade = 0;
 
     // Number of new words that have been added to the word database as a result of combinations made by player.
-    @Column
+    @Column(nullable = false)
     private int discoveredWords = 0;
 
     @ManyToOne
