@@ -88,10 +88,17 @@ public class GameService {
 
     public void startGameTimer(Lobby lobby, Timer gameTime) {
 
-        TimerTask task = new TimerTask() {
+        TimerTask task = gameTask(lobby, gameTime);
+
+        // Schedule the task to run every 10th second (like a while-loop but control over time, different thread used)
+        // Use a three-second initial delay for the Client to receive the initial timer setup.
+        gameTime.scheduleAtFixedRate(task, 3000, 10000);
+    }
+
+    public TimerTask gameTask(Lobby lobby, Timer gameTime){
+        TimerTask gameTask = new TimerTask() {
             int remainingTime = lobby.getGameTime();
 
-            @Override
             public void run() {
                 for(int t : new int[]{10, 30, 60, 180, 300})
                     if (remainingTime == t) {
@@ -106,10 +113,7 @@ public class GameService {
                 remainingTime -= 10; // Decrement remaining time by 10
             }
         };
-
-        // Schedule the task to run every 10th second (like a while-loop but control over time, different thread used)
-        // Use a three-second initial delay for the Client to receive the initial timer setup.
-        gameTime.scheduleAtFixedRate(task, 3000, 10000);
+        return gameTask;
     }
 
 }
