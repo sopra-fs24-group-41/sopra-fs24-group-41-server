@@ -115,7 +115,7 @@ public class GameServiceTest {
     public void startGameTimer_timeout_and_end_game_after_one_minute() {
         Lobby testLobby = mock(Lobby.class);
         when(testLobby.getCode()).thenReturn(1234L);
-        when(testLobby.getGameTime()).thenReturn(1); // Mocking gameTime to be 1 (for example)
+        when(testLobby.getGameTime()).thenReturn(1); // Mock gameTime for 1min
 
         SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
         GameService gameService = new GameService(playerService, combinationService, wordService, messagingTemplateMock);
