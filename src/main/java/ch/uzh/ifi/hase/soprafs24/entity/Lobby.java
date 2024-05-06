@@ -141,4 +141,8 @@ public class Lobby implements Serializable {
     public void setPlayers(List<Player> players) {
         this.players = players;
     }
+
+    public void addPlayer(Player player) {
+        this.players.add(player);
+    }
 }

@@ -2,10 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs24.entity.Player;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.entity.Word;
+import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPutDTO;
 import ch.uzh.ifi.hase.soprafs24.service.*;
@@ -144,6 +141,22 @@ class LobbyControllerTest {
                 .andExpect(jsonPath("$[0].owner.user.status", is(testLobby.getOwner().getUser().getStatus().toString())))
                 .andExpect(jsonPath("$[0].owner.user.profilePicture", is(testLobby.getOwner().getUser().getProfilePicture())))
                 .andExpect(jsonPath("$[0].players", hasSize(2)));
+    }
+
+    @Test
+    void givenNoLobbies_validCode_thenReturnEmptyList() throws Exception {
+        // given
+        given(lobbyService.getPublicLobbies()).willReturn(new ArrayList<>());
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get("/lobbies")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test
@@ -408,6 +421,50 @@ class LobbyControllerTest {
     }
 
     @Test
+    void getPlayers_validInputs_thenReturnsPlayers() throws Exception {
+        // given
+        given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get(String.format("/lobbies/%s/players", testLobby.getCode()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[*].id", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getId).map(Long::intValue).toArray())))
+                .andExpect(jsonPath("$[*].name", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getName).toArray())))
+                .andExpect(jsonPath("$[*].points", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getPoints).map(Long::intValue).toArray())));
+//                .andExpect(jsonPath("$[*].user.username", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getUser).map(User::getUsername).toArray())))
+//                .andExpect(jsonPath("$[*].user.status", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getUser).map(User::getStatus).map(UserStatus::toString).toArray())))
+//                .andExpect(jsonPath("$[*].user.profilePicture", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getUser).map(User::getProfilePicture).toArray())));
+    }
+
+    @Test
+    void getPlayer_validInputs_thenReturnsPlayer() throws Exception {
+        // given
+        given(playerService.findPlayerByToken(Mockito.any())).willReturn(testPlayer1);
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get(String.format("/lobbies/%s/players/%s", testLobby.getCode(), testPlayer1.getId()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("playerToken", testPlayer1.getToken());
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is((int)testPlayer1.getId())))
+                .andExpect(jsonPath("$.name", is(testPlayer1.getName())))
+                .andExpect(jsonPath("$.points", is((int)testPlayer1.getPoints())));
+//                .andExpect(jsonPath("$.user.username", is(testPlayer1.getUser().getUsername())))
+//                .andExpect(jsonPath("$.user.status", is(testPlayer1.getUser().getStatus().toString())))
+//                .andExpect(jsonPath("$.user.profilePicture", is(testPlayer1.getUser().getProfilePicture())));
+    }
+
+    @Test
     void startGame_standard_success() throws Exception {
         // given
         given(lobbyService.getLobbyByCode(testLobby.getCode())).willReturn(testLobby);
@@ -464,6 +521,24 @@ class LobbyControllerTest {
         //then
         mockMvc.perform(putRequest)
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void getCombination_validInputs_thenReturnsCombination() throws Exception {
+        // given
+        given(combinationService.findCombination(Mockito.any(), Mockito.any()))
+                .willReturn(new Combination(new Word("water"), new Word("fire"), new Word("steam")));
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get(String.format("/combinations/%s/%s", "water", "fire"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("method", "find");
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name", is("steam")));
     }
 
     @Test

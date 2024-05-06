@@ -22,7 +22,7 @@ import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class LobbyServiceTest {
+class LobbyServiceTest {
 
     @Mock
     private LobbyRepository lobbyRepository;
@@ -120,6 +120,13 @@ public class LobbyServiceTest {
         assertEquals(testLobby.getOwner(), createdPlayer.getLobby().getOwner());
         assertArrayEquals(testLobby.getPlayers().toArray(), createdPlayer.getLobby().getPlayers().toArray());
     }
+
+    @Test
+    void createLobbyFromUser_publicAccessFalse_success() {
+        Player createdPlayer = lobbyService.createLobbyFromUser(testUser, false);
+        assertFalse(createdPlayer.getLobby().getPublicAccess());
+    }
+
     @Test
     void updateLobby_validInput_success() {
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
@@ -134,6 +141,15 @@ public class LobbyServiceTest {
         assertEquals(lobbyPutDTO.getPublicAccess(), testLobby.getPublicAccess());
         assertEquals(lobbyPutDTO.getMode(), testLobby.getMode());
         assertEquals(lobbyPutDTO.getName(), testLobby.getName());
+    }
+
+    @Test
+    void updateLobby_noUpdates_success() {
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        Map<String, Boolean> updates = lobbyService.updateLobby(testLobby, lobbyPutDTO);
+        assertFalse(updates.get("publicAccess"));
+        assertFalse(updates.get("mode"));
+        assertFalse(updates.get("name"));
     }
 
     @Test
@@ -162,15 +178,47 @@ public class LobbyServiceTest {
     void joinLobbyByUser_lobbyNotPregame_throwsForbiddenError() {
         testLobby.setStatus(LobbyStatus.INGAME);
         Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
+        long lobbyCode = testLobby.getCode();
 
-        assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyFromUser(testUser, testLobby.getCode()));
+        assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyFromUser(testUser, lobbyCode));
+    }
+
+    @Test
+    void joinLobbyAnonymous_validInput_success() {
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
+        Player createdPlayer = lobbyService.joinLobbyAnonymous("testPlayer2", testLobby.getCode());
+
+        // then
+        assertEquals(testLobby.getCode(), createdPlayer.getLobby().getCode());
+        assertEquals(testLobby.getName(), createdPlayer.getLobby().getName());
+        assertEquals(testLobby.getPublicAccess(), createdPlayer.getLobby().getPublicAccess());
+        assertEquals(testLobby.getStatus(), createdPlayer.getLobby().getStatus());
+        assertEquals(testLobby.getMode(), createdPlayer.getLobby().getMode());
+        assertEquals(testLobby.getOwner(), createdPlayer.getLobby().getOwner());
+        assertEquals(testLobby.getPlayers(), createdPlayer.getLobby().getPlayers());
+    }
+
+    @Test
+    void joinLobbyAnonymous_invalidCode_throwsNotFoundError() {
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(null);
+
+        assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyAnonymous("testPlayer2", 232));
+    }
+
+    @Test
+    void joinLobbyAnonymous_lobbyNotPregame_throwsForbiddenError() {
+        testLobby.setStatus(LobbyStatus.INGAME);
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
+        long lobbyCode = testLobby.getCode();
+
+        assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyAnonymous("testPlayer2", lobbyCode));
     }
 
     @Test
     void removeLobby_success() {
         // given
         Player testPlayer2 = new Player("234", "testPlayer2", testLobby);
-        testLobby.getPlayers().add(testPlayer2);
+        testLobby.addPlayer(testPlayer2);
 
         Mockito.doNothing().when(lobbyRepository).delete(Mockito.any());
         Mockito.doNothing().when(playerService).removePlayer(Mockito.any());
@@ -181,5 +229,12 @@ public class LobbyServiceTest {
         // then
         Mockito.verify(playerService, Mockito.times(2)).removePlayer(Mockito.any());
         Mockito.verify(lobbyRepository, Mockito.times(1)).delete(Mockito.any());
+    }
+
+    @Test
+    void removeLobby_noOwnerOrPlayers_success() {
+        testLobby.setOwner(null);
+        testLobby.setPlayers(null);
+        assertDoesNotThrow(() -> lobbyService.removeLobby(testLobby));
     }
 }
