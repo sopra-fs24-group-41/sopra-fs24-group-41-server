@@ -6,6 +6,8 @@ import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
+import ch.uzh.ifi.hase.soprafs24.timer.gameTimer;
+import ch.uzh.ifi.hase.soprafs24.timer.mockTimer;
 import ch.uzh.ifi.hase.soprafs24.websocket.TimeDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -121,10 +123,22 @@ public class GameServiceTest {
 
         SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
         GameService gameService = new GameService(playerService, combinationService, wordService, messagingTemplateMock);
-        gameService.startGameTimer(testLobby);
+        gameService.startGameTimer(testLobby, new gameTimer());
         verify(testLobby, timeout(1000 * 30).atLeastOnce()).setStatus(LobbyStatus.PREGAME);
     }
 
+    @Test
+    public void startGameTimer_game_end_after_1_minute() {
+        Lobby testLobby = mock(Lobby.class);
+        when(testLobby.getCode()).thenReturn(1234L);
+        when(testLobby.getGameTime()).thenReturn(60); // Mock gameTime for 5 seconds
+
+        SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
+        GameService gameService = new GameService(playerService, combinationService, wordService, messagingTemplateMock);
+        gameService.startGameTimer(testLobby, new mockTimer());
+        verify(messagingTemplateMock, timeout(1000 * 20).times(3)).convertAndSend(eq("/topic/lobbies/1234/game"), any(TimeDTO.class));
+        verify(testLobby, timeout(1000 * 20).atLeastOnce()).setStatus(LobbyStatus.PREGAME);
+    }
 
 }
 

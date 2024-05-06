@@ -4,6 +4,8 @@ import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.game.WomboComboGame;
+import ch.uzh.ifi.hase.soprafs24.timer.gameTimer;
+import ch.uzh.ifi.hase.soprafs24.timer.ownTimer;
 import ch.uzh.ifi.hase.soprafs24.websocket.TimeDTO;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
@@ -49,7 +51,7 @@ public class GameService {
 
     public void createNewGame(Lobby lobby) {
         if(lobby.getGameTime() != 0){
-            startGameTimer(lobby);
+            startGameTimer(lobby, new gameTimer());
         }
 
         List<Player> players = lobby.getPlayers();
@@ -87,8 +89,7 @@ public class GameService {
         }
     }
 
-    public void startGameTimer(Lobby lobby) {
-        Timer gameTime = new Timer(); //New local timer in scope
+    public void startGameTimer(Lobby lobby, ownTimer gameTime) {
 
         TimerTask task = new TimerTask() {
             int remainingTime = lobby.getGameTime();
