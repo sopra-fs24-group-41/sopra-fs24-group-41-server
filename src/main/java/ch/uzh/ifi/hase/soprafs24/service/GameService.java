@@ -89,7 +89,6 @@ public class GameService {
     }
 
     public void startGameTimer(Lobby lobby) {
-        System.out.println("New Timer, New Game");
         Timer gameTime = new Timer(); //New local timer in scope
 
         TimerTask task = new TimerTask() {
@@ -98,39 +97,32 @@ public class GameService {
             @Override
             public void run() {
                 if (remainingTime == 10) {
-                    System.out.println("You have 10sec left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("10"));
                 }
                 if (remainingTime == 30) {
-                    System.out.println("You have 30sec left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("30"));
                 }
                 if (remainingTime == 60) {
-                    System.out.println("You have 1 min left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("60"));
                 }
                 if (remainingTime == 180) {
-                    System.out.println("You have 3min left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("180"));
                 }
                 if (remainingTime == 300) {
-                    System.out.println("You have 5min left");
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("300"));
                 }
                 if (remainingTime == 0) {
-                    System.out.println("Time's up!");
                     gameTime.cancel(); // Stop the timer when time's up
                     lobby.setStatus(LobbyStatus.PREGAME);
-                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.timeout));
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
                 }
-                remainingTime--; // Decrement remaining time
+                remainingTime -= 10; // Decrement remaining time by 10
             }
         };
 
-        // Schedule the task to run every second (almost like a while-loop)
+        // Schedule the task to run every 10th second (like a while-loop but control over time, different thread used)
         // Use a three-second initial delay for the Client to receive the initial timer setup.
-        gameTime.scheduleAtFixedRate(task, 3000, 1000);
+        gameTime.scheduleAtFixedRate(task, 3000, 10000);
     }
 
 }
