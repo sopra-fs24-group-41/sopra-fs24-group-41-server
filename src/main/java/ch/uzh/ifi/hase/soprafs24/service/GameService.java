@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
+import ch.uzh.ifi.hase.soprafs24.game.FiniteFusionGame;
 import ch.uzh.ifi.hase.soprafs24.game.WomboComboGame;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
@@ -42,6 +43,7 @@ public class GameService {
         gameModes.put(GameMode.STANDARD, Game.class);
         gameModes.put(GameMode.FUSIONFRENZY, FusionFrenzyGame.class);
         gameModes.put(GameMode.WOMBOCOMBO, WomboComboGame.class);
+        gameModes.put(GameMode.FINITEFUSION, FiniteFusionGame.class);
     }
 
     public void createNewGame(Lobby lobby) {

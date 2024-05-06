@@ -427,6 +427,7 @@ class LobbyControllerTest {
     void play_standard_success() throws Exception {
         // given
         given(playerService.findPlayerByToken(testPlayer1.getToken())).willReturn(testPlayer1);
+        given(lobbyService.getLobbyByCode(testLobby.getCode())).willReturn(testLobby);
         List<Word> words = new ArrayList<>();
         words.add(new Word("water"));
         words.add(new Word("fire"));

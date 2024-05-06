@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
@@ -35,6 +36,14 @@ public class LobbyService {
 
     public List<Lobby> getPublicLobbies() {
         return lobbyRepository.findAllByPublicAccess(true);
+    }
+
+    public boolean allPlayersReady(Lobby lobby) {
+        return lobby.getPlayers().stream().allMatch(player -> player.getStatus() == PlayerStatus.READY);
+    }
+
+    public boolean allPlayersLost(Lobby lobby) {
+        return lobby.getPlayers().stream().allMatch(player -> player.getStatus() == PlayerStatus.LOST);
     }
 
     public Lobby getLobbyByCode(long code) {

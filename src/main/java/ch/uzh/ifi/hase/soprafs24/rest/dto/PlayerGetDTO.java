@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
+
 import java.util.Set;
 
 public class PlayerGetDTO {
@@ -13,6 +15,8 @@ public class PlayerGetDTO {
     private Set<PlayerWordDTO> playerWords;
 
     private WordDTO targetWord;
+
+    private PlayerStatus status;
 
     public long getId() {
         return id;
@@ -52,5 +56,13 @@ public class PlayerGetDTO {
 
     public void setTargetWord(WordDTO targetWord) {
         this.targetWord = targetWord;
+    }
+
+    public PlayerStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(PlayerStatus status) {
+        this.status = status;
     }
 }
