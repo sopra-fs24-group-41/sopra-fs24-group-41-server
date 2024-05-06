@@ -38,11 +38,11 @@ public class LobbyService {
         return lobbyRepository.findAllByPublicAccess(true);
     }
 
-    public Boolean allPlayersReady(Lobby lobby) {
+    public boolean allPlayersReady(Lobby lobby) {
         return lobby.getPlayers().stream().allMatch(player -> player.getStatus() == PlayerStatus.READY);
     }
 
-    public Boolean allPlayersLost(Lobby lobby) {
+    public boolean allPlayersLost(Lobby lobby) {
         return lobby.getPlayers().stream().allMatch(player -> player.getStatus() == PlayerStatus.LOST);
     }
 
