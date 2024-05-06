@@ -30,7 +30,7 @@ jobs:
         run: ./gradlew build
         env:
           SPRING_PROFILES_ACTIVE: postgres-cloud
-          SPRING_JPA_HIBERNATE_DDL_AUTO: create
+          SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
           DATABASE_URL: ${{ secrets.TESTING_DATABASE_URL }}
           DATABASE_USERNAME: ${{ secrets.TESTING_DATABASE_USERNAME }}
           DATABASE_PASSWORD: ${{ secrets.TESTING_DATABASE_PASSWORD }}
