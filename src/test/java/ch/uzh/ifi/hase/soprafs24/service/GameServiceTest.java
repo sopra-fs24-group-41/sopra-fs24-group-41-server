@@ -14,6 +14,8 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -112,20 +114,17 @@ public class GameServiceTest {
     }
 
     @Test
-    public void startGameTimer_timeout_and_end_game_after_one_minute() {
+    public void startGameTimer_game_end_after_5_seconds() {
         Lobby testLobby = mock(Lobby.class);
         when(testLobby.getCode()).thenReturn(1234L);
-        when(testLobby.getGameTime()).thenReturn(1); // Mock gameTime for 1min
+        when(testLobby.getGameTime()).thenReturn(5); // Mock gameTime for 5 seconds
 
         SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
         GameService gameService = new GameService(playerService, combinationService, wordService, messagingTemplateMock);
-
         gameService.startGameTimer(testLobby);
-
-        //Simulate timeout of 1 min + 5 seconds, reason: Implementation starts after a 3-second delay
-        verify(messagingTemplateMock, timeout(1000 * 60 + 5).times(3)).convertAndSend(eq("/topic/lobbies/1234/game"), any(TimeDTO.class));
-
-        verify(testLobby, timeout(1000 * 60 + 5).atLeastOnce()).setStatus(LobbyStatus.PREGAME);
+        verify(testLobby, timeout(1000 * 30).atLeastOnce()).setStatus(LobbyStatus.PREGAME);
     }
+
+
 }
 

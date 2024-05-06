@@ -48,7 +48,6 @@ public class GameService {
     }
 
     public void createNewGame(Lobby lobby) {
-        System.out.println("Game time is: " + lobby.getGameTime());
         if(lobby.getGameTime() != 0){
             startGameTimer(lobby);
         }
@@ -92,26 +91,16 @@ public class GameService {
         Timer gameTime = new Timer(); //New local timer in scope
 
         TimerTask task = new TimerTask() {
-            int remainingTime = 60 * lobby.getGameTime();
+            int remainingTime = lobby.getGameTime();
 
             @Override
             public void run() {
-                if (remainingTime == 10) {
-                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("10"));
-                }
-                if (remainingTime == 30) {
-                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("30"));
-                }
-                if (remainingTime == 60) {
-                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("60"));
-                }
-                if (remainingTime == 180) {
-                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("180"));
-                }
-                if (remainingTime == 300) {
-                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO("300"));
-                }
-                if (remainingTime == 0) {
+                for(int t : new int[]{10, 30, 60, 180, 300})
+                    if (remainingTime == t) {
+                        messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO(String.valueOf(t)));
+                    }
+
+                if (remainingTime <= 0) {
                     gameTime.cancel(); // Stop the timer when time's up
                     lobby.setStatus(LobbyStatus.PREGAME);
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
