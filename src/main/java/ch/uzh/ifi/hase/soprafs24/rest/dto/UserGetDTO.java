@@ -1,8 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs24.entity.Word;
-
 import java.time.LocalDate;
 
 public class UserGetDTO {
@@ -25,7 +23,7 @@ public class UserGetDTO {
 
     private int discoveredWords;
 
-    private Word rarestWordFound;
+    private WordDTO rarestWordFound;
 
     public Long getId() {
         return id;
@@ -95,11 +93,11 @@ public class UserGetDTO {
         this.discoveredWords = discoveredWords;
     }
 
-    public Word getRarestWordFound() {
+    public WordDTO getRarestWordFound() {
         return rarestWordFound;
     }
 
-    public void setRarestWordFound(Word rarestFoundWord) {
+    public void setRarestWordFound(WordDTO rarestFoundWord) {
         this.rarestWordFound = rarestFoundWord;
     }
 }
