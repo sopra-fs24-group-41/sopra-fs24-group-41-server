@@ -218,7 +218,7 @@ class LobbyServiceTest {
     void removeLobby_success() {
         // given
         Player testPlayer2 = new Player("234", "testPlayer2", testLobby);
-        testLobby.getPlayers().add(testPlayer2);
+        testLobby.addPlayer(testPlayer2);
 
         Mockito.doNothing().when(lobbyRepository).delete(Mockito.any());
         Mockito.doNothing().when(playerService).removePlayer(Mockito.any());

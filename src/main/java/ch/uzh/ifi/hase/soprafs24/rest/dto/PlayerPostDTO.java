@@ -9,6 +9,6 @@ public class PlayerPostDTO {
     }
 
     public void setPlayerName(String playerName) {
-        this.playerName = playerName;
+        this.playerName = playerName.substring(0, Math.min(playerName.length(), 20));
     }
 }

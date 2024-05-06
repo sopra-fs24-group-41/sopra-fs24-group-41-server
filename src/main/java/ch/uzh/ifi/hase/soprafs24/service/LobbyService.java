@@ -74,7 +74,7 @@ public class LobbyService {
 
         Player player = new Player(UUID.randomUUID().toString(), user.getUsername(), foundLobby);
         player.setUser(user);
-        foundLobby.getPlayers().add(player);
+        foundLobby.addPlayer(player);
         user.setPlayer(player);
 
         log.debug("user joined -> updated lobby {}", foundLobby);
@@ -90,7 +90,7 @@ public class LobbyService {
         }
 
         Player player = new Player(UUID.randomUUID().toString(), playerName, foundLobby);
-        foundLobby.getPlayers().add(player);
+        foundLobby.addPlayer(player);
         log.debug("updated lobby {}", foundLobby);
         log.debug("created new anonymous player from player name {}", player);
         return player;
@@ -134,7 +134,7 @@ public class LobbyService {
 
     private long generateLobbyCode() {
         long code = ThreadLocalRandom.current().nextLong(1000, 10000);
-        while (Boolean.TRUE.equals(lobbyRepository.existsByCode(code))) {
+        while (lobbyRepository.existsByCode(code)) {
             code = ThreadLocalRandom.current().nextLong(1000, 10000);
         }
         return code;
