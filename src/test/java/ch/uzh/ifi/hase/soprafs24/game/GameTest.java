@@ -3,7 +3,6 @@ package ch.uzh.ifi.hase.soprafs24.game;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.service.CombinationService;
-import ch.uzh.ifi.hase.soprafs24.service.GameService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.WordService;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,12 +15,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class GameTest {
-    private final Word water = new Word("water");
-    private final Word earth = new Word("earth");
-    private final Word fire = new Word("fire");
-    private final Word air = new Word("air");
-    private final Word mud = new Word("mud");
-
     private Player player1;
     private Player player2;
     private List<Player> players;
@@ -48,7 +41,6 @@ public class GameTest {
 
         MockitoAnnotations.openMocks(this);
         Mockito.when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
-        game.setup();
     }
 
     @Test

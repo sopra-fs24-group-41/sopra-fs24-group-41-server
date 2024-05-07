@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.game;
 
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
@@ -15,19 +16,20 @@ public class WomboComboGame extends Game {
 
     public WomboComboGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
-        setup();
     }
 
-    void setup() {
-        super.setup();
+    void setupStartingWords() {
+        super.setupStartingWords();
     }
 
     public void setupPlayers(List<Player> players) {
+        setupStartingWords();
         for (Player player : players) {
             playerService.resetPlayer(player);
             player.addWords(startingWords);
             Word targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
             player.setTargetWord(targetWord);
+            player.setStatus(PlayerStatus.PLAYING);
         }
     }
 
@@ -75,6 +77,10 @@ public class WomboComboGame extends Game {
     }
 
     public boolean winConditionReached(Player player) {
-        return player.getPoints() >= 50;
+        if (player.getPoints() >= 50) {
+            player.setStatus(PlayerStatus.WON);
+            return true;
+        }
+        return false;
     }
 }

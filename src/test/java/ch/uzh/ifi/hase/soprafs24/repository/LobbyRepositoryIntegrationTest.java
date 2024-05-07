@@ -18,7 +18,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-public class LobbyRepositoryIntegrationTest {
+class LobbyRepositoryIntegrationTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -87,14 +87,14 @@ public class LobbyRepositoryIntegrationTest {
     }
 
     @AfterEach
-    public void cleanup() {
+    void cleanup() {
         lobbyRepository.deleteAll();
         playerRepository.deleteAll();
         userRepository.deleteAll();
     }
 
     @Test
-    public void findByCode_success() {
+    void findByCode_success() {
         // when
         Lobby found = lobbyRepository.findByCode(testLobby.getCode());
 
@@ -109,7 +109,7 @@ public class LobbyRepositoryIntegrationTest {
     }
 
     @Test
-    public void findAllByPublicAccess_success() {
+    void findAllByPublicAccess_success() {
         // given
         Lobby lobby2 = new Lobby(4521, "lobby2");
         lobby2.setPublicAccess(true);
@@ -124,7 +124,7 @@ public class LobbyRepositoryIntegrationTest {
     }
 
     @Test
-    public void findByOwner_Id_success() {
+    void findByOwner_Id_success() {
         // when
         Lobby found = lobbyRepository.findByOwner_Id(testLobby.getOwner().getId());
 
@@ -139,7 +139,7 @@ public class LobbyRepositoryIntegrationTest {
     }
 
     @Test
-    public void findAllByMode_success() {
+    void findAllByMode_success() {
         // when
         List<Lobby> found = lobbyRepository.findAllByMode(testLobby.getMode());
         Lobby[] lobbyList = new Lobby[]{testLobby};
@@ -149,7 +149,7 @@ public class LobbyRepositoryIntegrationTest {
     }
 
     @Test
-    public void findAllByStatus_success() {
+    void findAllByStatus_success() {
         // when
         List<Lobby> found = lobbyRepository.findAllByStatus(testLobby.getStatus());
         Lobby[] lobbyList = new Lobby[]{testLobby};
@@ -159,7 +159,7 @@ public class LobbyRepositoryIntegrationTest {
     }
 
     @Test
-    public void findByPlayersIsContaining_success() {
+    void findByPlayersIsContaining_success() {
         // when
         Lobby found = lobbyRepository.findByPlayersIsContaining(testPlayer2);
 
@@ -174,12 +174,12 @@ public class LobbyRepositoryIntegrationTest {
     }
 
     @Test
-    public void existsByCode_success() {
+    void existsByCode_success() {
         assertTrue(lobbyRepository.existsByCode(testLobby.getCode()));
     }
 
     @Test
-    public void cascadePlayers_success() {
+    void cascadePlayers_success() {
         // when
         List<Player> found = playerRepository.findAllByLobby_Code(testLobby.getCode());
 

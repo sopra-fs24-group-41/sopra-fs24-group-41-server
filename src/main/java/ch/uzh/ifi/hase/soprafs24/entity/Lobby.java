@@ -146,6 +146,10 @@ public class Lobby implements Serializable {
         this.players = players;
     }
 
+    public void addPlayer(Player player) {
+        this.players.add(player);
+    }
+
     public void setGameTime(Integer gameTime) {this.gameTime = gameTime; }
 
     public Integer getGameTime() {return gameTime;}
