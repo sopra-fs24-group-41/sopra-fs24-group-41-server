@@ -6,10 +6,17 @@ public class InstructionDTO {
 
     private Instruction instruction;
 
+    private String reason;
+
     public InstructionDTO() {}
 
     public InstructionDTO(Instruction instruction) {
         this.instruction = instruction;
+    }
+
+    public InstructionDTO(Instruction instruction, String reason) {
+        this.instruction = instruction;
+        this.reason = reason;
     }
 
     public Instruction getInstruction() {
@@ -18,5 +25,13 @@ public class InstructionDTO {
 
     public void setInstruction(Instruction instruction) {
         this.instruction = instruction;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 }

@@ -36,6 +36,7 @@ public class LobbyController {
     private final APIService apiService;
 
     private static final String LOBBY_MESSAGE_DESTINATION_BASE = "/topic/lobbies";
+    private static final String LOBBY_MESSAGE_DESTINATION_GAME = "/game";
 
     LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService,
                     GameService gameService, SimpMessagingTemplate messagingTemplate, CombinationService combinationService, APIService apiService) {
@@ -133,7 +134,7 @@ public class LobbyController {
         gameService.createNewGame(lobby);
         lobby.setStatus(LobbyStatus.INGAME);
         messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE, getPublicLobbiesGetDTOList());
-        messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + code + "/game", new InstructionDTO(Instruction.start));
+        messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + code + LOBBY_MESSAGE_DESTINATION_GAME, new InstructionDTO(Instruction.START));
     }
 
     @GetMapping("/lobbies/{lobbyCode}/players/{playerId}")
@@ -155,10 +156,10 @@ public class LobbyController {
 
         if (lobbyService.allPlayersLost(lobby)) {
             lobby.setStatus(LobbyStatus.PREGAME);
-            messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
+            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode() + LOBBY_MESSAGE_DESTINATION_GAME, new InstructionDTO(Instruction.STOP));
         }
         else {
-            messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.update));
+            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode() + LOBBY_MESSAGE_DESTINATION_GAME, new InstructionDTO(Instruction.UPDATE));
         }
 
         PlayerPlayedDTO playerPlayedDTO = DTOMapper.INSTANCE.convertEntityToPlayerPlayedDTO(player);
@@ -178,7 +179,8 @@ public class LobbyController {
         else {
             lobbyService.removeLobby(player.getOwnedLobby());
             messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE, getPublicLobbiesGetDTOList());
-            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobbyCode + "/game", new InstructionDTO(Instruction.kick));
+            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobbyCode + LOBBY_MESSAGE_DESTINATION_GAME,
+                    new InstructionDTO(Instruction.KICK, "The lobby was closed by the owner"));
         }
     }
 

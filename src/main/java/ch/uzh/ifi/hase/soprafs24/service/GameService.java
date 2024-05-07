@@ -32,6 +32,8 @@ public class GameService {
     private final EnumMap<GameMode, Class<? extends Game>> gameModes = new EnumMap<>(GameMode.class);
     private final SimpMessagingTemplate messagingTemplate;
 
+    private static final String LOBBY_MESSAGE_DESTINATION_BASE = "/topic/lobbies";
+    private static final String LOBBY_MESSAGE_DESTINATION_GAME= "/game";
 
     @Autowired
     public GameService(PlayerService playerService, CombinationService combinationService, WordService wordService, SimpMessagingTemplate messagingTemplate) {
@@ -70,7 +72,8 @@ public class GameService {
 
         if (game.winConditionReached(player)) {
             lobby.setStatus(LobbyStatus.PREGAME);
-            messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
+            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode() + LOBBY_MESSAGE_DESTINATION_GAME,
+                    new InstructionDTO(Instruction.STOP));
         }
 
         return result;
@@ -104,13 +107,15 @@ public class GameService {
             public void run() {
                 for(int t : new int[]{10, 30, 60, 180, 300})
                     if (remainingTime == t) {
-                        messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO(String.valueOf(t)));
+                        messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode() + LOBBY_MESSAGE_DESTINATION_GAME,
+                                new TimeDTO(String.valueOf(t)));
                     }
 
                 if (remainingTime <= 0) {
                     gameTimer.cancel(); // Stop the timer when time's up
                     lobby.setStatus(LobbyStatus.PREGAME);
-                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
+                    messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode() + LOBBY_MESSAGE_DESTINATION_GAME,
+                            new InstructionDTO(Instruction.STOP));
                 }
                 remainingTime -= 10; // Decrement remaining time by 10
             }

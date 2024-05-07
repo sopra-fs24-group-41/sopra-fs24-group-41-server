@@ -37,6 +37,9 @@ public class Lobby implements Serializable {
     @Column
     private LocalDateTime startTime;
 
+    @Column
+    private LocalDateTime lastModified = LocalDateTime.now();
+
     @Column(nullable = false)
     private LobbyStatus status = LobbyStatus.PREGAME;
 
@@ -55,7 +58,11 @@ public class Lobby implements Serializable {
         this.code = code;
         this.name = name;
         this.publicAccess = false;
-        this.status = LobbyStatus.PREGAME;
+    }
+
+    @PreUpdate
+    void updateLastModified() {
+        this.lastModified = LocalDateTime.now();
     }
 
     @Override
@@ -112,6 +119,14 @@ public class Lobby implements Serializable {
 
     public void setStartTime(LocalDateTime startTime) {
     this.startTime = startTime;
+    }
+
+    public LocalDateTime getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(LocalDateTime lastModified) {
+        this.lastModified = lastModified;
     }
 
     public LobbyStatus getStatus() {

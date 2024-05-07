@@ -38,7 +38,7 @@ public class Player implements Serializable {
     private User user;
 
     @OneToMany(mappedBy = "player", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<PlayerWord> playerWords = new HashSet<PlayerWord>();
+    private Set<PlayerWord> playerWords = new HashSet<>();
 
     @ManyToOne
     private Word targetWord;
@@ -61,6 +61,11 @@ public class Player implements Serializable {
         this.token = token;
         this.name = name;
         this.lobby = lobby;
+    }
+
+    @PreUpdate
+    void updateLobbyLastModified() {
+        lobby.updateLastModified();
     }
 
     @Override
