@@ -98,7 +98,7 @@ public class GameService {
     }
 
     public TimerTask createGameTask(Lobby lobby, Timer gameTimer){
-        TimerTask gameTask = new TimerTask() {
+        return new TimerTask() {
             int remainingTime = lobby.getGameTime();
 
             public void run() {
@@ -115,7 +115,6 @@ public class GameService {
                 remainingTime -= 10; // Decrement remaining time by 10
             }
         };
-        return gameTask;
     }
 
 }
