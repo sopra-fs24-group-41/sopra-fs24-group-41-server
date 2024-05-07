@@ -134,7 +134,7 @@ public class GameServiceTest {
         SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
         GameService gameService = new GameService(playerService, combinationService, wordService, messagingTemplateMock);
         Timer gameTimer = new Timer();
-        TimerTask gameTask = gameService.gameTask(testLobby, gameTimer);
+        TimerTask gameTask = gameService.createGameTask(testLobby, gameTimer);
         gameTimer.scheduleAtFixedRate(gameTask, 3000, 1000); //Accelerate timer to run task every second, original implement does it every 10th second
 
         verify(messagingTemplateMock, timeout(1000 * 20).times(3)).convertAndSend(eq("/topic/lobbies/1234/game"), any(TimeDTO.class));

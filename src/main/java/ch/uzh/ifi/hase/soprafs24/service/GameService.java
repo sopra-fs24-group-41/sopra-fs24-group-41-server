@@ -49,7 +49,7 @@ public class GameService {
         gameModes.put(GameMode.FINITEFUSION, FiniteFusionGame.class);
     }
     public void createNewGame(Lobby lobby) {
-        if(lobby.getGameTime() != 0){
+        if(lobby.getGameTime() > 0){
             startGameTimer(lobby, new Timer());
         }
 
@@ -88,16 +88,16 @@ public class GameService {
         }
     }
 
-    public void startGameTimer(Lobby lobby, Timer gameTime) {
+    public void startGameTimer(Lobby lobby, Timer gameTimer) {
 
-        TimerTask task = gameTask(lobby, gameTime);
+        TimerTask task = createGameTask(lobby, gameTimer);
 
         // Schedule the task to run every 10th second (like a while-loop but control over time, different thread used)
         // Use a three-second initial delay for the Client to receive the initial timer setup.
-        gameTime.scheduleAtFixedRate(task, 3000, 10000);
+        gameTimer.scheduleAtFixedRate(task, 3000, 10000);
     }
 
-    public TimerTask gameTask(Lobby lobby, Timer gameTime){
+    public TimerTask createGameTask(Lobby lobby, Timer gameTimer){
         TimerTask gameTask = new TimerTask() {
             int remainingTime = lobby.getGameTime();
 
@@ -108,7 +108,7 @@ public class GameService {
                     }
 
                 if (remainingTime <= 0) {
-                    gameTime.cancel(); // Stop the timer when time's up
+                    gameTimer.cancel(); // Stop the timer when time's up
                     lobby.setStatus(LobbyStatus.PREGAME);
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
                 }
