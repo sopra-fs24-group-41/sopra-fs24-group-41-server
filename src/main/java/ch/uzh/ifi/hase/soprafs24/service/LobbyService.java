@@ -64,6 +64,7 @@ public class LobbyService {
         lobby.setOwner(player);
         lobby.setPlayers(List.of(player));
         lobby.setPublicAccess(Objects.requireNonNullElse(publicAccess, true));
+        lobby.setGameTime(0);
 
         Lobby savedLobby = lobbyRepository.saveAndFlush(lobby);
         user.setPlayer(savedLobby.getOwner());
@@ -110,6 +111,7 @@ public class LobbyService {
         updates.put("mode", false);
         updates.put("name", false);
         updates.put("publicAccess", false);
+        updates.put("gameTime", false);
 
         if (lobbyPutDTO.getMode() != null && !lobbyPutDTO.getMode().equals(lobby.getMode())) {
             lobby.setMode(lobbyPutDTO.getMode());
@@ -122,6 +124,11 @@ public class LobbyService {
         if (lobbyPutDTO.getPublicAccess() != null && !Objects.equals(lobbyPutDTO.getPublicAccess(), lobby.getPublicAccess())) {
             lobby.setPublicAccess(lobbyPutDTO.getPublicAccess());
             updates.put("publicAccess", true);
+        }
+
+        if (lobbyPutDTO.getGameTime()!=null && !Objects.equals(lobbyPutDTO.getGameTime(), lobby.getGameTime())) {
+            lobby.setGameTime(lobbyPutDTO.getGameTime());
+            updates.put("gameTime", true);
         }
         return updates;
     }
