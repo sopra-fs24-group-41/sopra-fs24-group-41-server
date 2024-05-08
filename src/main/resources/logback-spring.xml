@@ -1,0 +1,57 @@
+<configuration>
+    <!-- Load rootLevel from Spring application.properties -->
+    <springProperty scope="context" name="logRootLevel" source="logging.level.root"/>
+
+    <!-- Console appender -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>%date %level [%thread] %logger : %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File appender for info log file-->
+    <appender name="FILE-INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/myapp-info.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>myapp-info.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <!-- keep 14 days worth of history -->
+            <maxHistory>14</maxHistory>
+        </rollingPolicy>
+
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <encoder>
+            <pattern>%date %level [%thread] %logger : %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- File appender for debug log file-->
+    <appender name="FILE-DEBUG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/myapp-debug.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>myapp-debug.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+            <!-- keep 1 day worth of history -->
+            <maxHistory>1</maxHistory>
+        </rollingPolicy>
+
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%date %level [%thread] %logger %file:%line : %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="${logRootLevel}">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE-INFO" />
+        <appender-ref ref="FILE-DEBUG" />
+    </root>
+</configuration>

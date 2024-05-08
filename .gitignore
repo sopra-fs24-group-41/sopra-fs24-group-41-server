@@ -42,3 +42,4 @@ local.properties
 .vscode
 
 /bin
+/logs/
