@@ -99,6 +99,12 @@ public class LobbyService {
                     "this lobby does not accept new players, wait until the game is finished");
         }
 
+        if (foundLobby.getPlayers().stream().anyMatch(player -> player.getName().equals(playerName))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "The playername you entered is already taken, choose another");
+
+        }
+
         Player player = new Player(UUID.randomUUID().toString(), playerName, foundLobby);
         foundLobby.addPlayer(player);
         log.debug("updated lobby {}", foundLobby);
