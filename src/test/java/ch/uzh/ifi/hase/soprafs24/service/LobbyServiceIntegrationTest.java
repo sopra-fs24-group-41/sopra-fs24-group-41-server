@@ -52,7 +52,7 @@ class LobbyServiceIntegrationTest {
     @Test
     void createLobbyByUser_validInputs_success() {
         // given
-        assertNull(lobbyRepository.findByCode(1234));
+        assertTrue(lobbyRepository.findAll().isEmpty());
 
         User testUser = new User();
         testUser.setId(1L);
@@ -79,7 +79,7 @@ class LobbyServiceIntegrationTest {
     @Test
     void createLobbyByUser_nullPublicAccess_defaultToTrue() {
         // given
-        assertNull(lobbyRepository.findByCode(1234));
+        assertTrue(lobbyRepository.findAll().isEmpty());
 
         User testUser = new User();
         testUser.setId(1L);
@@ -101,7 +101,7 @@ class LobbyServiceIntegrationTest {
     @Transactional
     void getLobbyByCode_validCode_returnsLobby() {
         // given
-        assertNull(lobbyRepository.findByCode(1234));
+        assertTrue(lobbyRepository.findAll().isEmpty());
 
         Lobby testLobby = new Lobby(1234, "this is a new lobby");
         testLobby.setPublicAccess(true);
@@ -127,7 +127,7 @@ class LobbyServiceIntegrationTest {
     @Test
     void getLobbyByCode_invalidCode_throwsNotFoundException() {
         // given
-        assertNull(lobbyRepository.findByCode(1234));
+        assertTrue(lobbyRepository.findAll().isEmpty());
 
         // when then
         assertThrows(ResponseStatusException.class, () -> lobbyService.getLobbyByCode(1234));
@@ -136,7 +136,7 @@ class LobbyServiceIntegrationTest {
     @Test
     void joinLobbyByUser_validInputs_success() {
         // given
-        assertNull(lobbyRepository.findByCode(1234));
+        assertTrue(lobbyRepository.findAll().isEmpty());
 
         User testUser = new User();
         testUser.setId(1L);
@@ -145,11 +145,19 @@ class LobbyServiceIntegrationTest {
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
 
+        User testUser2 = new User();
+        testUser2.setId(2L);
+        testUser2.setPassword("testPassword");
+        testUser2.setUsername("firstname2@lastname2");
+        testUser2.setStatus(UserStatus.OFFLINE);
+        testUser2.setToken("2");
+
         User savedTestUser = userRepository.saveAndFlush(testUser);
+        User savedTestUser2 = userRepository.saveAndFlush(testUser2);
         Player testPlayer = lobbyService.createLobbyFromUser(savedTestUser, true);
 
         // when
-        Player joinedPlayer = lobbyService.joinLobbyFromUser(savedTestUser, testPlayer.getLobby().getCode());
+        Player joinedPlayer = lobbyService.joinLobbyFromUser(savedTestUser2, testPlayer.getLobby().getCode());
 
         //then
         assertNotNull(testPlayer.getName(), joinedPlayer.getName());
@@ -162,7 +170,7 @@ class LobbyServiceIntegrationTest {
     @Test
     void joinLobbyByUser_invalidCode_throwsNotFoundException() {
         // given
-        assertNull(lobbyRepository.findByCode(234));
+        assertTrue(lobbyRepository.findAll().isEmpty());
 
         User testUser = new User();
         testUser.setId(1L);
@@ -178,7 +186,7 @@ class LobbyServiceIntegrationTest {
     @Test
     void joinLobbyByUser_invalidStatus_throwsForbiddenException() {
         // given
-        assertNull(lobbyRepository.findByCode(1234));
+        assertTrue(lobbyRepository.findAll().isEmpty());
 
         User testUser = new User();
         testUser.setId(1L);
@@ -200,7 +208,7 @@ class LobbyServiceIntegrationTest {
     @Test
     void joinLobbyAnonymous_validInputs_success() {
         // given
-        assertNull(lobbyRepository.findByCode(1234));
+        assertTrue(lobbyRepository.findAll().isEmpty());
 
         User testUser = new User();
         testUser.setId(1L);
@@ -234,7 +242,7 @@ class LobbyServiceIntegrationTest {
     @Test
     void joinLobbyAnonymous_invalidStatus_throwsForbiddenException() {
         // given
-        assertNull(lobbyRepository.findByCode(1234));
+        assertTrue(lobbyRepository.findAll().isEmpty());
 
         User testUser = new User();
         testUser.setId(1L);
@@ -255,9 +263,38 @@ class LobbyServiceIntegrationTest {
 
     @Test
     @Transactional
+    void joinLobbyByUser_ownerRejoinsLobby_success() {
+        // given
+        assertTrue(lobbyRepository.findAll().isEmpty());
+
+        User testUser = new User();
+        testUser.setId(1L);
+        testUser.setPassword("testPassword");
+        testUser.setUsername("firstname@lastname");
+        testUser.setStatus(UserStatus.OFFLINE);
+        testUser.setToken("1");
+
+        User savedTestUser = userRepository.saveAndFlush(testUser);
+        Player testPlayer = lobbyService.createLobbyFromUser(savedTestUser, true);
+        String oldToken = testPlayer.getToken();
+
+        // when
+        Player joinedPlayer = lobbyService.joinLobbyFromUser(savedTestUser, testPlayer.getLobby().getCode());
+
+        //then
+        assertNotNull(testPlayer.getName(), joinedPlayer.getName());
+        assertNotNull(joinedPlayer.getLobby().getName());
+        assertEquals(true, joinedPlayer.getLobby().getPublicAccess());
+        assertNotNull(joinedPlayer.getLobby().getStatus());
+        assertEquals(testPlayer.getLobby().getCode(), joinedPlayer.getLobby().getCode());
+        assertNotEquals(oldToken, joinedPlayer.getToken());
+    }
+
+    @Test
+    @Transactional
     void getPublicLobbies_returnsPublicLobbies() {
         // given
-        assertNull(lobbyRepository.findByCode(1234));
+        assertTrue(lobbyRepository.findAll().isEmpty());
 
         Lobby testLobby = new Lobby(1234, "this is a new lobby");
         testLobby.setPublicAccess(true);
@@ -285,7 +322,7 @@ class LobbyServiceIntegrationTest {
     @Transactional
     void updateLobby_validInputs_success() {
         // given
-        assertNull(lobbyRepository.findByCode(1234));
+        assertTrue(lobbyRepository.findAll().isEmpty());
 
         Lobby testLobby = new Lobby(1234, "this is a new lobby");
         testLobby.setPublicAccess(true);
@@ -320,7 +357,7 @@ class LobbyServiceIntegrationTest {
     @Test
     void updateLobby_noUpdates_success() {
         // given
-        assertNull(lobbyRepository.findByCode(1234));
+        assertTrue(lobbyRepository.findAll().isEmpty());
 
         Lobby testLobby = new Lobby(1234, "this is a new lobby");
         testLobby.setPublicAccess(true);
@@ -352,7 +389,7 @@ class LobbyServiceIntegrationTest {
 
     @Test
     void removeLobby_success() {
-        assertNull(lobbyRepository.findByCode(123));
+        assertTrue(lobbyRepository.findAll().isEmpty());
 
         Lobby testLobby = new Lobby(123, "this is a new lobby");
         testLobby.setPublicAccess(true);

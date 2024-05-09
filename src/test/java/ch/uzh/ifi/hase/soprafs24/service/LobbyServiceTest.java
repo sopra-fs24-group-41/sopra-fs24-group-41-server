@@ -107,6 +107,7 @@ class LobbyServiceTest {
 
     @Test
     void createLobbyByUser_validInputs_success() {
+        testLobby.setPublicAccess(true);
         Player createdPlayer = lobbyService.createLobbyFromUser(testUser, true);
 
         // then
@@ -122,9 +123,16 @@ class LobbyServiceTest {
     }
 
     @Test
-    void createLobbyFromUser_publicAccessFalse_success() {
+    void createLobbyFromUser_publicAccessFalse_returnsPrivateLobby() {
         Player createdPlayer = lobbyService.createLobbyFromUser(testUser, false);
         assertFalse(createdPlayer.getLobby().getPublicAccess());
+    }
+
+    @Test
+    void createLobbyFromUser_publicAccessNull_returnsPublicLobby() {
+        testLobby.setPublicAccess(true);
+        Player createdPlayer = lobbyService.createLobbyFromUser(testUser, null);
+        assertTrue(createdPlayer.getLobby().getPublicAccess());
     }
 
     @Test
@@ -154,6 +162,8 @@ class LobbyServiceTest {
 
     @Test
     void joinLobbyByUser_validInputs_success() {
+        testPlayer.setUser(null);
+        testUser.setPlayer(null);
         Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
         Player createdPlayer = lobbyService.joinLobbyFromUser(testUser, testLobby.getCode());
 
@@ -168,6 +178,50 @@ class LobbyServiceTest {
     }
 
     @Test
+    void joinLobbyByUser_ownerRejoins_resetsPlayerToken() {
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
+        String originalToken = testPlayer.getToken();
+        Player player = lobbyService.joinLobbyFromUser(testUser, testLobby.getCode());
+
+        // then
+        assertNotEquals(originalToken, player.getToken());
+        assertEquals(testLobby, player.getLobby());
+    }
+
+    @Test
+    void joinLobbyByUser_userAlreadyInLobby_resetsPlayerToken() {
+        User testUser2 = new User();
+        testUser2.setId(1L);
+        testUser2.setPassword("testPassword");
+        testUser2.setUsername("firstname@lastname");
+        testUser2.setStatus(UserStatus.OFFLINE);
+        testUser2.setToken("1");
+
+        Player testPlayer2 = new Player("234", "testPlayer2", testLobby);
+
+        testUser2.setPlayer(testPlayer2);
+        testPlayer2.setUser(testUser2);
+
+        testLobby.addPlayer(testPlayer2);
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
+
+        String originalToken = testPlayer2.getToken();
+        Player player = lobbyService.joinLobbyFromUser(testUser2, testLobby.getCode());
+
+        // then
+        assertNotEquals(originalToken, player.getToken());
+        assertEquals(testLobby, player.getLobby());
+    }
+
+    @Test
+    void joinLobbyByUser_rejoinsWrongLobby_throwsForbiddenError() {
+        Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
+        testPlayer.setLobby(new Lobby(1235, "wrong lobby"));
+        long testLobbyCode = testLobby.getCode();
+        assertThrows(ResponseStatusException.class, () -> lobbyService.joinLobbyFromUser(testUser, testLobbyCode));
+    }
+
+    @Test
     void joinLobbyByUser_invalidCode_throwsNotFoundError() {
         Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(null);
 
@@ -176,6 +230,8 @@ class LobbyServiceTest {
 
     @Test
     void joinLobbyByUser_lobbyNotPregame_throwsForbiddenError() {
+        testUser.setPlayer(null);
+        testPlayer.setUser(null);
         testLobby.setStatus(LobbyStatus.INGAME);
         Mockito.when(lobbyRepository.findByCode(Mockito.anyLong())).thenReturn(testLobby);
         long lobbyCode = testLobby.getCode();

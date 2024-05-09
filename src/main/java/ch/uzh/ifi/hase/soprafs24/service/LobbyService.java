@@ -77,18 +77,32 @@ public class LobbyService {
 
     public Player joinLobbyFromUser(User user, long lobbyCode) {
         Lobby foundLobby = getLobbyByCode(lobbyCode);
-        if (foundLobby.getStatus() != LobbyStatus.PREGAME) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "this lobby does not accept new players, wait until the game is finished");
+        Player player;
+
+        if (user.getPlayer() != null && user.getPlayer().getLobby() != null) {
+            player = user.getPlayer();
+            if (player.getLobby() != foundLobby) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        String.format("user is already in lobby with code %s, leave that lobby before joining another one",
+                                player.getLobby().getCode()));
+            }
+            player.setToken(UUID.randomUUID().toString());
+            log.debug("reset token for player {}", player);
         }
+        else {
+            if (foundLobby.getStatus() != LobbyStatus.PREGAME) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                        "this lobby does not accept new players, wait until the game is finished");
+            }
 
-        Player player = new Player(UUID.randomUUID().toString(), user.getUsername(), foundLobby);
-        player.setUser(user);
-        foundLobby.addPlayer(player);
-        user.setPlayer(player);
+            player = new Player(UUID.randomUUID().toString(), user.getUsername(), foundLobby);
+            player.setUser(user);
+            foundLobby.addPlayer(player);
+            user.setPlayer(player);
 
-        log.debug("user joined -> updated lobby {}", foundLobby);
-        log.debug("created new player from user {}", player);
+            log.debug("user joined -> updated lobby {}", foundLobby);
+            log.debug("created new player from user {}", player);
+        }
         return player;
     }
 
