@@ -9,6 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -48,6 +49,14 @@ public class Lobby implements Serializable {
 
     @OneToMany(mappedBy = "lobby", cascade = CascadeType.ALL)
     private List<Player> players;
+
+    private boolean updatedName = false;
+
+    private boolean updatedMode = false;
+
+    private boolean updatedPublicAccess = false;
+
+    private boolean updatedGameTime = false;
 
     public Lobby() {}
 
@@ -153,4 +162,47 @@ public class Lobby implements Serializable {
     public void setGameTime(Integer gameTime) {this.gameTime = gameTime; }
 
     public Integer getGameTime() {return gameTime;}
+
+    public boolean isUpdatedName() {
+        return updatedName;
+    }
+
+    public void setUpdatedName(boolean updatedName) {
+        this.updatedName = updatedName;
+    }
+
+    public boolean isUpdatedMode() {
+        return updatedMode;
+    }
+
+    public void setUpdatedMode(boolean updatedMode) {
+        this.updatedMode = updatedMode;
+    }
+
+    public boolean isUpdatedPublicAccess() {
+        return updatedPublicAccess;
+    }
+
+    public void setUpdatedPublicAccess(boolean updatedPublicAccess) {
+        this.updatedPublicAccess = updatedPublicAccess;
+    }
+
+    public boolean isUpdatedGameTime() {
+        return updatedGameTime;
+    }
+
+    public void setUpdatedGameTime(boolean updatedGameTime) {
+        this.updatedGameTime = updatedGameTime;
+    }
+
+    public void resetUpdate() {
+        this.updatedName = false;
+        this.updatedMode = false;
+        this.updatedPublicAccess = false;
+        this.updatedGameTime = false;
+    }
+
+    public Map<String, Boolean> getUpdatedFields() {
+        return Map.of("name", updatedName, "mode", updatedMode, "publicAccess", updatedPublicAccess, "gameTime", updatedGameTime);
+    }
 }

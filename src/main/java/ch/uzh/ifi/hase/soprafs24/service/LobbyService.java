@@ -106,31 +106,27 @@ public class LobbyService {
         return player;
     }
 
-    public Map<String, Boolean> updateLobby(Lobby lobby, LobbyPutDTO lobbyPutDTO) {
-        Map<String, Boolean> updates = new HashMap<>();
-        updates.put("mode", false);
-        updates.put("name", false);
-        updates.put("publicAccess", false);
-        updates.put("gameTime", false);
+    public Lobby updateLobby(Lobby lobby, LobbyPutDTO lobbyPutDTO) {
+        lobby.resetUpdate();
 
         if (lobbyPutDTO.getMode() != null && !lobbyPutDTO.getMode().equals(lobby.getMode())) {
             lobby.setMode(lobbyPutDTO.getMode());
-            updates.put("mode", true);
+            lobby.setUpdatedMode(true);
         }
         if (lobbyPutDTO.getName() != null && !Objects.equals(lobbyPutDTO.getName(), lobby.getName())) {
             lobby.setName(lobbyPutDTO.getName());
-            updates.put("name", true);
+            lobby.setUpdatedName(true);
         }
         if (lobbyPutDTO.getPublicAccess() != null && !Objects.equals(lobbyPutDTO.getPublicAccess(), lobby.getPublicAccess())) {
             lobby.setPublicAccess(lobbyPutDTO.getPublicAccess());
-            updates.put("publicAccess", true);
+            lobby.setUpdatedPublicAccess(true);
         }
 
         if (lobbyPutDTO.getGameTime()!=null && !Objects.equals(lobbyPutDTO.getGameTime(), lobby.getGameTime())) {
             lobby.setGameTime(lobbyPutDTO.getGameTime());
-            updates.put("gameTime", true);
+            lobby.setUpdatedGameTime(true);
         }
-        return updates;
+        return lobby;
     }
 
     public void removeLobby(Lobby lobby) {

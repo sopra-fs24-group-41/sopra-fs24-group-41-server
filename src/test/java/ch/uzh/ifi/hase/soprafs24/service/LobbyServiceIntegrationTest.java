@@ -307,7 +307,8 @@ class LobbyServiceIntegrationTest {
         lobbyPutDTO.setName("new name");
 
         // when
-        Map<String, Boolean> updates = lobbyService.updateLobby(savedLobby, lobbyPutDTO);
+        Lobby lobby = lobbyService.updateLobby(savedLobby, lobbyPutDTO);
+        Map<String, Boolean> updates = lobby.getUpdatedFields();
 
         assertEquals(true, updates.get("publicAccess"));
         assertEquals(true, updates.get("mode"));
@@ -338,7 +339,8 @@ class LobbyServiceIntegrationTest {
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
 
-        Map<String, Boolean> updates = lobbyService.updateLobby(savedLobby, lobbyPutDTO);
+        Lobby lobby = lobbyService.updateLobby(savedLobby, lobbyPutDTO);
+        Map<String, Boolean> updates = lobby.getUpdatedFields();
         assertFalse(updates.get("publicAccess"));
         assertFalse(updates.get("mode"));
         assertFalse(updates.get("name"));
