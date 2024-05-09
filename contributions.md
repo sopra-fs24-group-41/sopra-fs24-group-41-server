@@ -145,3 +145,10 @@ Worked on:
  - Added Finite Fusion in backend [#155](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/155)
  - Added Finite Fusion in frontend [#87](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/84), [#82](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/82), [#81](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/81)
  - Added automatic updating of other players activity [#77](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/77),[#92](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/92)
+
+## 06.05 - 12.05 Week 7
+**Tmmn - Timon Leupp**
+- Lobbies are no deleted after 3 hours of inactivity. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/194)
+- User can rejoin their lobby. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/195)
+- Set up logging [here](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/commit/560a80bc73cd0f29e03efe27f031f3512aa70108)
+- Refactored update lobby to using update booleans in lobby class and no longer passing a Map. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/196)
