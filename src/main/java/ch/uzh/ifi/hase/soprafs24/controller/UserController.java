@@ -86,9 +86,9 @@ public class UserController {
 
     @GetMapping("/users/{id}/lobby")
     @ResponseStatus(HttpStatus.OK)
-    public LobbyGetDTO getLobby(@PathVariable String id) {
+    public LobbyGetDTO getLobby(@PathVariable String id, @RequestHeader String userToken) {
         long userIdLong = parseUserId(id);
-        User user = userService.getUserById(userIdLong);
+        User user = userService.authUser(userIdLong, userToken);
         if (user.getPlayer() == null || (user.getPlayer() != null && user.getPlayer().getLobby() == null)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User is not in a lobby");
         }
