@@ -152,3 +152,9 @@ Worked on:
 - User can rejoin their lobby. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/195)
 - Set up logging [here](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/commit/560a80bc73cd0f29e03efe27f031f3512aa70108)
 - Refactored update lobby to using update booleans in lobby class and no longer passing a Map. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/196)
+
+**na50r - Rosan Shanmuganathan**
+- Continued to work on Timer, modified methods such that they become easier to test and added tests for the timer (timer runs faster in test, so test will not take 1 minute but it'll test everything that should happen when timer is set to 1 min)
+- [Pull Request (Client)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/105)
+- [Pull Request (Server)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/185)
+- Working on ui improvement, adding more explanation, CSS fix-ups and possible refactoring of code
