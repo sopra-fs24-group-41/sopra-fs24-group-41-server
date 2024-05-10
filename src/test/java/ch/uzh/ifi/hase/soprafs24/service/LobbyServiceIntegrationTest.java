@@ -223,6 +223,7 @@ class LobbyServiceIntegrationTest {
         assertEquals(testPlayer.getLobby().getCode(), joinedPlayer.getLobby().getCode());
     }
 
+    @Test
     void joinLobbyAnonymous_invalidCode_throwsNotFoundException() {
         // given
         assertNull(lobbyRepository.findByCode(234));

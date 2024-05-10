@@ -19,8 +19,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
@@ -43,50 +41,45 @@ public class LobbyService {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    private final PlatformTransactionManager transactionManager;
-
     private static final String LOBBY_MESSAGE_DESTINATION_BASE = "/topic/lobbies";
     private static final String LOBBY_MESSAGE_DESTINATION_GAME= "/game";
 
     @Autowired
     public LobbyService(@Qualifier("lobbyRepository") LobbyRepository lobbyRepository, PlayerService playerService,
-                        SimpMessagingTemplate messagingTemplate, PlatformTransactionManager transactionManager) {
+                        SimpMessagingTemplate messagingTemplate) {
         this.lobbyRepository = lobbyRepository;
         this.playerService = playerService;
         this.messagingTemplate = messagingTemplate;
-        this.transactionManager = transactionManager;
     }
 
     @EventListener(ApplicationReadyEvent.class)
-    public void scheduleCheckLobbyStillActive() {
+    public void scheduleCheckLobbyStillActiveStartup() {
+        scheduleCheckLobbyStillActive(180, 30); // change values here to adjust timings
+    }
+
+    public ScheduledExecutorService scheduleCheckLobbyStillActive(long thresholdMinutes, long periodMinutes) {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
         Runnable checkLobbies = () -> {
-            TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-            transactionTemplate.execute(status -> {
-                try { // TODO: set checking interval back to 30 minute and condition for deletion to 3 hours
-                    log.debug("Checking lobbies to close inactive ones");
-                    ArrayList<Lobby> allLobbies = new ArrayList<>(lobbyRepository.findAll());
-                    for (Lobby lobby : allLobbies) {
-                        long hoursDifference = ChronoUnit.MINUTES.between(lobby.getLastModified(), LocalDateTime.now());
-                        if (hoursDifference >= 1) {
-                            removeLobby(lobby);
-                            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode() + LOBBY_MESSAGE_DESTINATION_GAME,
-                                    new InstructionDTO(Instruction.KICK, "The lobby was closed due to inactivity"));
-                            log.debug("Lobby with code {} was last active on {} and was closed due to inactivity", lobby.getCode(), lobby.getLastModified());
-                        }
-                    }
-                }
-                catch (Exception e) {
-                    log.error("Error while checking lobbies", e);
-                }
-                return null;
-            });
+            checkAndRemoveInactiveLobbies(thresholdMinutes);
             messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE, getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList());
         };
 
         long initialDelay = 0;
-        long period = 30; // set to 30 seconds for testing -> deletes lobbies older than 1 minute
-        executorService.scheduleAtFixedRate(checkLobbies, initialDelay, period, TimeUnit.SECONDS);
+        executorService.scheduleAtFixedRate(checkLobbies, initialDelay, periodMinutes, TimeUnit.MINUTES);
+        return executorService;
+    }
+
+    public void checkAndRemoveInactiveLobbies(long thresholdMinutes) {
+        ArrayList<Lobby> allLobbies = new ArrayList<>(lobbyRepository.findAll());
+        for (Lobby lobby : allLobbies) {
+            long minutesDifference = ChronoUnit.MINUTES.between(lobby.getLastModified(), LocalDateTime.now());
+            if (minutesDifference >= thresholdMinutes) {
+                removeLobby(lobby);
+                messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode() + LOBBY_MESSAGE_DESTINATION_GAME,
+                        new InstructionDTO(Instruction.KICK, "The lobby was closed due to inactivity"));
+                log.debug("Lobby with code {} was last active on {} and was closed due to inactivity", lobby.getCode(), lobby.getLastModified());
+            }
+        }
     }
 
     public List<Lobby> getPublicLobbies() {
