@@ -64,8 +64,11 @@ public class CombinationService {
 
     public Combination createCombination(Word word1, Word word2) {
         Word combinationResult = generateCombinationResult(word1, word2);
+        boolean newlyDiscovered = wordService.findWord(combinationResult) == null;
+
         Combination combination = new Combination(wordService.getWord(word1), wordService.getWord(word2), wordService.getWord(combinationResult));
         combination = saveCombination(combination);
+        combination.getResult().setNewlyDiscovered(newlyDiscovered);
         return combination;
     }
 
@@ -73,7 +76,8 @@ public class CombinationService {
         try {
             combination = findCombination(combination.getWord1(), combination.getWord2());
         }
-        catch (CombinationNotFoundException ignored) {
+        catch (CombinationNotFoundException e) {
+            combination.setNewlyDiscovered(true);
         }
 
         Word word1 = combination.getWord1();
@@ -114,7 +118,7 @@ public class CombinationService {
             }
         }
 
-        return new Word(resultString);
+        return word;
     }
 
     public Boolean validResult(Word result) {

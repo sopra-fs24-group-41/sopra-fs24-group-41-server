@@ -31,6 +31,8 @@ public class Combination implements Serializable {
     @JoinColumn(name = "result", nullable = false)
     private Word result;
 
+    private boolean newlyDiscovered = false;
+
     public Combination() {
     }
 
@@ -85,5 +87,13 @@ public class Combination implements Serializable {
 
     public void setWord2(Word word2) {
         this.word2 = word2;
+    }
+
+    public boolean isNewlyDiscovered() {
+        return newlyDiscovered;
+    }
+
+    public void setNewlyDiscovered(boolean newlyDiscovered) {
+        this.newlyDiscovered = newlyDiscovered;
     }
 }
