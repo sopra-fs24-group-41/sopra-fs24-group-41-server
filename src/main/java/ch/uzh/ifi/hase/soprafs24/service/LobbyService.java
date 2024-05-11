@@ -93,10 +93,20 @@ public class LobbyService {
     }
 
     public Player joinLobbyAnonymous(String playerName,long lobbyCode) {
+        if (playerName == null || playerName.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "There was no playername provided or your playername is invalid, please specify a playername");
+        }
+
         Lobby foundLobby = getLobbyByCode(lobbyCode);
         if (foundLobby.getStatus() != LobbyStatus.PREGAME) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
                     "this lobby does not accept new players, wait until the game is finished");
+        }
+
+        if (foundLobby.getPlayers().stream().anyMatch(player -> player.getName().equals(playerName))) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "The playername you entered is already taken, choose another");
         }
 
         Player player = new Player(UUID.randomUUID().toString(), playerName, foundLobby);
