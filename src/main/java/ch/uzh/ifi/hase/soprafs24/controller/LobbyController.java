@@ -82,9 +82,6 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.CREATED)
     public PlayerJoinedDTO joinPlayer(@PathVariable String code, @RequestHeader(required = false) String userToken, @RequestBody PlayerPostDTO playerPostDTO) {
         long lobbyCodeLong = parseLobbyCode(code);
-        if (playerPostDTO.getPlayerName() == null || playerPostDTO.getPlayerName().isEmpty()) {
-            playerPostDTO.setPlayerName("Randy");
-        }
 
         Player player;
         if (userToken != null && !userToken.isEmpty()) {
