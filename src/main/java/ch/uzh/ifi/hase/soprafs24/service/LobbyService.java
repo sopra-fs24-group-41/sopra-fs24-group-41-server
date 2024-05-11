@@ -111,20 +111,15 @@ public class LobbyService {
 
         if (lobbyPutDTO.getMode() != null && !lobbyPutDTO.getMode().equals(lobby.getMode())) {
             lobby.setMode(lobbyPutDTO.getMode());
-            lobby.setUpdatedMode(true);
         }
         if (lobbyPutDTO.getName() != null && !Objects.equals(lobbyPutDTO.getName(), lobby.getName())) {
             lobby.setName(lobbyPutDTO.getName());
-            lobby.setUpdatedName(true);
         }
         if (lobbyPutDTO.getPublicAccess() != null && !Objects.equals(lobbyPutDTO.getPublicAccess(), lobby.getPublicAccess())) {
             lobby.setPublicAccess(lobbyPutDTO.getPublicAccess());
-            lobby.setUpdatedPublicAccess(true);
         }
-
         if (lobbyPutDTO.getGameTime()!=null && !Objects.equals(lobbyPutDTO.getGameTime(), lobby.getGameTime())) {
             lobby.setGameTime(lobbyPutDTO.getGameTime());
-            lobby.setUpdatedGameTime(true);
         }
         return lobby;
     }
