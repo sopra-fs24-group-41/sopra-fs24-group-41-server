@@ -19,8 +19,8 @@ public class InstructionDTO {
         this.reason = reason;
     }
 
-    public Instruction getInstruction() {
-        return instruction;
+    public String getInstruction() {
+        return instruction.toString();
     }
 
     public void setInstruction(Instruction instruction) {

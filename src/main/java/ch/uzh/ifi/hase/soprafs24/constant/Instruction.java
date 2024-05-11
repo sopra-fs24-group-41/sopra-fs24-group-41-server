@@ -3,7 +3,8 @@ package ch.uzh.ifi.hase.soprafs24.constant;
 public enum Instruction {
     START, STOP, KICK, UPDATE;
 
+    @Override
     public String toString() {
-        return this.name().toLowerCase();
+        return name().toLowerCase();
     }
 }

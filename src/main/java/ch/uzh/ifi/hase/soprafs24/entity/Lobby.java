@@ -60,8 +60,9 @@ public class Lobby implements Serializable {
         this.publicAccess = false;
     }
 
+    @PrePersist
     @PreUpdate
-    void updateLastModified() {
+    public void updateLastModified() {
         this.lastModified = LocalDateTime.now();
     }
 

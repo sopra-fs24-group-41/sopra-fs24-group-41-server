@@ -35,8 +35,9 @@ public class LobbyController {
     private final CombinationService combinationService;
     private final APIService apiService;
 
-    private static final String LOBBY_MESSAGE_DESTINATION_BASE = "/topic/lobbies";
-    private static final String LOBBY_MESSAGE_DESTINATION_GAME = "/game";
+    private static final String MESSAGE_LOBBY_BASE = "/topic/lobbies";
+    private static final String MESSAGE_LOBBY_CODE = "/topic/lobbies/%d";
+    private static final String MESSAGE_LOBBY_GAME = "/topic/lobbies/%d/game";
 
     LobbyController(LobbyService lobbyService, UserService userService, PlayerService playerService,
                     GameService gameService, SimpMessagingTemplate messagingTemplate, CombinationService combinationService, APIService apiService) {
@@ -71,7 +72,7 @@ public class LobbyController {
                 throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before creating a new one.");
             }
             Player player = lobbyService.createLobbyFromUser(user, lobbyPostDTO.getPublicAccess());
-            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE, getPublicLobbiesGetDTOList());
+            messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, getPublicLobbiesGetDTOList());
             return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
         }
         else {
@@ -98,7 +99,7 @@ public class LobbyController {
         else {
             player = lobbyService.joinLobbyAnonymous(playerPostDTO.getPlayerName(), lobbyCodeLong);
         }
-        messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + code, DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(player.getLobby()));
+        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_CODE, lobbyCodeLong), DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(player.getLobby()));
         return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
     }
 
@@ -117,10 +118,10 @@ public class LobbyController {
 
         Map<String, Boolean> updates = lobbyService.updateLobby(lobby, lobbyPutDTO);
         if (updates.get("publicAccess") || updates.get("name")) {
-            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE, getPublicLobbiesGetDTOList());
+            messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, getPublicLobbiesGetDTOList());
         }
         if (updates.containsValue(true)) {
-            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + code,
+            messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_CODE, lobby.getCode()),
                     DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
         }
 
@@ -133,8 +134,8 @@ public class LobbyController {
         Lobby lobby = getAuthenticatedLobby(code, playerToken);
         gameService.createNewGame(lobby);
         lobby.setStatus(LobbyStatus.INGAME);
-        messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE, getPublicLobbiesGetDTOList());
-        messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + code + LOBBY_MESSAGE_DESTINATION_GAME, new InstructionDTO(Instruction.START));
+        messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, getPublicLobbiesGetDTOList());
+        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.START));
     }
 
     @GetMapping("/lobbies/{lobbyCode}/players/{playerId}")
@@ -156,10 +157,10 @@ public class LobbyController {
 
         if (lobbyService.allPlayersLost(lobby)) {
             lobby.setStatus(LobbyStatus.PREGAME);
-            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode() + LOBBY_MESSAGE_DESTINATION_GAME, new InstructionDTO(Instruction.STOP));
+            messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP));
         }
         else {
-            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode() + LOBBY_MESSAGE_DESTINATION_GAME, new InstructionDTO(Instruction.UPDATE));
+            messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.UPDATE));
         }
 
         PlayerPlayedDTO playerPlayedDTO = DTOMapper.INSTANCE.convertEntityToPlayerPlayedDTO(player);
@@ -171,15 +172,16 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removePlayerFromLobby(@PathVariable String lobbyCode, @PathVariable String playerId, @RequestHeader String playerToken) {
         Player player = getAuthenticatedPlayer(lobbyCode, playerId, playerToken);
+        long lobbyCodeLong = player.getLobby().getCode();
         if (player.getOwnedLobby() == null) {
             Lobby lobby = player.getLobby();
             playerService.removePlayer(player);
-            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode(), DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
+            messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_CODE, lobby.getCode()), DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
         }
         else {
             lobbyService.removeLobby(player.getOwnedLobby());
-            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE, getPublicLobbiesGetDTOList());
-            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobbyCode + LOBBY_MESSAGE_DESTINATION_GAME,
+            messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, getPublicLobbiesGetDTOList());
+            messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobbyCodeLong),
                     new InstructionDTO(Instruction.KICK, "The lobby was closed by the owner"));
         }
     }

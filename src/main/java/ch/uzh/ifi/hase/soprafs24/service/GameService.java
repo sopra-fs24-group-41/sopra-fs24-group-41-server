@@ -32,8 +32,7 @@ public class GameService {
     private final EnumMap<GameMode, Class<? extends Game>> gameModes = new EnumMap<>(GameMode.class);
     private final SimpMessagingTemplate messagingTemplate;
 
-    private static final String LOBBY_MESSAGE_DESTINATION_BASE = "/topic/lobbies";
-    private static final String LOBBY_MESSAGE_DESTINATION_GAME= "/game";
+    private static final String MESSAGE_LOBBY_GAME = "/topic/lobbies/%d/game";
 
     @Autowired
     public GameService(PlayerService playerService, CombinationService combinationService, WordService wordService, SimpMessagingTemplate messagingTemplate) {
@@ -72,8 +71,7 @@ public class GameService {
 
         if (game.winConditionReached(player)) {
             lobby.setStatus(LobbyStatus.PREGAME);
-            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode() + LOBBY_MESSAGE_DESTINATION_GAME,
-                    new InstructionDTO(Instruction.STOP));
+            messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP));
         }
 
         return result;
@@ -107,14 +105,14 @@ public class GameService {
             public void run() {
                 for(int t : new int[]{10, 30, 60, 180, 300})
                     if (remainingTime == t) {
-                        messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode() + LOBBY_MESSAGE_DESTINATION_GAME,
+                        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()),
                                 new TimeDTO(String.valueOf(t)));
                     }
 
                 if (remainingTime <= 0) {
                     gameTimer.cancel(); // Stop the timer when time's up
                     lobby.setStatus(LobbyStatus.PREGAME);
-                    messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode() + LOBBY_MESSAGE_DESTINATION_GAME,
+                    messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()),
                             new InstructionDTO(Instruction.STOP));
                 }
                 remainingTime -= 10; // Decrement remaining time by 10

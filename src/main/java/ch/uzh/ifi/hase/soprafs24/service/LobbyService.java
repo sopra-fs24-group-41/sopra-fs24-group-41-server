@@ -19,6 +19,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
@@ -41,44 +43,57 @@ public class LobbyService {
 
     private final SimpMessagingTemplate messagingTemplate;
 
-    private static final String LOBBY_MESSAGE_DESTINATION_BASE = "/topic/lobbies";
-    private static final String LOBBY_MESSAGE_DESTINATION_GAME= "/game";
+    private final PlatformTransactionManager transactionManager;
+
+    private static final String MESSAGE_LOBBY_BASE = "/topic/lobbies";
+    private static final String MESSAGE_LOBBY_GAME = "/topic/lobbies/%d/game";
 
     @Autowired
     public LobbyService(@Qualifier("lobbyRepository") LobbyRepository lobbyRepository, PlayerService playerService,
-                        SimpMessagingTemplate messagingTemplate) {
+                        SimpMessagingTemplate messagingTemplate, PlatformTransactionManager transactionManager) {
         this.lobbyRepository = lobbyRepository;
         this.playerService = playerService;
         this.messagingTemplate = messagingTemplate;
+        this.transactionManager = transactionManager;
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void scheduleCheckLobbyStillActiveStartup() {
-        scheduleCheckLobbyStillActive(180, 30); // change values here to adjust timings
+        scheduleCheckLobbyStillActive(1, 3); // change values here to adjust timings
     }
 
-    public ScheduledExecutorService scheduleCheckLobbyStillActive(long thresholdMinutes, long periodMinutes) {
+    public void scheduleCheckLobbyStillActive(long thresholdMinutes, long periodMinutes) {
         ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
-        Runnable checkLobbies = () -> {
-            checkAndRemoveInactiveLobbies(thresholdMinutes);
-            messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE, getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList());
-        };
+        Runnable checkLobbies = () -> checkAndRemoveInactiveLobbies(thresholdMinutes);
 
         long initialDelay = 0;
-        executorService.scheduleAtFixedRate(checkLobbies, initialDelay, periodMinutes, TimeUnit.MINUTES);
-        return executorService;
+        executorService.scheduleAtFixedRate(checkLobbies, initialDelay, periodMinutes, TimeUnit.SECONDS);
     }
 
     public void checkAndRemoveInactiveLobbies(long thresholdMinutes) {
-        ArrayList<Lobby> allLobbies = new ArrayList<>(lobbyRepository.findAll());
-        for (Lobby lobby : allLobbies) {
-            long minutesDifference = ChronoUnit.MINUTES.between(lobby.getLastModified(), LocalDateTime.now());
-            if (minutesDifference >= thresholdMinutes) {
-                removeLobby(lobby);
-                messagingTemplate.convertAndSend(LOBBY_MESSAGE_DESTINATION_BASE + "/" + lobby.getCode() + LOBBY_MESSAGE_DESTINATION_GAME,
-                        new InstructionDTO(Instruction.KICK, "The lobby was closed due to inactivity"));
-                log.debug("Lobby with code {} was last active on {} and was closed due to inactivity", lobby.getCode(), lobby.getLastModified());
-            }
+        try {
+            TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+            transactionTemplate.execute(status -> {
+                List<Lobby> allLobbies = lobbyRepository.findAll();
+                for (Lobby lobby : allLobbies) {
+                    if (lobby.getLastModified() == null) continue;
+                    long minutesDifference = ChronoUnit.MINUTES.between(lobby.getLastModified(), LocalDateTime.now());
+                    if (minutesDifference >= thresholdMinutes) {
+                        removeLobby(lobby);
+                        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()),
+                                new InstructionDTO(Instruction.KICK, "The lobby was closed due to inactivity"));
+                        log.debug("Lobby with code {} was last active on {} and was closed due to inactivity", lobby.getCode(), lobby.getLastModified());
+                    }
+                }
+                return null;
+            });
+            transactionTemplate = new TransactionTemplate(transactionManager);
+            transactionTemplate.execute(status -> {
+                messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList());
+                return null;
+            });
+        } catch(Exception e) {
+            log.error("Could not check lobbies for inactivity: ", e);
         }
     }
 

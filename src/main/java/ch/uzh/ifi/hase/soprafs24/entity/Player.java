@@ -63,9 +63,11 @@ public class Player implements Serializable {
         this.lobby = lobby;
     }
 
+    @PrePersist
     @PreUpdate
-    void updateLobbyLastModified() {
-        lobby.updateLastModified();
+    @PreRemove
+    public void updateLobbyLastModified() {
+        if (lobby != null) lobby.updateLastModified();
     }
 
     @Override
