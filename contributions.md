@@ -158,3 +158,8 @@ Worked on:
 - [Pull Request (Client)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/105)
 - [Pull Request (Server)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/185)
 - Working on ui improvement, adding more explanation, CSS fix-ups and possible refactoring of code
+
+**Grizzlytron - Lucas Timothy Leo Bär**
+- Added joining through URL functionality, for anonymous as well as registered Users. Added an intermediary page and implemented routing. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/110)
+- Also worked on CSS Styling and bug fixing.
+
