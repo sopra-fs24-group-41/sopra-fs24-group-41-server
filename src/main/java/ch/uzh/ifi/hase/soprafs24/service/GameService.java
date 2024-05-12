@@ -56,9 +56,9 @@ public class GameService {
     void updateWinsAndLosses(Player winner, Lobby lobby) {
         for (Player player : lobby.getPlayers()) {
             if (player == winner)
-                player.addWins(1);
+                player.addWinsToUser(1);
             else
-                player.addLosses(1);
+                player.addLossesToUser(1);
         }
     }
 

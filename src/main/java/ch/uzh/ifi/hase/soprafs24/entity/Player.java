@@ -171,13 +171,13 @@ public class Player implements Serializable {
         this.user = user;
     }
 
-    public void addWins(int wins) {
+    public void addWinsToUser(int wins) {
         if (this.getUser() != null) {
             this.getUser().addWins(wins);
         }
     }
 
-    public void addLosses(int losses) {
+    public void addLossesToUser(int losses) {
         if (this.getUser() != null) {
             this.getUser().addLosses(losses);
         }
