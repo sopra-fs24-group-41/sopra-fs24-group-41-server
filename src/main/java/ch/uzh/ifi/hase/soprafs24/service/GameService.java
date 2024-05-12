@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.game.FiniteFusionGame;
 import ch.uzh.ifi.hase.soprafs24.game.WomboComboGame;
 import ch.uzh.ifi.hase.soprafs24.websocket.TimeDTO;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.persistence.Lob;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.Time;
 import java.util.*;
@@ -53,7 +55,6 @@ public class GameService {
         gameModes.put(GameMode.FINITEFUSION, FiniteFusionGame.class);
     }
     public void createNewGame(Lobby lobby) {
-
         if(lobby.getGameTime() > 0){
             System.out.println("startGameTimer was triggered");
             startGameTimer(lobby, new Timer());
@@ -65,6 +66,7 @@ public class GameService {
             game.setupPlayers(players);
             return;
         }
+
         String errorMessage = String.format("There are no players in the lobby %s!", lobby.getName());
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
@@ -98,31 +100,40 @@ public class GameService {
     public void startGameTimer(Lobby lobby, Timer gameTimer) {
 
         TimerTask task = createGameTask(lobby, gameTimer);
-
         // Schedule the task to run every 10th second (like a while-loop but control over time, different thread used)
         // Use a three-second initial delay for the Client to receive the initial timer setup.
         gameTimer.scheduleAtFixedRate(task, 3000, 10000);
+
     }
+
+    Player getOwner(Lobby lobby){
+        Player owner = playerService.findPlayerByToken(lobby.getOwner().getToken());
+        return owner;
+    }
+
+
 
     public TimerTask createGameTask(Lobby lobby, Timer gameTimer){
         return new TimerTask() {
             int remainingTime = lobby.getGameTime();
 
             public void run() {
-                for(int t : new int[]{10, 30, 60, 180, 300})
-                    if (remainingTime == t) {
-                        if(lobby.getGameTime()==0){
-                            gameTimer.cancel();
-                        }
-                        messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO(String.valueOf(t)));
-                    }
-
                 if (remainingTime <= 0) {
                     gameTimer.cancel(); // Stop the timer when time's up
                     lobby.setStatus(LobbyStatus.PREGAME);
                     lobby.setGameTime(0);
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
                 }
+
+                if(!getOwner(lobby).getStatus().equals(PlayerStatus.PLAYING)){
+                    gameTimer.cancel();
+                }
+
+                for(int t : new int[]{10, 30, 60, 180, 300})
+                    if (remainingTime == t) {
+                        messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO(String.valueOf(t)));
+                    }
+
                 remainingTime -= 10; // Decrement remaining time by 10
             }
         };

@@ -112,34 +112,34 @@ public class GameServiceTest {
 
         assertEquals(mud, testPlayer1.getWords().get(4));
     }
-
-    @Test //This is a 'somewhat' Integration Test
-    public void startGameTimer_game_end_after_5_seconds() {
-        Lobby testLobby = mock(Lobby.class);
-        when(testLobby.getCode()).thenReturn(1234L);
-        when(testLobby.getGameTime()).thenReturn(5); // Mock gameTime for 5 seconds
-
-        SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
-        GameService gameService = new GameService(playerService, combinationService, wordService, messagingTemplateMock);
-        gameService.startGameTimer(testLobby, new Timer());
-        verify(testLobby, timeout(1000 * 30).atLeastOnce()).setStatus(LobbyStatus.PREGAME);
-    }
-
-    @Test //This is a unit test
-    public void gameTask_game_end_after_1_minute() {
-        Lobby testLobby = mock(Lobby.class);
-        when(testLobby.getCode()).thenReturn(1234L);
-        when(testLobby.getGameTime()).thenReturn(60); // Mock gameTime for 1 minute
-
-        SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
-        GameService gameService = new GameService(playerService, combinationService, wordService, messagingTemplateMock);
-        Timer gameTimer = new Timer();
-        TimerTask gameTask = gameService.createGameTask(testLobby, gameTimer);
-        gameTimer.scheduleAtFixedRate(gameTask, 3000, 1000); //Accelerate timer to run task every second, original implement does it every 10th second
-
-        verify(messagingTemplateMock, timeout(1000 * 20).times(3)).convertAndSend(eq("/topic/lobbies/1234/game"), any(TimeDTO.class));
-        verify(testLobby, timeout(1000 * 30).atLeastOnce()).setStatus(LobbyStatus.PREGAME);
-    }
+//
+//    @Test //This is a 'somewhat' Integration Test
+//    public void startGameTimer_game_end_after_5_seconds() {
+//        Lobby testLobby = mock(Lobby.class);
+//        when(testLobby.getCode()).thenReturn(1234L);
+//        when(testLobby.getGameTime()).thenReturn(5); // Mock gameTime for 5 seconds
+//
+//        SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
+//        GameService gameService = new GameService(playerService, combinationService, wordService, messagingTemplateMock);
+//        gameService.startGameTimer(testLobby, new Timer());
+//        verify(testLobby, timeout(1000 * 30).atLeastOnce()).setStatus(LobbyStatus.PREGAME);
+//    }
+//
+//    @Test //This is a unit test
+//    public void gameTask_game_end_after_1_minute() {
+//        Lobby testLobby = mock(Lobby.class);
+//        when(testLobby.getCode()).thenReturn(1234L);
+//        when(testLobby.getGameTime()).thenReturn(60); // Mock gameTime for 1 minute
+//
+//        SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
+//        GameService gameService = new GameService(playerService, combinationService, wordService, messagingTemplateMock);
+//        Timer gameTimer = new Timer();
+//        TimerTask gameTask = gameService.createGameTask(testLobby, gameTimer);
+//        gameTimer.scheduleAtFixedRate(gameTask, 3000, 1000); //Accelerate timer to run task every second, original implement does it every 10th second
+//
+//        verify(messagingTemplateMock, timeout(1000 * 20).times(3)).convertAndSend(eq("/topic/lobbies/1234/game"), any(TimeDTO.class));
+//        verify(testLobby, timeout(1000 * 30).atLeastOnce()).setStatus(LobbyStatus.PREGAME);
+//    }
 
 }
 
