@@ -55,6 +55,7 @@ public class GameService {
     public void createNewGame(Lobby lobby) {
 
         if(lobby.getGameTime() > 0){
+            System.out.println("startGameTimer was triggered");
             startGameTimer(lobby, new Timer());
         }
 
