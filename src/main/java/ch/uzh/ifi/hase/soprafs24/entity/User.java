@@ -122,6 +122,14 @@ public class User implements Serializable {
         this.losses = losses;
     }
 
+    public void addWins(int wins) {
+        this.wins += wins;
+    }
+
+    public void addLosses(int losses) {
+        this.losses += losses;
+    }
+
     public int getLosses() {
         return this.losses;
     }

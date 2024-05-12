@@ -27,6 +27,7 @@ public class WordService {
             return findWord(word);
         }
         catch (WordNotFoundException e) {
+            word.setIsNew(true);
             return wordRepository.saveAndFlush(word);
         }
     }
@@ -40,18 +41,6 @@ public class WordService {
         if (foundWord != null) return foundWord;
 
         throw new WordNotFoundException(word.getName());
-    }
-
-    public boolean checkUniqueWord(Word word) {
-        Word foundWord;
-        try {
-            foundWord = findWord(word);
-        }
-        catch (WordNotFoundException e) {
-            return false;
-        }
-
-        return foundWord.getReachability() == 1.0 / (1L << foundWord.getDepth());
     }
 
     public Word getRandomWord() {

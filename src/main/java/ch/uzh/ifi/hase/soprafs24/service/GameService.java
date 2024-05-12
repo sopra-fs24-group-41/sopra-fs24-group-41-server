@@ -53,36 +53,27 @@ public class GameService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
-    void updateWinsAndLosses(Player winner) {
-        Lobby lobby = winner.getLobby();
+    void updateWinsAndLosses(Player winner, Lobby lobby) {
         for (Player player : lobby.getPlayers()) {
-            User user = player.getUser();
-            if (user == null) {
-                continue;
-            }
-
-            if (player.equals(winner)) {
-                user.setWins(user.getWins() + 1);
-            }
-            else {
-                user.setLosses(user.getLosses() + 1);
-            }
+            if (player == winner)
+                player.addWins(1);
+            else
+                player.addLosses(1);
         }
     }
 
-    void updatePlayerStatistics(Player player, Combination combination) {
+    void updatePlayerStatistics(Player player, Word result) {
         User user = player.getUser();
-        Word resultWord = combination.getResult();
         if (user == null) {
             return;
         }
 
         user.setCombinationsMade(user.getCombinationsMade() + 1);
-        if (wordService.checkUniqueWord(resultWord)) {
+        if (result.getIsNew()) {
             user.setDiscoveredWords(user.getDiscoveredWords() + 1);
         }
-        if (user.getRarestWordFound() == null || resultWord.getReachability() < user.getRarestWordFound().getReachability()) {
-            user.setRarestWordFound(resultWord);
+        if (user.getRarestWordFound() == null || result.getReachability() < user.getRarestWordFound().getReachability()) {
+            user.setRarestWordFound(result);
         }
     }
 
@@ -90,11 +81,11 @@ public class GameService {
         Lobby lobby = player.getLobby();
         Game game = instantiateGame(lobby.getMode());
         Word result = game.makeCombination(player, words);
-        updatePlayerStatistics(player, combinationService.getCombination(words.get(0), words.get(1)));
+        updatePlayerStatistics(player, result);
 
         if (game.winConditionReached(player)) {
             lobby.setStatus(LobbyStatus.PREGAME);
-            updateWinsAndLosses(player);
+            updateWinsAndLosses(player, lobby);
             messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
         }
 

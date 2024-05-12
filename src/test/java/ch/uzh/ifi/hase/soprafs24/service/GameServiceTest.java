@@ -127,7 +127,7 @@ public class GameServiceTest {
             testLobby.getPlayers().add(testPlayer);
         }
 
-        gameService.updateWinsAndLosses(testPlayers.get(0));
+        gameService.updateWinsAndLosses(testPlayers.get(0), testLobby);
 
         assertEquals(1, testUsers.get(0).getWins());
         assertEquals(0, testUsers.get(1).getWins());
@@ -163,7 +163,7 @@ public class GameServiceTest {
         testPlayers.add(anonTestPlayer);
         testLobby.getPlayers().add(anonTestPlayer);
 
-        gameService.updateWinsAndLosses(testPlayers.get(0));
+        gameService.updateWinsAndLosses(testPlayers.get(0), testLobby);
 
         assertEquals(1, testUsers.get(0).getWins());
         assertEquals(0, testUsers.get(1).getWins());
@@ -182,11 +182,9 @@ public class GameServiceTest {
         player.setUser(user);
         user.setPlayer(player);
 
-        Combination combination = new Combination(water, earth, mud);
+        mud.setIsNew(true);
 
-        Mockito.doReturn(true).when(wordService).checkUniqueWord(Mockito.any());
-
-        gameService.updatePlayerStatistics(player, combination);
+        gameService.updatePlayerStatistics(player, mud);
 
         assertEquals(1, user.getCombinationsMade());
         assertEquals(1, user.getDiscoveredWords());
