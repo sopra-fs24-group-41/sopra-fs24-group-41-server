@@ -32,58 +32,41 @@ public class APIService {
     //This code works as long as you use a working environment variable called GOOGLE_APPLICATION_CREDENTIALS
     public String getVertexAIWord(String word1, String word2) throws IOException {
         String instance = String.format("""
-                        {
-                           "context":  "You are an AI that only returns the combination of two given words. Reply only with the element that comes by combining two elements using the logic on the examples below.
+    {
+        "context":  "You are a helpful AI assistant that is tasked with creating the outputs for an element combination game. You receive 2 objects are formatted with '+' symbol. For example: 'Earth + Water'. You have to return what element would make the most sense to be created by combining these two objects. You can create any object, person, or thing from fiction or reality, as long as it makes sense for the two inputted objects to equal the new object. Consult the examples for further clarification. Try to not exceed a word length over 10 characters.",
+        "examples": [
+            {
+                "input": {"content": "Earth + Water"},
+                "output": {"content": "Steam"}
+            },
+            {
+                "input": {"content": "Earth + Lava"},
+                "output": {"content": "Stone"}
+            }
+        ],
+        "messages": [
+            {
+                "author": "user",
+                "content": "%s + %s"
+            }
+        ]
+    }""",
+                word1, word2);
 
-                        .",
-                           "examples": [ {\s
-                               "input": {"content": "Earth + Water"},
-                               "output": {"content": "Steam"}
-                            },
-                            {\s
-                               "input": {"content": "Earth + Lava"},
-                               "output": {"content": "Stone"}
-                            }],
-                           "messages": [
-                            {\s
-                               "author": "user",
-                               "content": "%s + %s"
-                            }]
-                        }""",
-                        word1, word2);
-        String parameters ="""
-                        {
-                          "temperature": 0.3,
-                          "maxDecodeSteps": 200,
-                          "topP": 0.8,
-                          "topK": 40
-                        }""";
-        String project = "sopra-fs24-group-41-server"; //Unsure if this matters actually, for the Credential confirmation
+        String parameters = """
+    {
+        "maxOutputTokens" : 3,
+        "temperature": 0.3,
+        "maxDecodeSteps": 200,
+        "topP": 0.8,
+        "topK": 40
+    }""";
+
+        String project = "sopra-fs24-group-41-server";
         String publisher = "google";
-        String model = "chat-bison@001"; //Unsure about this one, could be changed.
+        String model = "chat-bison@001";
 
         return predictVertexChatPrompt(instance, parameters, project, publisher, model);
-    }
-
-    public String getAwanLLMWord(String word1, String word2) {
-        String requestBody = buildAwanRequest(word1, word2);
-        String apiUrl = "https://api.awanllm.com/v1/chat/completions";
-
-        Dotenv dotenv = Dotenv.configure().directory("src/main/resources").load();
-        String apiKey = dotenv.get("AWAN_LLM_KEY");
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.set("Authorization", "Bearer " + apiKey);
-
-        HttpEntity<String> httpEntity = new HttpEntity<>(requestBody, headers);
-        System.out.println(httpEntity);
-
-        RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, httpEntity, String.class);
-
-        JSONObject jsonResponse = new JSONObject(response.getBody());
-        return jsonResponse.getJSONArray("choices").getJSONObject(0).getJSONObject("message")
-                .get("content").toString();
     }
 
     private static String buildAwanRequest(String word1, String word2) {
