@@ -31,8 +31,14 @@ public class Lobby implements Serializable {
     @Column(nullable = false)
     private Boolean publicAccess = true;
 
+    @Column(nullable = false)
+    private Integer gameTime = 0;
+
     @Column
     private LocalDateTime startTime;
+
+    @Column
+    private LocalDateTime lastModified = LocalDateTime.now();
 
     @Column(nullable = false)
     private LobbyStatus status = LobbyStatus.PREGAME;
@@ -52,7 +58,12 @@ public class Lobby implements Serializable {
         this.code = code;
         this.name = name;
         this.publicAccess = false;
-        this.status = LobbyStatus.PREGAME;
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void updateLastModified() {
+        this.lastModified = LocalDateTime.now();
     }
 
     @Override
@@ -70,7 +81,8 @@ public class Lobby implements Serializable {
                Objects.equals(getStatus(), that.getStatus()) &&
                Objects.equals(getMode(), that.getMode()) &&
                Objects.equals(getOwner(), that.getOwner()) &&
-               Objects.equals(getPlayers(), that.getPlayers());
+               Objects.equals(getPlayers(), that.getPlayers()) &&
+               Objects.equals(getGameTime(), that.getGameTime());
     }
 
     @Override
@@ -110,6 +122,14 @@ public class Lobby implements Serializable {
     this.startTime = startTime;
     }
 
+    public LocalDateTime getLastModified() {
+        return lastModified;
+    }
+
+    public void setLastModified(LocalDateTime lastModified) {
+        this.lastModified = lastModified;
+    }
+
     public LobbyStatus getStatus() {
     return status;
     }
@@ -141,4 +161,12 @@ public class Lobby implements Serializable {
     public void setPlayers(List<Player> players) {
         this.players = players;
     }
+
+    public void addPlayer(Player player) {
+        this.players.add(player);
+    }
+
+    public void setGameTime(Integer gameTime) {this.gameTime = gameTime; }
+
+    public Integer getGameTime() {return gameTime;}
 }

@@ -15,7 +15,7 @@ public interface LobbyRepository extends JpaRepository<Lobby, Long> {
 
     List<Lobby> findAllByPublicAccess(boolean publicAccess);
 
-    Lobby findByOwner_Id(long owner_id);
+    Lobby findByOwner_Id(long ownerId);
 
     List<Lobby> findAllByMode(GameMode mode);
 
@@ -23,5 +23,5 @@ public interface LobbyRepository extends JpaRepository<Lobby, Long> {
 
     Lobby findByPlayersIsContaining(Player player);
 
-    Boolean existsByCode(long code);
+    boolean existsByCode(long code);
 }

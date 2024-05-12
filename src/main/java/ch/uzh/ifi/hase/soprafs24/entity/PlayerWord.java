@@ -31,6 +31,9 @@ public class PlayerWord implements Serializable {
     private Word word;
 
     @Column
+    private Integer uses;
+
+    @Column
     private LocalDateTime timestamp;
 
     @PrePersist
@@ -44,6 +47,12 @@ public class PlayerWord implements Serializable {
     public PlayerWord(Player player, Word word) {
         this.player = player;
         this.word = word;
+    }
+
+    public PlayerWord(Player player, Word word, int uses) {
+        this.player = player;
+        this.word = word;
+        this.uses = uses;
     }
 
     @Override
@@ -77,6 +86,18 @@ public class PlayerWord implements Serializable {
 
     public void setWord(Word word) {
         this.word = word;
+    }
+
+    public Integer getUses() {
+        return uses;
+    }
+
+    public void setUses(Integer uses) {
+        this.uses = uses;
+    }
+
+    public void addUses(int uses) {
+        this.uses += uses;
     }
 
     public LocalDateTime getTimestamp() {

@@ -1,10 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
+import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
+import ch.uzh.ifi.hase.soprafs24.websocket.TimeDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -12,8 +14,11 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 public class GameServiceTest {
 
@@ -48,7 +53,7 @@ public class GameServiceTest {
         startingWords.add(air);
 
         MockitoAnnotations.openMocks(this);
-        Mockito.when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
     }
 
     @Test
@@ -96,9 +101,9 @@ public class GameServiceTest {
         playingWords.add(earth);
 
         Combination testCombination = new Combination(water, earth, mud);
-        Mockito.when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
-        Mockito.when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
-        Mockito.when(combinationService.getCombination(water, earth)).thenReturn(testCombination);
+        when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        when(combinationService.getCombination(water, earth)).thenReturn(testCombination);
         Mockito.doNothing().when(messagingTemplate).convertAndSend(Mockito.any());
 
         assertEquals(startingWords, testPlayer1.getWords());
@@ -107,4 +112,34 @@ public class GameServiceTest {
 
         assertEquals(mud, testPlayer1.getWords().get(4));
     }
+
+    @Test //This is a 'somewhat' Integration Test
+    public void startGameTimer_game_end_after_5_seconds() {
+        Lobby testLobby = mock(Lobby.class);
+        when(testLobby.getCode()).thenReturn(1234L);
+        when(testLobby.getGameTime()).thenReturn(5); // Mock gameTime for 5 seconds
+
+        SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
+        GameService gameService = new GameService(playerService, combinationService, wordService, messagingTemplateMock);
+        gameService.startGameTimer(testLobby, new Timer());
+        verify(testLobby, timeout(1000 * 30).atLeastOnce()).setStatus(LobbyStatus.PREGAME);
+    }
+
+    @Test //This is a unit test
+    public void gameTask_game_end_after_1_minute() {
+        Lobby testLobby = mock(Lobby.class);
+        when(testLobby.getCode()).thenReturn(1234L);
+        when(testLobby.getGameTime()).thenReturn(60); // Mock gameTime for 1 minute
+
+        SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
+        GameService gameService = new GameService(playerService, combinationService, wordService, messagingTemplateMock);
+        Timer gameTimer = new Timer();
+        TimerTask gameTask = gameService.createGameTask(testLobby, gameTimer);
+        gameTimer.scheduleAtFixedRate(gameTask, 3000, 1000); //Accelerate timer to run task every second, original implement does it every 10th second
+
+        verify(messagingTemplateMock, timeout(1000 * 20).times(3)).convertAndSend(eq("/topic/lobbies/1234/game"), any(TimeDTO.class));
+        verify(testLobby, timeout(1000 * 30).atLeastOnce()).setStatus(LobbyStatus.PREGAME);
+    }
+
 }
+

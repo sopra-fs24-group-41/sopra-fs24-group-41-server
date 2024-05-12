@@ -1,5 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.constant;
 
 public enum Instruction {
-    start, stop, kick
+    START, STOP, KICK, UPDATE;
+
+    @Override
+    public String toString() {
+        return name().toLowerCase();
+    }
 }
