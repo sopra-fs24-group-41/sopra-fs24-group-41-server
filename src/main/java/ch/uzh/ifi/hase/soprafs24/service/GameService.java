@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.lang.reflect.InvocationTargetException;
+import java.sql.Time;
 import java.util.*;
 
 
@@ -32,6 +33,9 @@ public class GameService {
     private final EnumMap<GameMode, Class<? extends Game>> gameModes = new EnumMap<>(GameMode.class);
     private final SimpMessagingTemplate messagingTemplate;
 
+    private Timer localTimer;
+
+
 
     @Autowired
     public GameService(PlayerService playerService, CombinationService combinationService, WordService wordService, SimpMessagingTemplate messagingTemplate) {
@@ -39,6 +43,8 @@ public class GameService {
         this.combinationService = combinationService;
         this.wordService = wordService;
         this.messagingTemplate = messagingTemplate;
+        this.localTimer = new Timer();
+
         setupGameModes();
     }
 
@@ -49,8 +55,11 @@ public class GameService {
         gameModes.put(GameMode.FINITEFUSION, FiniteFusionGame.class);
     }
     public void createNewGame(Lobby lobby) {
+        localTimer.cancel();
+        localTimer = new Timer();
+
         if(lobby.getGameTime() > 0){
-            startGameTimer(lobby, new Timer());
+            startGameTimer(lobby, localTimer);
         }
 
         List<Player> players = lobby.getPlayers();
@@ -70,6 +79,7 @@ public class GameService {
 
         if (game.winConditionReached(player)) {
             lobby.setStatus(LobbyStatus.PREGAME);
+            localTimer.cancel();
             lobby.setGameTime(0);
             messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
         }
