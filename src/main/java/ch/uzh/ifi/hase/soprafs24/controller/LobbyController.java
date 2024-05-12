@@ -80,15 +80,13 @@ public class LobbyController {
 
     @PostMapping("/lobbies/{code}/players")
     @ResponseStatus(HttpStatus.CREATED)
-    public PlayerJoinedDTO joinPlayer(@PathVariable String code, @RequestHeader(required = false) String userToken, @RequestBody PlayerPostDTO playerPostDTO) {
+    public PlayerJoinedDTO joinPlayer(@PathVariable String code, @RequestHeader(required = false) String userToken, @RequestBody(required = false) PlayerPostDTO playerPostDTO) {
         long lobbyCodeLong = parseLobbyCode(code);
+        if (playerPostDTO == null) playerPostDTO = new PlayerPostDTO();
 
         Player player;
         if (userToken != null && !userToken.isEmpty()) {
             User user = userService.checkToken(userToken);
-            if (user.getPlayer() != null) {
-                throw new ResponseStatusException(HttpStatus.CONFLICT, "Your user already has a lobby associated, leave it before joining a new one.");
-            }
             player = lobbyService.joinLobbyFromUser(user, lobbyCodeLong);
         }
         else {
