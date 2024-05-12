@@ -12,15 +12,16 @@ import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPutDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.verify;
 
 class LobbyServiceTest {
 
@@ -35,6 +36,12 @@ class LobbyServiceTest {
 
     @Mock
     private PlayerService playerService;
+
+    @Mock
+    private SimpMessagingTemplate messagingTemplate;
+
+    @Mock
+    private PlatformTransactionManager transactionTemplate;
 
     @InjectMocks
     private LobbyService lobbyService;
@@ -85,7 +92,7 @@ class LobbyServiceTest {
         List<Lobby> foundLobbies = lobbyService.getPublicLobbies();
 
         // then
-        Mockito.verify(lobbyRepository, Mockito.times(1)).findAllByPublicAccess(Mockito.anyBoolean());
+        verify(lobbyRepository, Mockito.times(1)).findAllByPublicAccess(Mockito.anyBoolean());
         assertArrayEquals(Collections.singletonList(testLobby).toArray(), foundLobbies.toArray());
     }
 
@@ -95,7 +102,7 @@ class LobbyServiceTest {
         Lobby foundLobby = lobbyService.getLobbyByCode(1234);
 
         // then
-        Mockito.verify(lobbyRepository, Mockito.times(1)).findByCode(Mockito.anyLong());
+        verify(lobbyRepository, Mockito.times(1)).findByCode(Mockito.anyLong());
         assertEquals(testLobby, foundLobby);
     }
 
@@ -111,7 +118,7 @@ class LobbyServiceTest {
         Player createdPlayer = lobbyService.createLobbyFromUser(testUser, true);
 
         // then
-        Mockito.verify(lobbyRepository, Mockito.times(1)).saveAndFlush(Mockito.any());
+        verify(lobbyRepository, Mockito.times(1)).saveAndFlush(Mockito.any());
 
         assertEquals(testLobby.getCode(), createdPlayer.getLobby().getCode());
         assertEquals(testLobby.getName(), createdPlayer.getLobby().getName());
@@ -283,8 +290,8 @@ class LobbyServiceTest {
         lobbyService.removeLobby(testLobby);
 
         // then
-        Mockito.verify(playerService, Mockito.times(2)).removePlayer(Mockito.any());
-        Mockito.verify(lobbyRepository, Mockito.times(1)).delete(Mockito.any());
+        verify(playerService, Mockito.times(2)).removePlayer(Mockito.any());
+        verify(lobbyRepository, Mockito.times(1)).delete(Mockito.any());
     }
 
     @Test
@@ -292,5 +299,15 @@ class LobbyServiceTest {
         testLobby.setOwner(null);
         testLobby.setPlayers(null);
         assertDoesNotThrow(() -> lobbyService.removeLobby(testLobby));
+    }
+
+    @Test
+    void testCheckLobbies() {
+        testLobby.setLastModified(LocalDateTime.now().minusMinutes(10));
+        List<Lobby> lobbies = List.of(testLobby);
+        Mockito.when(lobbyRepository.findAll()).thenReturn(lobbies);
+        Mockito.doNothing().when(lobbyRepository).delete(Mockito.any());
+        lobbyService.checkAndRemoveInactiveLobbies(1);
+        verify(lobbyRepository, Mockito.times(1)).delete(testLobby);
     }
 }
