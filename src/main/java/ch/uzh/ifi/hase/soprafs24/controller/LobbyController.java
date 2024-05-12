@@ -111,7 +111,8 @@ public class LobbyController {
     public LobbyGetDTO updateLobby(@PathVariable String code, @RequestBody LobbyPutDTO lobbyPutDTO, @RequestHeader String playerToken) {
         Lobby lobby = getAuthenticatedLobby(code, playerToken);
 
-        Map<String, Boolean> updates = lobbyService.updateLobby(lobby, lobbyPutDTO);
+        lobby = lobbyService.updateLobby(lobby, lobbyPutDTO);
+        Map<String, Boolean> updates = lobby.getUpdatedFields();
         if (updates.get("publicAccess") || updates.get("name")) {
             messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, getPublicLobbiesGetDTOList());
         }
