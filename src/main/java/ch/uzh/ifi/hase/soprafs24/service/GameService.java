@@ -70,6 +70,7 @@ public class GameService {
 
         if (game.winConditionReached(player)) {
             lobby.setStatus(LobbyStatus.PREGAME);
+            lobby.setGameTime(0);
             messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
         }
 
@@ -110,6 +111,7 @@ public class GameService {
                 if (remainingTime <= 0) {
                     gameTimer.cancel(); // Stop the timer when time's up
                     lobby.setStatus(LobbyStatus.PREGAME);
+                    lobby.setGameTime(0);
                     messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
                 }
                 remainingTime -= 10; // Decrement remaining time by 10
