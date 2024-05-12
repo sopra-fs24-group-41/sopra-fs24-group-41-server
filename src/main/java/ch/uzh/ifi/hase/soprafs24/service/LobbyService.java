@@ -59,7 +59,7 @@ public class LobbyService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void scheduleCheckLobbyStillActiveStartup() {
-        scheduleCheckLobbyStillActive(1, 3); // change values here to adjust timings
+        scheduleCheckLobbyStillActive(180, 30); // change values here to adjust timings
     }
 
     public void scheduleCheckLobbyStillActive(long thresholdMinutes, long periodMinutes) {
@@ -67,7 +67,7 @@ public class LobbyService {
         Runnable checkLobbies = () -> checkAndRemoveInactiveLobbies(thresholdMinutes);
 
         long initialDelay = 0;
-        executorService.scheduleAtFixedRate(checkLobbies, initialDelay, periodMinutes, TimeUnit.SECONDS);
+        executorService.scheduleAtFixedRate(checkLobbies, initialDelay, periodMinutes, TimeUnit.MINUTES);
     }
 
     public void checkAndRemoveInactiveLobbies(long thresholdMinutes) {
