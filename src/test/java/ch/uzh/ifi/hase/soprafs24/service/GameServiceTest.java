@@ -134,6 +134,5 @@ public class GameServiceTest {
         verify(messagingTemplateMock, timeout(1000 * 20).times(3)).convertAndSend(eq("/topic/lobbies/1234/game"), any(TimeDTO.class));
         verify(lobbyService, timeout(1000 * 30).atLeastOnce()).setStatusGivenLobby(testLobby, LobbyStatus.PREGAME);
     }
-
 }
 
