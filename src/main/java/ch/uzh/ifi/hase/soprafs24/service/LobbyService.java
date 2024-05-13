@@ -166,4 +166,12 @@ public class LobbyService {
         return code;
     }
 
+    public void setStatusGivenLobby(Lobby lobby, LobbyStatus givenStatus) {
+        Lobby foundLobby = lobbyRepository.findByCode(lobby.getCode());
+        if(foundLobby!=null){
+            foundLobby.setStatus(givenStatus);
+            lobbyRepository.saveAndFlush(foundLobby);
+        }
+    }
+
 }
