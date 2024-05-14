@@ -52,6 +52,7 @@ public class UserService {
     }
 
     public User createUser(User newUser) {
+        usernameValidation(newUser.getUsername());
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
         newUser.setProfilePicture("BlueFrog");
