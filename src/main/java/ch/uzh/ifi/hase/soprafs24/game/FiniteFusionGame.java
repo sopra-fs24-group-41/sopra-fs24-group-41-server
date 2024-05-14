@@ -33,7 +33,7 @@ public class FiniteFusionGame extends Game {
     }
 
     @Override
-    public Word makeCombination(Player player, List<Word> words) {
+    public Combination makeCombination(Player player, List<Word> words) {
         if (words.size() == 2) {
             if (player.getStatus() == PlayerStatus.PLAYING) {
                 return playFiniteFusion(player, words);
@@ -48,7 +48,7 @@ public class FiniteFusionGame extends Game {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
-    Word playFiniteFusion(Player player, List<Word> words) {
+    Combination playFiniteFusion(Player player, List<Word> words) {
         PlayerWord playerWord1 = player.getPlayerWord(words.get(0));
         PlayerWord playerWord2 = player.getPlayerWord(words.get(1));
         if (playerWord1.getUses() > 0 && playerWord2.getUses() > 0) {
@@ -63,7 +63,7 @@ public class FiniteFusionGame extends Game {
             if (player.getTotalUses() <= 1) {
                 playerLoses(player);
             }
-            return result;
+            return combination;
         }
         String errorMessage = "No more uses of ingredient words left!";
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
@@ -77,10 +77,10 @@ public class FiniteFusionGame extends Game {
         player.setStatus(PlayerStatus.LOST);
     }
 
-    private Word playCasual(Player player, List<Word> words) {
+    private Combination playCasual(Player player, List<Word> words) {
         Combination combination = combinationService.getCombination(words.get(0), words.get(1));
         player.addWord(combination.getResult());
-        return combination.getResult();
+        return combination;
     }
 
     @Override

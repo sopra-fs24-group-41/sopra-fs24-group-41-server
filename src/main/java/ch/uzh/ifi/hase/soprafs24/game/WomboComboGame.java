@@ -31,7 +31,7 @@ public class WomboComboGame extends Game {
     }
 
     @Override
-    public Word makeCombination(Player player, List<Word> words) {
+    public Combination makeCombination(Player player, List<Word> words) {
         if (words.size() != 2) {
             String errorMessage = "Wombo Combo only allows combination of exactly two words!";
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
@@ -51,7 +51,7 @@ public class WomboComboGame extends Game {
             setNewTargetWord(player);
         }
 
-        return result;
+        return combination;
     }
 
     void setNewTargetWord(Player player) {

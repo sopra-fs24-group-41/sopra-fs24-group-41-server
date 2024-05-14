@@ -5,6 +5,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
+import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.game.FiniteFusionGame;
 import ch.uzh.ifi.hase.soprafs24.game.WomboComboGame;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
@@ -43,11 +44,12 @@ public class GameService {
     private final Map<Long, Timer> timers;
     private static final String MESSAGE_LOBBY_BASE = "/topic/lobbies";
     private static final String MESSAGE_LOBBY_GAME = "/topic/lobbies/%d/game";
+    private final AchievementService achievementService;
 
     @Autowired
     public GameService(PlayerService playerService, CombinationService combinationService, WordService wordService,
                        SimpMessagingTemplate messagingTemplate, PlatformTransactionManager transactionManager,
-                       LobbyService lobbyService) {
+                       LobbyService lobbyService, AchievementService achievementService) {
         this.playerService = playerService;
         this.combinationService = combinationService;
         this.wordService = wordService;
@@ -55,7 +57,7 @@ public class GameService {
         this.timers = new HashMap<>();
         this.transactionManager = transactionManager;
         this.lobbyService = lobbyService;
-
+        this.achievementService = achievementService;
         setupGameModes();
     }
 
@@ -113,8 +115,8 @@ public class GameService {
     public Word play(Player player, List<Word> words) {
         Lobby lobby = player.getLobby();
         Game game = instantiateGame(lobby.getMode());
-        Word result = game.makeCombination(player, words);
-        updatePlayerStatistics(player, result);
+        Combination combination = game.makeCombination(player, words);
+        updatePlayerStatistics(player, combination.getResult());
 
         if (game.winConditionReached(player)) {
             player = playerService.setWinnerAndLoser(player);
@@ -123,7 +125,10 @@ public class GameService {
         else if (allPlayersLost(lobby)) {
             endGame(lobby, "All players have lost the game!");
         }
-        return result;
+
+        achievementService.awardAchievements(player, combination);
+
+        return combination.getResult();
     }
 
     private Game instantiateGame(GameMode gameMode) {
