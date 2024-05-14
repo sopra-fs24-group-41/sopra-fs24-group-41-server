@@ -32,35 +32,43 @@ public class APIService {
     //This code works as long as you use a working environment variable called GOOGLE_APPLICATION_CREDENTIALS
     public String getVertexAIWord(String word1, String word2) throws IOException {
         String instance = String.format("""
-    {
-        "context":  "You are a helpful AI assistant that is tasked with creating the outputs for an element combination game. You receive 2 objects are formatted with '+' symbol. For example: 'Earth + Water'. You have to return what element would make the most sense to be created by combining these two objects. You can create any object, person, or thing from fiction or reality, as long as it makes sense for the two inputted objects to equal the new object. Consult the examples for further clarification. Try to not exceed a word length over 10 characters.",
-        "examples": [
-            {
-                "input": {"content": "Earth + Water"},
-                "output": {"content": "Steam"}
-            },
-            {
-                "input": {"content": "Earth + Lava"},
-                "output": {"content": "Stone"}
-            }
-        ],
-        "messages": [
-            {
-                "author": "user",
-                "content": "%s + %s"
-            }
-        ]
-    }""",
+                        {
+                            "context":  "You are a helpful AI assistant that is tasked with creating the outputs for an element combination game. You receive 2 objects are formatted with '+' symbol. For example: 'Earth + Water'. You have to return what element would make the most sense to be created by combining these two objects. You can create any object, person, or thing from fiction or reality, as long as it makes sense for the two inputted objects to equal the new object. Consult the examples for further clarification. Try to not exceed a word length over 10 characters. Avoid making just concatenations of two words if it exceeds the word length, instead, return a synonym or one of the two input words",
+                            "examples": [
+                                {
+                                    "input": {"content": "Earth + Water"},
+                                    "output": {"content": "Steam"}
+                                },
+                                {
+                                    "input": {"content": "Earth + Lava"},
+                                    "output": {"content": "Stone"}
+                                },
+                                {
+                                    "input": {"content": "Earth + Water"},
+                                    "output": {"content": "Plant"}
+                                },
+                                {
+                                    "input": {"content": "Plant + Steam"},
+                                    "output": {"content": "Tea"}
+                                }
+                            ],
+                            "messages": [
+                                {
+                                    "author": "user",
+                                    "content": "%s + %s"
+                                }
+                            ]
+                        }""",
                 word1, word2);
 
         String parameters = """
-    {
-        "maxOutputTokens" : 3,
-        "temperature": 0.3,
-        "maxDecodeSteps": 200,
-        "topP": 0.8,
-        "topK": 40
-    }""";
+                {
+                    "maxOutputTokens" : 3,
+                    "temperature": 0.3,
+                    "maxDecodeSteps": 200,
+                    "topP": 0.8,
+                    "topK": 40
+                }""";
 
         String project = "sopra-fs24-group-41-server";
         String publisher = "google";
@@ -74,10 +82,10 @@ public class APIService {
         String systemMessage = "Reply only with the element that comes by combining two elements using the logic on the examples below.\\nExamples:\\n\\nearth + water\\nplant\\n\\nearth + lava\\nstone\\n\\n\\nearth + island\\ncontinent\\n\\nwater + water\\nlake\\n\\n\\nfire + fire\\nvolcano";
         String userMessage = String.format("%s + %s", word1, word2);
         return String.format("""
-                {"model": "%s",\s
-                "messages": [{"role":"system","content": "%s"},\s
-                "{"role": "user","content": "%s"}]}
-                """,
+                        {"model": "%s",\s
+                        "messages": [{"role":"system","content": "%s"},\s
+                        "{"role": "user","content": "%s"}]}
+                        """,
                 model, systemMessage, userMessage);
     }
 
