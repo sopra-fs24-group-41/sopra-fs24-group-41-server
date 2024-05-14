@@ -28,7 +28,9 @@ public class WordService {
     public Word getWord(Word word) {
         Word foundWord = findWord(word);
         if (foundWord == null) {
-            return wordRepository.saveAndFlush(word);
+            Word savedWord = wordRepository.saveAndFlush(word);
+            savedWord.setNewlyDiscovered(true);
+            return savedWord;
         }
         return foundWord;
     }
