@@ -27,8 +27,9 @@ public class WordService {
             return findWord(word);
         }
         catch (WordNotFoundException e) {
-            word.setIsNew(true);
-            return wordRepository.saveAndFlush(word);
+            Word savedWord = wordRepository.saveAndFlush(word);
+            savedWord.setNewlyDiscovered(true);
+            return savedWord;
         }
     }
 

@@ -30,7 +30,7 @@ public class Word implements Serializable {
     private double reachability;
 
     @Transient
-    private boolean isNew = false;
+    private boolean newlyDiscovered = false;
 
     public Word() {
     }
@@ -94,11 +94,11 @@ public class Word implements Serializable {
         return combinations;
     }
 
-    public boolean getIsNew() {
-        return isNew;
+    public boolean getNewlyDiscovered() {
+        return newlyDiscovered;
     }
 
-    public void setIsNew(boolean isNew) {
-        this.isNew = isNew;
+    public void setNewlyDiscovered(boolean newlyDiscovered) {
+        this.newlyDiscovered = newlyDiscovered;
     }
 }

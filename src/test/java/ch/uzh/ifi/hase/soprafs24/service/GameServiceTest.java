@@ -10,7 +10,6 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -182,7 +181,7 @@ public class GameServiceTest {
         player.setUser(user);
         user.setPlayer(player);
 
-        mud.setIsNew(true);
+        mud.setNewlyDiscovered(true);
 
         gameService.updatePlayerStatistics(player, mud);
 
