@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
@@ -128,6 +129,7 @@ public class LobbyService {
         lobby.setPlayers(List.of(player));
         lobby.setPublicAccess(Objects.requireNonNullElse(publicAccess, true));
         lobby.setGameTime(0);
+        lobby.setMode(GameMode.WOMBOCOMBO);
 
         Lobby savedLobby = lobbyRepository.saveAndFlush(lobby);
         user.setPlayer(savedLobby.getOwner());

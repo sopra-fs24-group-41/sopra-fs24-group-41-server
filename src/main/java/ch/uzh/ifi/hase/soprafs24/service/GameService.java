@@ -23,6 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.LocalDateTime;
 import java.util.*;
 
 
@@ -62,7 +63,9 @@ public class GameService {
         gameModes.put(GameMode.WOMBOCOMBO, WomboComboGame.class);
         gameModes.put(GameMode.FINITEFUSION, FiniteFusionGame.class);
     }
+
     public void createNewGame(Lobby lobby) {
+        lobby.setStartTime(LocalDateTime.now());
         if(lobby.getGameTime() > 0){
             timers.put(lobby.getCode(), new Timer());
             startTimer(lobby);
