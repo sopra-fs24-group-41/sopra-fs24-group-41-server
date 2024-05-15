@@ -23,12 +23,9 @@ public class AchievementService {
         this.achievementRepository = achievementRepository;
     }
 
-    public Achievement getAchievement(Achievement achievement) {
-        Achievement foundAchievement = achievementRepository.findByName(achievement.getName());
-        if (foundAchievement == null) {
-            return achievementRepository.saveAndFlush(achievement);
-        }
-        return foundAchievement;
+    public Achievement get(Achievement achievement) {
+        return achievementRepository.findByName(achievement.getName())
+                .orElse(achievementRepository.saveAndFlush(achievement));
     }
 
     public void awardAchievements(Player player, Combination combination) {

@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.achievements.Achievement;
 import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.*;

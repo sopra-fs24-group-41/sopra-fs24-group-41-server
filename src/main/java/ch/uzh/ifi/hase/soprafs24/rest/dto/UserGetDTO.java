@@ -1,7 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs24.entity.Achievement;
+import ch.uzh.ifi.hase.soprafs24.entity.achievements.Achievement;
 
 import java.time.LocalDate;
 import java.util.Set;

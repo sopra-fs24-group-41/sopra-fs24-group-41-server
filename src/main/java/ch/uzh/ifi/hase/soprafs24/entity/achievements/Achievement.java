@@ -1,24 +1,28 @@
-package ch.uzh.ifi.hase.soprafs24.entity;
+package ch.uzh.ifi.hase.soprafs24.entity.achievements;
 
+import ch.uzh.ifi.hase.soprafs24.entity.Combination;
+import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.List;
 import java.util.Objects;
 
 
 @Entity
 @Table(name = "ACHIEVEMENT")
-public class Achievement implements Serializable {
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+public abstract class Achievement implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
-    @Column()
-    private String name;
+    private final String name = this.getClass().getSimpleName();
+
+    @Column
+    private String title;
 
     @Column
     private String description;
@@ -26,17 +30,7 @@ public class Achievement implements Serializable {
     @Column
     private String profilePicture;
 
-    public Achievement() {
-    }
-
-    public Achievement(String name) {
-    }
-
-    public Achievement(String name, String description, String profilePicture) {
-        this.name = name;
-        this.description = description;
-        this.profilePicture =   profilePicture;
-    }
+    public abstract void unlock(Player player, Combination combination);
 
     @Override
     public final boolean equals(Object o) {
@@ -46,7 +40,10 @@ public class Achievement implements Serializable {
         Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         Achievement that = (Achievement) o;
-        return Objects.equals(getName(), that.getName());
+        return Objects.equals(getName(), that.getName()) &&
+                Objects.equals(getTitle(), that.getTitle()) &&
+                Objects.equals(getDescription(), that.getDescription()) &&
+                Objects.equals(getProfilePicture(), that.getProfilePicture());
     }
 
     @Override
@@ -58,15 +55,19 @@ public class Achievement implements Serializable {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getTitle() {
+        return title;
+    }
+
+    void setTitle(String title) {
+        this.title = title;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    void setDescription(String description) {
         this.description = description;
     }
 
@@ -74,7 +75,7 @@ public class Achievement implements Serializable {
         return profilePicture;
     }
 
-    public void setProfilePicture(String profilePicture) {
+    void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
     }
 }

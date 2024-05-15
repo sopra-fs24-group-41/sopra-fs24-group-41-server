@@ -1,10 +1,15 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.entity.*;
+import ch.uzh.ifi.hase.soprafs24.entity.achievements.Achievement;
+import ch.uzh.ifi.hase.soprafs24.entity.achievements.CreatedMud;
+import ch.uzh.ifi.hase.soprafs24.entity.achievements.CreatedZaddy;
 import ch.uzh.ifi.hase.soprafs24.repository.AchievementRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -24,10 +29,7 @@ public class AchievementServiceTest {
     public void setup() {
         MockitoAnnotations.openMocks(this);
 
-        achievement = new Achievement(
-                "This stuff is everywhere!",
-                "Create mud through any combination",
-                "MudPuddle.png");
+        achievement = new CreatedMud();
 
         Mockito.when(achievementRepository.saveAndFlush(Mockito.any(Achievement.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -35,8 +37,8 @@ public class AchievementServiceTest {
         Mockito.when(achievementRepository.save(Mockito.any(Achievement.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Mockito.when(achievementRepository.findByName(achievement.getName()))
-                .thenReturn(achievement);
+        Mockito.when(achievementRepository.findById(achievement.getName()))
+                .thenReturn(Optional.of(achievement));
 
         player = new Player("123", "player", null);
         user = new User();
@@ -46,19 +48,23 @@ public class AchievementServiceTest {
         player.setUser(user);
 
         combination = new Combination(new Word("water"), new Word("earth"), new Word("mud"));
+
+        achievementService.setup();
     }
 
     @Test
-    void getAchievement_foundAchievement() {
-        Achievement foundAchievement = achievementService.getAchievement(achievement);
+    void getAchievement_found() {
+        Achievement foundAchievement = achievementService.get(achievement);
+
+        System.out.println(foundAchievement.getName());
 
         assertEquals(achievement, foundAchievement);
     }
 
     @Test
-    void getAchievement_newAchievement() {
-        Achievement newAchievement = new Achievement("New", "New", "New.png");
-        Achievement foundAchievement = achievementService.getAchievement(newAchievement);
+    void getAchievement_new() {
+        Achievement newAchievement = new CreatedZaddy();
+        Achievement foundAchievement = achievementService.get(newAchievement);
 
         assertEquals(newAchievement, foundAchievement);
     }
@@ -67,6 +73,7 @@ public class AchievementServiceTest {
     void awardMudAchievement_success() {
         achievementService.awardAchievements(player, combination);
 
-        assertEquals(1, user.getAchievements().size());
+        assert(user.getAchievements().contains(achievement));
+        assert(!user.getAchievements().contains((new CreatedZaddy())));
     }
 }
