@@ -60,6 +60,16 @@ public class User implements Serializable {
     @Column(nullable = true, updatable = false)
     private LocalDate creationDate;
 
+    @Column(nullable = false)
+    private int combinationsMade = 0;
+
+    // Number of new words that have been added to the word database as a result of combinations made by player.
+    @Column(nullable = false)
+    private int discoveredWords = 0;
+
+    @ManyToOne
+    private Word rarestWordFound = null;
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
@@ -100,13 +110,29 @@ public class User implements Serializable {
         this.favourite = favourite;
     }
 
-    public void setWins(int wins){this.wins = wins;}
+    public void setWins(int wins) {
+        this.wins = wins;
+    }
 
-    public int getWins(){return this.wins;}
+    public int getWins() {
+        return this.wins;
+    }
 
-    public void setLosses(int losses){this.losses = losses;}
+    public void setLosses(int losses) {
+        this.losses = losses;
+    }
 
-    public int getLosses(){return this.losses;}
+    public void addWins(int wins) {
+        this.wins += wins;
+    }
+
+    public void addLosses(int losses) {
+        this.losses += losses;
+    }
+
+    public int getLosses() {
+        return this.losses;
+    }
 
     public String getPassword() {
         return password;
@@ -148,7 +174,35 @@ public class User implements Serializable {
         this.profilePicture = profilePicture;
     }
 
-    public LocalDate getCreationDate() {return creationDate;}
+    public LocalDate getCreationDate() {
+        return creationDate;
+    }
 
-    public void setCreationDate(LocalDate creationDate) {this.creationDate = creationDate;}
+    public void setCreationDate(LocalDate creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public int getCombinationsMade() {
+        return combinationsMade;
+    }
+
+    public void setCombinationsMade(int combinationsMade) {
+        this.combinationsMade = combinationsMade;
+    }
+
+    public int getDiscoveredWords() {
+        return discoveredWords;
+    }
+
+    public void setDiscoveredWords(int discoveredWords) {
+        this.discoveredWords = discoveredWords;
+    }
+
+    public Word getRarestWordFound() {
+        return rarestWordFound;
+    }
+
+    public void setRarestWordFound(Word rarestFoundWord) {
+        this.rarestWordFound = rarestFoundWord;
+    }
 }

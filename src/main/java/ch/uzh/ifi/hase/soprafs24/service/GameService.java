@@ -3,13 +3,11 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.game.FiniteFusionGame;
 import ch.uzh.ifi.hase.soprafs24.game.WomboComboGame;
 import ch.uzh.ifi.hase.soprafs24.websocket.TimeDTO;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs24.entity.Player;
-import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.game.FusionFrenzyGame;
 import ch.uzh.ifi.hase.soprafs24.game.Game;
 import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
@@ -64,13 +62,39 @@ public class GameService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
+    void updateWinsAndLosses(Player winner, Lobby lobby) {
+        for (Player player : lobby.getPlayers()) {
+            if (player == winner)
+                player.addWinsToUser(1);
+            else
+                player.addLossesToUser(1);
+        }
+    }
+
+    void updatePlayerStatistics(Player player, Word result) {
+        User user = player.getUser();
+        if (user == null) {
+            return;
+        }
+
+        user.setCombinationsMade(user.getCombinationsMade() + 1);
+        if (result.getNewlyDiscovered()) {
+            user.setDiscoveredWords(user.getDiscoveredWords() + 1);
+        }
+        if (user.getRarestWordFound() == null || result.getReachability() < user.getRarestWordFound().getReachability()) {
+            user.setRarestWordFound(result);
+        }
+    }
+
     public Word play(Player player, List<Word> words) {
         Lobby lobby = player.getLobby();
         Game game = instantiateGame(lobby.getMode());
         Word result = game.makeCombination(player, words);
+        updatePlayerStatistics(player, result);
 
         if (game.winConditionReached(player)) {
             lobby.setStatus(LobbyStatus.PREGAME);
+            updateWinsAndLosses(player, lobby);
             messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP));
         }
 

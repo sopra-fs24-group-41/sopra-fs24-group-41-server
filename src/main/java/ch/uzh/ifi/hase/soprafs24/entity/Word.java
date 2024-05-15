@@ -29,6 +29,9 @@ public class Word implements Serializable {
     @Column
     private double reachability;
 
+    @Transient
+    private boolean newlyDiscovered = false;
+
     public Word() {
     }
 
@@ -89,5 +92,13 @@ public class Word implements Serializable {
 
     public List<Combination> getCombinations() {
         return combinations;
+    }
+
+    public boolean getNewlyDiscovered() {
+        return newlyDiscovered;
+    }
+
+    public void setNewlyDiscovered(boolean newlyDiscovered) {
+        this.newlyDiscovered = newlyDiscovered;
     }
 }

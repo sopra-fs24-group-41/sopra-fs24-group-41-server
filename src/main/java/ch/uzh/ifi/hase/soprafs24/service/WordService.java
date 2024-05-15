@@ -31,7 +31,9 @@ public class WordService {
         }
         catch (WordNotFoundException e) {
             try {
-                return wordRepository.saveAndFlush(word);
+                Word savedWord = wordRepository.saveAndFlush(word);
+                savedWord.setNewlyDiscovered(true);
+                return savedWord;
             }
             catch (Exception ex) {
                 log.error("Error saving word: {}", word, ex);

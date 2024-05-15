@@ -209,7 +209,19 @@ public class Player implements Serializable {
     public void setUser(User user) {
         this.user = user;
     }
+  
+    public void addWinsToUser(int wins) {
+        if (this.getUser() != null) {
+            this.getUser().addWins(wins);
+        }
+    }
 
+    public void addLossesToUser(int losses) {
+        if (this.getUser() != null) {
+            this.getUser().addLosses(losses);
+        }
+    }
+  
     public PlayerStatus getStatus() {
         return status;
     }
