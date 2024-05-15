@@ -194,13 +194,24 @@ public class LobbyService {
     }
 
     public Lobby updateLobby(Lobby lobby, LobbyPutDTO lobbyPutDTO) {
+        List<Integer> validGameTimes = List.of(0, 60, 90, 120, 150, 180, 210, 240, 270, 300);
+        if (lobbyPutDTO.getName() != null && lobbyPutDTO.getName().length() > 20) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The lobby name is too long, please choose a name with 20 characters or less");
+        }
+        else if (lobbyPutDTO.getName() != null && lobbyPutDTO.getName().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The lobby name cannot be empty");
+        }
+        else if (lobbyPutDTO.getGameTime() != null && !validGameTimes.contains(lobbyPutDTO.getGameTime())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The game time is invalid, please choose a valid game time");
+        }
+
         lobby.resetUpdate();
 
         if (lobbyPutDTO.getMode() != null && !lobbyPutDTO.getMode().equals(lobby.getMode())) {
             lobby.setMode(lobbyPutDTO.getMode());
         }
         if (lobbyPutDTO.getName() != null && !Objects.equals(lobbyPutDTO.getName(), lobby.getName())) {
-            lobby.setName(lobbyPutDTO.getName());
+            lobby.setName(lobbyPutDTO.getName().strip());
         }
         if (lobbyPutDTO.getPublicAccess() != null && !Objects.equals(lobbyPutDTO.getPublicAccess(), lobby.getPublicAccess())) {
             lobby.setPublicAccess(lobbyPutDTO.getPublicAccess());
