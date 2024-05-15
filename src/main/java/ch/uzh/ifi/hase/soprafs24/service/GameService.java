@@ -109,7 +109,7 @@ public class GameService {
 
             lobby.setStatus(LobbyStatus.PREGAME);
             lobby.setGameTime(0);
-            messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
+            messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.STOP));
             updateWinsAndLosses(player, lobby);
             messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP));
         }
@@ -149,7 +149,7 @@ public class GameService {
                     gameTimer.cancel(); // Stop the timer when time's up
                     timers.remove(lobby.getCode());
                     lobbyService.setStatusGivenLobby(lobby, LobbyStatus.PREGAME);
-                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
+                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.STOP));
                 }
 
                 for(int t : new int[]{10, 30, 60, 180, 300})
