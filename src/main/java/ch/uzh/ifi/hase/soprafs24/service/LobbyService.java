@@ -155,7 +155,7 @@ public class LobbyService {
         else {
             if (foundLobby.getStatus() != LobbyStatus.PREGAME) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                        "this lobby does not accept new players, wait until the game is finished");
+                        "This lobby does not accept new players, wait until the game is finished");
             }
 
             player = new Player(UUID.randomUUID().toString(), user.getUsername(), foundLobby);
