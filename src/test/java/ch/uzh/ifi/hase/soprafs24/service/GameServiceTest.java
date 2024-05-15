@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -23,6 +24,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 public class GameServiceTest {
+
+    @Mock
+    private PlatformTransactionManager transactionManager;
+
+    @Mock
+    private SimpMessagingTemplate messagingTemplateMock;
+
 
     private final Word water = new Word("water", 0, 1e6);
     private final Word earth = new Word("earth", 0, 1e6);
@@ -211,14 +219,11 @@ public class GameServiceTest {
         when(testLobby.getCode()).thenReturn(1234L);
         when(testLobby.getGameTime()).thenReturn(60); // Mock gameTime for 1 minute
 
-        SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
-        GameService gameService = new GameService(playerService, combinationService, wordService, lobbyService, messagingTemplateMock);
         Timer gameTimer = new Timer();
-        TimerTask gameTask = gameService.createGameTask(testLobby, gameTimer);
+        TimerTask gameTask = gameService.createGameTask(testLobby);
         gameTimer.scheduleAtFixedRate(gameTask, 3000, 1000); //Accelerate timer to run task every second, original implement does it every 10th second
 
         verify(messagingTemplateMock, timeout(1000 * 20).times(3)).convertAndSend(eq("/topic/lobbies/1234/game"), any(TimeDTO.class));
-        verify(lobbyService, timeout(1000 * 30).atLeastOnce()).setStatusGivenLobby(testLobby, LobbyStatus.PREGAME);
     }
 }
 

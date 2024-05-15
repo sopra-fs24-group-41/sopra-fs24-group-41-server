@@ -14,8 +14,12 @@ import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.web.server.ResponseStatusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -24,6 +28,7 @@ import java.util.*;
 @Service
 @Transactional
 public class GameService {
+    private final Logger log = LoggerFactory.getLogger(LobbyService.class);
     private final PlayerService playerService;
     private final CombinationService combinationService;
     private final WordService wordService;
@@ -31,19 +36,20 @@ public class GameService {
     private final SimpMessagingTemplate messagingTemplate;
 
     private static final String MESSAGE_LOBBY_GAME = "/topic/lobbies/%d/game";
-    private final LobbyService lobbyService;
 
     private final Map<Long, Timer> timers;
 
+    private final PlatformTransactionManager transactionManager;
+
 
     @Autowired
-    public GameService(PlayerService playerService, CombinationService combinationService, WordService wordService, LobbyService lobbyService, SimpMessagingTemplate messagingTemplate) {
+    public GameService(PlayerService playerService, CombinationService combinationService, WordService wordService, SimpMessagingTemplate messagingTemplate, PlatformTransactionManager transactionManager) {
         this.playerService = playerService;
         this.combinationService = combinationService;
         this.wordService = wordService;
         this.messagingTemplate = messagingTemplate;
-        this.lobbyService = lobbyService;
         this.timers = new HashMap<>();
+        this.transactionManager = transactionManager;
 
         setupGameModes();
     }
@@ -102,18 +108,8 @@ public class GameService {
         updatePlayerStatistics(player, result);
 
         if (game.winConditionReached(player)) {
-            if(timers.get(lobby.getCode()) != null){
-                timers.get(lobby.getCode()).cancel();
-                timers.remove(lobby.getCode());
-            }
-
-            lobby.setStatus(LobbyStatus.PREGAME);
-            lobby.setGameTime(0);
-            messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.STOP));
-            updateWinsAndLosses(player, lobby);
-            messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP));
+            endGame(lobby, player);
         }
-
         return result;
     }
 
@@ -132,24 +128,46 @@ public class GameService {
 
     public void startTimer(Lobby lobby){
         Timer gameTimer = timers.get(lobby.getCode());
-        TimerTask task = createGameTask(lobby, gameTimer);
+        TimerTask task = createGameTask(lobby);
         // Schedule the task to run every 10th second (like a while-loop but control over time, different thread used)
         // Use a three-second initial delay for the Client to receive the initial timer setup.
         gameTimer.scheduleAtFixedRate(task, 3000, 10000);
     }
 
+    //I don't know what this code does, I just adapted until it worked, pls explain...
+    public void endGame(Lobby lobby, Player player) {
+        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+        try {
+            transactionTemplate.execute(status -> {
+                Timer gameTimer = timers.get(lobby.getCode());
+                if (gameTimer != null) {
+                    gameTimer.cancel();
+                    timers.remove(lobby.getCode());
+                }
 
-    public TimerTask createGameTask(Lobby lobby, Timer gameTimer){
+                lobby.setStatus(LobbyStatus.PREGAME);
+                lobby.setGameTime(0);
+                if (player != null) {
+                    updateWinsAndLosses(player, lobby);
+                }
+                messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP));
+                return null;
+            });
+        } catch (Exception e) {
+            log.error("Timeout failed: ", e);
+        }
+    }
+
+
+    public TimerTask createGameTask(Lobby lobby){
         return new TimerTask() {
 
             int remainingTime = lobby.getGameTime();
 
             public void run() {
                 if (remainingTime <= 0) {
-                    gameTimer.cancel(); // Stop the timer when time's up
-                    timers.remove(lobby.getCode());
-                    lobbyService.setStatusGivenLobby(lobby, LobbyStatus.PREGAME);
-                    messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.STOP));
+                    endGame(lobby, null);
+
                 }
 
                 for(int t : new int[]{10, 30, 60, 180, 300})
@@ -158,12 +176,6 @@ public class GameService {
                                 new TimeDTO(String.valueOf(t)));
                     }
 
-                if (remainingTime <= 0) {
-                    gameTimer.cancel(); // Stop the timer when time's up
-                    lobby.setStatus(LobbyStatus.PREGAME);
-                    messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()),
-                            new InstructionDTO(Instruction.STOP));
-                }
                 remainingTime -= 10; // Decrement remaining time by 10
             }
         };

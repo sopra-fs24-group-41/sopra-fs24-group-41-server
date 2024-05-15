@@ -77,18 +77,6 @@ public class APIService {
         return predictVertexChatPrompt(instance, parameters, project, publisher, model);
     }
 
-    private static String buildAwanRequest(String word1, String word2) {
-        String model = "Meta-Llama-3-8B-Instruct";
-        String systemMessage = "Reply only with the element that comes by combining two elements using the logic on the examples below.\\nExamples:\\n\\nearth + water\\nplant\\n\\nearth + lava\\nstone\\n\\n\\nearth + island\\ncontinent\\n\\nwater + water\\nlake\\n\\n\\nfire + fire\\nvolcano";
-        String userMessage = String.format("%s + %s", word1, word2);
-        return String.format("""
-                        {"model": "%s",\s
-                        "messages": [{"role":"system","content": "%s"},\s
-                        "{"role": "user","content": "%s"}]}
-                        """,
-                model, systemMessage, userMessage);
-    }
-
     public String getRandomWord() {
         String apiUrl = "https://random-word-api.herokuapp.com/word";
         HttpHeaders headers = new HttpHeaders();
