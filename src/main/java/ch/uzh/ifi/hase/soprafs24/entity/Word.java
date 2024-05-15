@@ -94,7 +94,7 @@ public class Word implements Serializable {
         return combinations;
     }
 
-    public boolean getNewlyDiscovered() {
+    public boolean isNewlyDiscovered() {
         return newlyDiscovered;
     }
 

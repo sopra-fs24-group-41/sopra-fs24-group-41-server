@@ -64,6 +64,7 @@ public interface DTOMapper {
     PlayerWordDTO convertEntityToPlayerWordDTO(PlayerWord playerWord);
 
     @Mapping(source = "name", target = "name")
+    @Mapping(source = "newlyDiscovered", target = "newlyDiscovered")
     WordDTO convertEntityToWordDTO(Word word);
 
     @Mapping(source = "points", target = "points")
