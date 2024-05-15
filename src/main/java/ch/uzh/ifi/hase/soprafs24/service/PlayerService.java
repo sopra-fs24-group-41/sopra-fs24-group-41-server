@@ -16,7 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Transactional
 public class PlayerService {
 
-    private final Logger log = LoggerFactory.getLogger(LobbyService.class);
+    private final Logger log = LoggerFactory.getLogger(PlayerService.class);
 
     private final PlayerRepository playerRepository;
 
@@ -49,6 +49,7 @@ public class PlayerService {
             player.getOwnedLobby().setOwner(null);
             player.setOwnedLobby(null);
         }
+        player.getLobby().updateLastModified();
         player.getLobby().getPlayers().remove(player);
         player.setLobby(null);
         playerRepository.delete(player);

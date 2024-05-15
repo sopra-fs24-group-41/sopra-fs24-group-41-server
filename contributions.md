@@ -158,3 +158,15 @@ Worked on:
 - [Pull Request (Client)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/105)
 - [Pull Request (Server)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/185)
 - Working on ui improvement, adding more explanation, CSS fix-ups and possible refactoring of code
+
+**Grizzlytron - Lucas Timothy Leo Bär**
+- Added joining through URL functionality, for anonymous as well as registered Users. Added an intermediary page and implemented routing. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/110)
+- Also worked on CSS Styling and bug fixing.
+
+**Aquamarine-12 - Alexandru-Mihai Hurjui**
+- Refactored statistics on back-end ([pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/187))
+- Added statistics on front-end ([pull request 1](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/117), [pull request 2](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/118))
+
+**JacquelineUlken - Jacqueline Ulken**
+- Implemented check for newly discovered words and sending that information in the Get requests [#178](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/178)
+- Implemented highlighting newly discovered words [#98](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/98)

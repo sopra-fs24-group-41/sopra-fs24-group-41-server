@@ -33,6 +33,9 @@ public interface DTOMapper {
     @Mapping(source = "losses", target = "losses")
     @Mapping(source = "creationDate", target = "creationDate")
     @Mapping(source = "favourite", target = "favourite")
+    @Mapping(source = "combinationsMade", target = "combinationsMade")
+    @Mapping(source = "discoveredWords", target = "discoveredWords")
+    @Mapping(source = "rarestWordFound", target = "rarestWordFound")
     UserGetDTO convertEntityToUserGetDTO(User user);
 
     @Mapping(source = "token", target = "token")

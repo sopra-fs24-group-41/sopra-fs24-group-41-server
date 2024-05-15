@@ -263,20 +263,19 @@ class LobbyControllerTest {
     void updateLobby_validInputs_thenUpdatedLobbyReturned() throws Exception {
         // given
         given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
-        Map<String, Boolean> updates = new HashMap<>();
-        updates.put("mode", true);
-        updates.put("name", true);
-        updates.put("publicAccess", true);
+        testLobby.setMode(GameMode.FUSIONFRENZY);
+        testLobby.setName("new name");
+        testLobby.setPublicAccess(false);
+        testLobby.setUpdatedMode(true);
+        testLobby.setUpdatedName(true);
+        testLobby.setUpdatedPublicAccess(true);
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
         lobbyPutDTO.setPublicAccess(false);
         lobbyPutDTO.setMode(GameMode.FUSIONFRENZY);
         lobbyPutDTO.setName("new name");
 
-        given(lobbyService.updateLobby(Mockito.any(), Mockito.any()))
-                .willAnswer(invocationOnMock -> {testLobby.setMode(lobbyPutDTO.getMode());
-                    testLobby.setPublicAccess(lobbyPutDTO.getPublicAccess()); testLobby.setName(lobbyPutDTO.getName());
-                    return updates;});
+        given(lobbyService.updateLobby(Mockito.any(), Mockito.any())).willReturn(testLobby);
 
         // when
         MockHttpServletRequestBuilder putRequest = put("/lobbies/"+testLobby.getCode())

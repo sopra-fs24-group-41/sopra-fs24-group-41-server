@@ -54,7 +54,7 @@ public class UserService {
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
-        newUser.setProfilePicture("");  // for now, the profile picture is empty
+        newUser.setProfilePicture("BlueFrog");
         newUser.setCreationDate(LocalDate.now());
         checkDuplicateUser(newUser);
         newUser = userRepository.save(newUser);
@@ -119,14 +119,15 @@ public class UserService {
         }
     }
 
-    public void authUser(Long id, String token){
+    public User authUser(Long id, String token){
         User foundUser = userRepository.findByToken(token);
         if (foundUser == null) {
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
         if (!Objects.equals(foundUser.getId(), id)){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not have permission to edit this user's data");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not have permission to access this user's data");
         }
+        return foundUser;
     }
 
     public void usernameValidation(String username){
