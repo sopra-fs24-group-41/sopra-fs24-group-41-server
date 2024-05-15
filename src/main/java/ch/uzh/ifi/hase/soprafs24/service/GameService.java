@@ -4,7 +4,9 @@ import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
+import ch.uzh.ifi.hase.soprafs24.game.FiniteFusionGame;
 import ch.uzh.ifi.hase.soprafs24.game.WomboComboGame;
+import ch.uzh.ifi.hase.soprafs24.websocket.TimeDTO;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import ch.uzh.ifi.hase.soprafs24.game.FusionFrenzyGame;
 import ch.uzh.ifi.hase.soprafs24.game.Game;
@@ -18,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
+
 @Service
 @Transactional
 public class GameService {
@@ -26,6 +29,8 @@ public class GameService {
     private final WordService wordService;
     private final EnumMap<GameMode, Class<? extends Game>> gameModes = new EnumMap<>(GameMode.class);
     private final SimpMessagingTemplate messagingTemplate;
+
+    private static final String MESSAGE_LOBBY_GAME = "/topic/lobbies/%d/game";
 
     @Autowired
     public GameService(PlayerService playerService, CombinationService combinationService, WordService wordService, SimpMessagingTemplate messagingTemplate) {
@@ -40,9 +45,13 @@ public class GameService {
         gameModes.put(GameMode.STANDARD, Game.class);
         gameModes.put(GameMode.FUSIONFRENZY, FusionFrenzyGame.class);
         gameModes.put(GameMode.WOMBOCOMBO, WomboComboGame.class);
+        gameModes.put(GameMode.FINITEFUSION, FiniteFusionGame.class);
     }
-
     public void createNewGame(Lobby lobby) {
+        if(lobby.getGameTime() > 0){
+            startGameTimer(lobby, new Timer());
+        }
+
         List<Player> players = lobby.getPlayers();
         if (players != null && !players.isEmpty()) {
             Game game = instantiateGame(lobby.getMode());
@@ -86,7 +95,7 @@ public class GameService {
         if (game.winConditionReached(player)) {
             lobby.setStatus(LobbyStatus.PREGAME);
             updateWinsAndLosses(player, lobby);
-            messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
+            messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP));
         }
 
         return result;
@@ -103,4 +112,36 @@ public class GameService {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
         }
     }
+
+    public void startGameTimer(Lobby lobby, Timer gameTimer) {
+
+        TimerTask task = createGameTask(lobby, gameTimer);
+
+        // Schedule the task to run every 10th second (like a while-loop but control over time, different thread used)
+        // Use a three-second initial delay for the Client to receive the initial timer setup.
+        gameTimer.scheduleAtFixedRate(task, 3000, 10000);
+    }
+
+    public TimerTask createGameTask(Lobby lobby, Timer gameTimer){
+        return new TimerTask() {
+            int remainingTime = lobby.getGameTime();
+
+            public void run() {
+                for(int t : new int[]{10, 30, 60, 180, 300})
+                    if (remainingTime == t) {
+                        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()),
+                                new TimeDTO(String.valueOf(t)));
+                    }
+
+                if (remainingTime <= 0) {
+                    gameTimer.cancel(); // Stop the timer when time's up
+                    lobby.setStatus(LobbyStatus.PREGAME);
+                    messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()),
+                            new InstructionDTO(Instruction.STOP));
+                }
+                remainingTime -= 10; // Decrement remaining time by 10
+            }
+        };
+    }
+
 }

@@ -3,6 +3,8 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.exceptions.WordNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.repository.WordRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
@@ -15,6 +17,7 @@ import java.util.List;
 @Service
 @Transactional
 public class WordService {
+    private final Logger log = LoggerFactory.getLogger(WordService.class);
     private final WordRepository wordRepository;
 
     @Autowired
@@ -27,9 +30,19 @@ public class WordService {
             return findWord(word);
         }
         catch (WordNotFoundException e) {
-            Word savedWord = wordRepository.saveAndFlush(word);
-            savedWord.setNewlyDiscovered(true);
-            return savedWord;
+            try {
+                Word savedWord = wordRepository.saveAndFlush(word);
+                savedWord.setNewlyDiscovered(true);
+                return savedWord;
+            }
+            catch (Exception ex) {
+                log.error("Error saving word: {}", word, ex);
+                throw ex;
+            }
+        }
+        catch (Exception e) {
+            log.error("Unexpected error in getWord for word: {}", word, e);
+            throw e;
         }
     }
 

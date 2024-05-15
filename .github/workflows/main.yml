@@ -34,6 +34,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SPRING_PROFILES_ACTIVE: postgres-cloud
+          SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop
           DATABASE_URL: ${{ secrets.TESTING_DATABASE_URL }}
           DATABASE_USERNAME: ${{ secrets.TESTING_DATABASE_USERNAME }}
           DATABASE_PASSWORD: ${{ secrets.TESTING_DATABASE_PASSWORD }}
@@ -58,9 +59,10 @@ jobs:
         uses: google-github-actions/deploy-appengine@v2
         with:
           deliverables: app.yaml
-          version: v4
+          version: v5
           env_vars: |-
             SPRING_PROFILES_ACTIVE=postgres-cloud
+            SPRING_JPA_HIBERNATE_DDL_AUTO=update
             DATABASE_URL=${{ secrets.PRODUCTION_DATABASE_URL }}
             DATABASE_USERNAME=${{ secrets.PRODUCTION_DATABASE_USERNAME }}
             DATABASE_PASSWORD=${{ secrets.PRODUCTION_DATABASE_PASSWORD }}

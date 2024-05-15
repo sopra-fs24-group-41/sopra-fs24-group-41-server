@@ -118,13 +118,55 @@ Worked on:
 ## 29.04 - 05.05 Week 6
 **na50r - Rosan Shanmuganathan**
 - I added a Quit button the Client side such that it's now possible to also quit mid-game, it uses the same functionality of a Lobby-Quit, i.e., if you're the owner of the lobby, the whole lobby is closed, otherwise, you just leave the lobby.
-- I made it possible that the Result page also indicates who the current player is in case of loss. I.e., if you win, your Player is highlighted in blue but if you lose, the winner's player is highlighted in blue and your player is highlighted in orange. 
+- I made it possible that the Result page also indicates who the current player is in case of loss. I.e., if you win, your Player is highlighted in blue but if you lose, the winner's player is highlighted in blue and your player is highlighted in red. 
 - [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/90)
+- I also added an optional timer, i.e., it is now possible to set a timer for 1,2,3,4 or 5 minutes and the game ends if you run out of time. The timer runs on the server but informs the Client within certain intervals via WebSocket implementation.
+- [Pull Request (Client)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/105)
+- [Pull Request (Server)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/185)
+- Encountered issues when testing as the testing DB on Postgres kept changing back and forth between an implementation that had a `gameTime` attribute and one that had not. Plan is to wait for @JacquelineUlken's implementation to get merged first, adapt to it and merge mine after.
 
 **Tmmn - Timon Leupp**
-- Support for anonymous players (will make pull request by the end of the week)
+- Support for anonymous players ([Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/188))
+- Wrote tests and improved overall test coverage [commit](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/commit/96aadd0b87658f381dd06f90f8924487af9a4136)
 - [Change database setup](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/commit/9703e7f1da4fca0cc95ee6e743923ed394590b6d) so that running tests no longer empties our production database.
 - Support by finding bugs and fixing them.
 
--  **Grizzlytron - Lucas Timothy Leo Bär**
+**Grizzlytron - Lucas Timothy Leo Bär**
 - Used Joker for this week, no contribution in form of development tasks.
+
+**Aquamarine-12 - Alexandru-Mihai Hurjui**
+- Added statistics attributes to `User`'s (number of discovered words, rarest word found etc.);
+- Added tracking for these statistics
+- Issues: #26, #97, #99. Pull request: [link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/187)
+- Added propagation of word depth whenever a new combination is generated. Pull request: [link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/189)
+
+ **JacquelineUlken - Jacqueline Ulken**
+ - Fixed various bugs [#166](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/166), [#164](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/164), [#163](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/163)
+ - Added Finite Fusion in backend [#155](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/155)
+ - Added Finite Fusion in frontend [#87](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/84), [#82](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/82), [#81](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/81)
+ - Added automatic updating of other players activity [#77](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/77),[#92](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/92)
+
+## 06.05 - 12.05 Week 7
+**Tmmn - Timon Leupp**
+- Lobbies are no deleted after 3 hours of inactivity. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/194)
+- User can rejoin their lobby. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/195)
+- Set up logging [here](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/commit/560a80bc73cd0f29e03efe27f031f3512aa70108)
+- Refactored update lobby to using update booleans in lobby class and no longer passing a Map. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/196)
+
+**na50r - Rosan Shanmuganathan**
+- Continued to work on Timer, modified methods such that they become easier to test and added tests for the timer (timer runs faster in test, so test will not take 1 minute but it'll test everything that should happen when timer is set to 1 min)
+- [Pull Request (Client)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/105)
+- [Pull Request (Server)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/185)
+- Working on ui improvement, adding more explanation, CSS fix-ups and possible refactoring of code
+
+**Grizzlytron - Lucas Timothy Leo Bär**
+- Added joining through URL functionality, for anonymous as well as registered Users. Added an intermediary page and implemented routing. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/110)
+- Also worked on CSS Styling and bug fixing.
+
+**Aquamarine-12 - Alexandru-Mihai Hurjui**
+- Refactored statistics on back-end ([pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/187))
+- Added statistics on front-end ([pull request 1](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/117), [pull request 2](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/118))
+
+**JacquelineUlken - Jacqueline Ulken**
+- Implemented check for newly discovered words and sending that information in the Get requests [#178](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/178)
+- Implemented highlighting newly discovered words [#98](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/98)
