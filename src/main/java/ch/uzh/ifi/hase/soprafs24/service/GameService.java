@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.game.FiniteFusionGame;
 import ch.uzh.ifi.hase.soprafs24.game.WomboComboGame;
@@ -28,28 +29,29 @@ import java.util.*;
 @Service
 @Transactional
 public class GameService {
-    private final Logger log = LoggerFactory.getLogger(LobbyService.class);
+    private final Logger log = LoggerFactory.getLogger(GameService.class);
     private final PlayerService playerService;
     private final CombinationService combinationService;
     private final WordService wordService;
     private final EnumMap<GameMode, Class<? extends Game>> gameModes = new EnumMap<>(GameMode.class);
     private final SimpMessagingTemplate messagingTemplate;
-
-    private static final String MESSAGE_LOBBY_GAME = "/topic/lobbies/%d/game";
+    private final PlatformTransactionManager transactionManager;
+    private final LobbyService lobbyService;
 
     private final Map<Long, Timer> timers;
-
-    private final PlatformTransactionManager transactionManager;
-
+    private static final String MESSAGE_LOBBY_GAME = "/topic/lobbies/%d/game";
 
     @Autowired
-    public GameService(PlayerService playerService, CombinationService combinationService, WordService wordService, SimpMessagingTemplate messagingTemplate, PlatformTransactionManager transactionManager) {
+    public GameService(PlayerService playerService, CombinationService combinationService, WordService wordService,
+                       SimpMessagingTemplate messagingTemplate, PlatformTransactionManager transactionManager,
+                       LobbyService lobbyService) {
         this.playerService = playerService;
         this.combinationService = combinationService;
         this.wordService = wordService;
         this.messagingTemplate = messagingTemplate;
         this.timers = new HashMap<>();
         this.transactionManager = transactionManager;
+        this.lobbyService = lobbyService;
 
         setupGameModes();
     }
@@ -77,12 +79,14 @@ public class GameService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
-    void updateWinsAndLosses(Player winner, Lobby lobby) {
+    void updateWinsAndLosses(Lobby lobby) {
         for (Player player : lobby.getPlayers()) {
-            if (player == winner)
+            if (player.getStatus() == PlayerStatus.WON) {
                 player.addWinsToUser(1);
-            else
+            }
+            else if (player.getStatus() == PlayerStatus.LOST) {
                 player.addLossesToUser(1);
+            }
         }
     }
 
@@ -108,7 +112,7 @@ public class GameService {
         updatePlayerStatistics(player, result);
 
         if (game.winConditionReached(player)) {
-            endGame(lobby, player);
+            endGame(lobby);
         }
         return result;
     }
@@ -125,6 +129,19 @@ public class GameService {
         }
     }
 
+    public void endGame(Lobby lobby) {
+        Timer gameTimer = timers.get(lobby.getCode());
+        if (gameTimer != null) {
+            gameTimer.cancel();
+            timers.remove(lobby.getCode());
+        }
+
+        lobby.setStatus(LobbyStatus.PREGAME);
+        lobby.setGameTime(0);
+
+        updateWinsAndLosses(lobby);
+        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP, "Time is up!"));
+    }
 
     public void startTimer(Lobby lobby){
         Timer gameTimer = timers.get(lobby.getCode());
@@ -134,51 +151,47 @@ public class GameService {
         gameTimer.scheduleAtFixedRate(task, 3000, 10000);
     }
 
-    //I don't know what this code does, I just adapted until it worked, pls explain...
-    public void endGame(Lobby lobby, Player player) {
-        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-        try {
-            transactionTemplate.execute(status -> {
-                Timer gameTimer = timers.get(lobby.getCode());
-                if (gameTimer != null) {
-                    gameTimer.cancel();
-                    timers.remove(lobby.getCode());
-                }
-
-                lobby.setStatus(LobbyStatus.PREGAME);
-                lobby.setGameTime(0);
-                if (player != null) {
-                    updateWinsAndLosses(player, lobby);
-                }
-                messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP));
-                return null;
-            });
-        } catch (Exception e) {
-            log.error("Timeout failed: ", e);
-        }
-    }
-
-
     public TimerTask createGameTask(Lobby lobby){
         return new TimerTask() {
-
             int remainingTime = lobby.getGameTime();
+            final long lobbyCode = lobby.getCode();
 
             public void run() {
-                if (remainingTime <= 0) {
-                    endGame(lobby, null);
-
-                }
-
-                for(int t : new int[]{10, 30, 60, 180, 300})
-                    if (remainingTime == t) {
-                        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()),
-                                new TimeDTO(String.valueOf(t)));
+                try {
+                    if (remainingTime <= 0) {
+                        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+                        transactionTemplate.execute(status -> {
+                            Lobby lobby = lobbyService.getLobbyByCode(lobbyCode);
+                            if (lobby.getMode() != GameMode.STANDARD) {
+                                setPlayersLost(lobby);
+                            }
+                            endGame(lobby);
+                            return null;
+                        });
                     }
 
-                remainingTime -= 10; // Decrement remaining time by 10
+                    for (int t : new int[]{10, 30, 60, 180, 300}) {
+                        if (remainingTime == t) {
+                            messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobbyCode),
+                                    new TimeDTO(String.valueOf(t)));
+                            break;
+                        }
+                    }
+
+                    remainingTime -= 10; // Decrement remaining time by 10
+                } catch (Exception e) {
+                    log.error("Error in game timer task: ", e);
+                }
             }
         };
+    }
+
+    private void setPlayersLost(Lobby lobby) {
+        for (Player player : lobby.getPlayers()) {
+            if (player.getStatus() == PlayerStatus.PLAYING) {
+                player.setStatus(PlayerStatus.LOST);
+            }
+        }
     }
 
 }

@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
@@ -23,7 +24,7 @@ import java.util.TimerTask;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class GameServiceTest {
+class GameServiceTest {
 
     @Mock
     private PlatformTransactionManager transactionManager;
@@ -71,11 +72,11 @@ public class GameServiceTest {
     }
 
     @Test
-    public void createNewGame_success() {
+    void createNewGame_success() {
         Player testPlayer1 = new Player();
         Player testPlayer2 = new Player();
 
-        List<Player> testPlayers = new ArrayList<Player>();
+        List<Player> testPlayers = new ArrayList<>();
         testPlayers.add(testPlayer1);
         testPlayers.add(testPlayer2);
 
@@ -94,19 +95,20 @@ public class GameServiceTest {
     }
 
     @Test
-    public void play_success() {
+    void play_success() {
         Player testPlayer1 = new Player();
         Player testPlayer2 = new Player();
 
         testPlayer1.addWords(startingWords);
         testPlayer2.addWords(startingWords);
 
-        List<Player> testPlayers = new ArrayList<Player>();
+        List<Player> testPlayers = new ArrayList<>();
         testPlayers.add(testPlayer1);
         testPlayers.add(testPlayer2);
 
         Lobby testLobby = new Lobby();
         testLobby.setMode(GameMode.STANDARD);
+        testLobby.setPlayers(testPlayers);
 
         testPlayer1.setLobby(testLobby);
 
@@ -138,6 +140,7 @@ public class GameServiceTest {
         for (User testUser : testUsers) {
             Player testPlayer = new Player();
 
+            testPlayer.setStatus(PlayerStatus.LOST);
             testPlayer.setUser(testUser);
             testPlayer.setLobby(testLobby);
 
@@ -146,8 +149,9 @@ public class GameServiceTest {
             testPlayers.add(testPlayer);
             testLobby.getPlayers().add(testPlayer);
         }
+        testPlayers.get(0).setStatus(PlayerStatus.WON);
 
-        gameService.updateWinsAndLosses(testPlayers.get(0), testLobby);
+        gameService.updateWinsAndLosses(testLobby);
 
         assertEquals(1, testUsers.get(0).getWins());
         assertEquals(0, testUsers.get(1).getWins());
@@ -169,6 +173,7 @@ public class GameServiceTest {
         for (User testUser : testUsers) {
             Player testPlayer = new Player();
 
+            testPlayer.setStatus(PlayerStatus.LOST);
             testPlayer.setUser(testUser);
             testPlayer.setLobby(testLobby);
 
@@ -177,13 +182,14 @@ public class GameServiceTest {
             testPlayers.add(testPlayer);
             testLobby.getPlayers().add(testPlayer);
         }
+        testPlayers.get(0).setStatus(PlayerStatus.WON);
 
         Player anonTestPlayer = new Player();
         anonTestPlayer.setLobby(testLobby);
         testPlayers.add(anonTestPlayer);
         testLobby.getPlayers().add(anonTestPlayer);
 
-        gameService.updateWinsAndLosses(testPlayers.get(0), testLobby);
+        gameService.updateWinsAndLosses(testLobby);
 
         assertEquals(1, testUsers.get(0).getWins());
         assertEquals(0, testUsers.get(1).getWins());
@@ -213,7 +219,7 @@ public class GameServiceTest {
 
 
     @Test //This is a unit test
-    public void gameTask_game_end_after_1_minute() {
+    void gameTask_game_end_after_1_minute() {
         Lobby testLobby = mock(Lobby.class);
         testLobby.setStatus(LobbyStatus.INGAME);
         when(testLobby.getCode()).thenReturn(1234L);

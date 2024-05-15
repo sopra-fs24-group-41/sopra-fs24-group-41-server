@@ -14,23 +14,25 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 public class FiniteFusionGame extends Game {
-    private Integer startingUses = 10;
+    private static final Integer STARTING_USES = 10;
 
     public FiniteFusionGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
     }
 
+    @Override
     public void setupPlayers(List<Player> players) {
         setupStartingWords();
         Word targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
         for (Player player : players) {
             playerService.resetPlayer(player);
-            player.addWords(startingWords, startingUses);
+            player.addWords(startingWords, STARTING_USES);
             player.setTargetWord(targetWord);
             player.setStatus(PlayerStatus.PLAYING);
         }
     }
 
+    @Override
     public Word makeCombination(Player player, List<Word> words) {
         if (words.size() == 2) {
             if (player.getStatus() == PlayerStatus.PLAYING) {
@@ -81,11 +83,16 @@ public class FiniteFusionGame extends Game {
         return combination.getResult();
     }
 
+    @Override
     public boolean winConditionReached(Player player) {
         if (player.getStatus() == PlayerStatus.PLAYING && player.getWords().contains(player.getTargetWord())) {
             player.setStatus(PlayerStatus.WON);
+            for (Player p : player.getLobby().getPlayers()) {
+                if (p == player) p.setStatus(PlayerStatus.WON);
+                else p.setStatus(PlayerStatus.LOST);
+            }
             return true;
-        };
+        }
         return false;
     }
 }

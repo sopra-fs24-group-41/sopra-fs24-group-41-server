@@ -18,10 +18,7 @@ public class WomboComboGame extends Game {
         super(playerService, combinationService, wordService);
     }
 
-    void setupStartingWords() {
-        super.setupStartingWords();
-    }
-
+    @Override
     public void setupPlayers(List<Player> players) {
         setupStartingWords();
         for (Player player : players) {
@@ -33,6 +30,7 @@ public class WomboComboGame extends Game {
         }
     }
 
+    @Override
     public Word makeCombination(Player player, List<Word> words) {
         if (words.size() != 2) {
             String errorMessage = "Wombo Combo only allows combination of exactly two words!";
@@ -76,9 +74,14 @@ public class WomboComboGame extends Game {
         player.setTargetWord(targetWord);
     }
 
+    @Override
     public boolean winConditionReached(Player player) {
         if (player.getPoints() >= 50) {
             player.setStatus(PlayerStatus.WON);
+            for (Player p : player.getLobby().getPlayers()) {
+                if (p == player) p.setStatus(PlayerStatus.WON);
+                else p.setStatus(PlayerStatus.LOST);
+            }
             return true;
         }
         return false;
