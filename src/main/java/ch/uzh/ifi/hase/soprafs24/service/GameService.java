@@ -78,7 +78,7 @@ public class GameService {
         }
 
         user.setCombinationsMade(user.getCombinationsMade() + 1);
-        if (result.getNewlyDiscovered()) {
+        if (result.isNewlyDiscovered()) {
             user.setDiscoveredWords(user.getDiscoveredWords() + 1);
         }
         if (user.getRarestWordFound() == null || result.getReachability() < user.getRarestWordFound().getReachability()) {
