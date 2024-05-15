@@ -30,7 +30,13 @@ public abstract class Achievement implements Serializable {
     @Column
     private String profilePicture;
 
-    public abstract void unlock(Player player, Combination combination);
+    abstract boolean unlockConditionFulfilled(Player player, Combination combination);
+
+    public void unlock(Player player, Combination combination) {
+        if (unlockConditionFulfilled(player, combination)) {
+            player.getUser().addAchievement(this);
+        }
+    }
 
     @Override
     public final boolean equals(Object o) {
