@@ -33,6 +33,9 @@ public interface DTOMapper {
     @Mapping(source = "losses", target = "losses")
     @Mapping(source = "creationDate", target = "creationDate")
     @Mapping(source = "favourite", target = "favourite")
+    @Mapping(source = "combinationsMade", target = "combinationsMade")
+    @Mapping(source = "discoveredWords", target = "discoveredWords")
+    @Mapping(source = "rarestWordFound", target = "rarestWordFound")
     UserGetDTO convertEntityToUserGetDTO(User user);
 
     @Mapping(source = "token", target = "token")
@@ -61,6 +64,7 @@ public interface DTOMapper {
     PlayerWordDTO convertEntityToPlayerWordDTO(PlayerWord playerWord);
 
     @Mapping(source = "name", target = "name")
+    @Mapping(source = "newlyDiscovered", target = "newlyDiscovered")
     WordDTO convertEntityToWordDTO(Word word);
 
     @Mapping(source = "points", target = "points")

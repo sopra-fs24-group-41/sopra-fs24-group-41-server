@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
+import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Timer;
@@ -22,11 +24,11 @@ import static org.mockito.Mockito.*;
 
 public class GameServiceTest {
 
-    private final Word water = new Word("water");
-    private final Word earth = new Word("earth");
+    private final Word water = new Word("water", 0, 1e6);
+    private final Word earth = new Word("earth", 0, 1e6);
     private final Word fire = new Word("fire");
     private final Word air = new Word("air");
-    private final Word mud = new Word("mud");
+    private final Word mud = new Word("mud", 1, 0.5);
 
     private final List<Word> startingWords = new ArrayList<>();
 
@@ -115,6 +117,90 @@ public class GameServiceTest {
         gameService.play(testPlayer1, playingWords);
 
         assertEquals(mud, testPlayer1.getWords().get(4));
+    }
+  
+    @Test
+    void playerWins_updateWinsAndLossesCount_success() {
+        Lobby testLobby = new Lobby();
+        testLobby.setMode(GameMode.WOMBOCOMBO);
+        testLobby.setPlayers(new ArrayList<>());
+
+        List<User> testUsers = Arrays.asList(new User(), new User(), new User());
+        List<Player> testPlayers = new ArrayList<>();
+        for (User testUser : testUsers) {
+            Player testPlayer = new Player();
+
+            testPlayer.setUser(testUser);
+            testPlayer.setLobby(testLobby);
+
+            testUser.setPlayer(testPlayer);
+
+            testPlayers.add(testPlayer);
+            testLobby.getPlayers().add(testPlayer);
+        }
+
+        gameService.updateWinsAndLosses(testPlayers.get(0), testLobby);
+
+        assertEquals(1, testUsers.get(0).getWins());
+        assertEquals(0, testUsers.get(1).getWins());
+        assertEquals(0, testUsers.get(2).getWins());
+
+        assertEquals(0, testUsers.get(0).getLosses());
+        assertEquals(1, testUsers.get(1).getLosses());
+        assertEquals(1, testUsers.get(2).getLosses());
+    }
+
+    @Test
+    void playerWins_updateWinsAndLossesCountAndExcludesAnonPlayers_success() {
+        Lobby testLobby = new Lobby();
+        testLobby.setMode(GameMode.WOMBOCOMBO);
+        testLobby.setPlayers(new ArrayList<>());
+
+        List<User> testUsers = Arrays.asList(new User(), new User(), new User());
+        List<Player> testPlayers = new ArrayList<>();
+        for (User testUser : testUsers) {
+            Player testPlayer = new Player();
+
+            testPlayer.setUser(testUser);
+            testPlayer.setLobby(testLobby);
+
+            testUser.setPlayer(testPlayer);
+
+            testPlayers.add(testPlayer);
+            testLobby.getPlayers().add(testPlayer);
+        }
+
+        Player anonTestPlayer = new Player();
+        anonTestPlayer.setLobby(testLobby);
+        testPlayers.add(anonTestPlayer);
+        testLobby.getPlayers().add(anonTestPlayer);
+
+        gameService.updateWinsAndLosses(testPlayers.get(0), testLobby);
+
+        assertEquals(1, testUsers.get(0).getWins());
+        assertEquals(0, testUsers.get(1).getWins());
+        assertEquals(0, testUsers.get(2).getWins());
+
+        assertEquals(0, testUsers.get(0).getLosses());
+        assertEquals(1, testUsers.get(1).getLosses());
+        assertEquals(1, testUsers.get(2).getLosses());
+    }
+
+    @Test
+    void play_updatesPlayerStatistics_success() {
+        User user = new User();
+        Player player = new Player();
+
+        player.setUser(user);
+        user.setPlayer(player);
+
+        mud.setNewlyDiscovered(true);
+
+        gameService.updatePlayerStatistics(player, mud);
+
+        assertEquals(1, user.getCombinationsMade());
+        assertEquals(1, user.getDiscoveredWords());
+        assertEquals(mud, user.getRarestWordFound());
     }
 
 

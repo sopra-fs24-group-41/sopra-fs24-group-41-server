@@ -26,22 +26,13 @@ public class WordService {
     }
 
     public Word getWord(Word word) {
-        try {
-            return findWord(word);
+        Word foundWord = findWord(word);
+        if (foundWord == null) {
+            Word savedWord = wordRepository.saveAndFlush(word);
+            savedWord.setNewlyDiscovered(true);
+            return savedWord;
         }
-        catch (WordNotFoundException e) {
-            try {
-                return wordRepository.saveAndFlush(word);
-            }
-            catch (Exception ex) {
-                log.error("Error saving word: {}", word, ex);
-                throw ex;
-            }
-        }
-        catch (Exception e) {
-            log.error("Unexpected error in getWord for word: {}", word, e);
-            throw e;
-        }
+        return foundWord;
     }
 
     public Word saveWord(Word word) {
@@ -49,10 +40,7 @@ public class WordService {
     }
 
     public Word findWord(Word word) {
-        Word foundWord = wordRepository.findByName(word.getName());
-        if (foundWord != null) return foundWord;
-
-        throw new WordNotFoundException(word.getName());
+        return wordRepository.findByName(word.getName());
     }
 
     public Word getRandomWord() {

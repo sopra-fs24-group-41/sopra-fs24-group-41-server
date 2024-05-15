@@ -19,6 +19,12 @@ public class UserGetDTO {
 
     private String favourite;
 
+    private int combinationsMade;
+
+    private int discoveredWords;
+
+    private WordDTO rarestWordFound;
+
     public Long getId() {
         return id;
     }
@@ -69,5 +75,29 @@ public class UserGetDTO {
 
     public void setFavourite(String favourite) {
         this.favourite = favourite;
+    }
+
+    public int getCombinationsMade() {
+        return combinationsMade;
+    }
+
+    public void setCombinationsMade(int combinationsMade) {
+        this.combinationsMade = combinationsMade;
+    }
+
+    public int getDiscoveredWords() {
+        return discoveredWords;
+    }
+
+    public void setDiscoveredWords(int discoveredWords) {
+        this.discoveredWords = discoveredWords;
+    }
+
+    public WordDTO getRarestWordFound() {
+        return rarestWordFound;
+    }
+
+    public void setRarestWordFound(WordDTO rarestFoundWord) {
+        this.rarestWordFound = rarestFoundWord;
     }
 }

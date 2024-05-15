@@ -3,13 +3,11 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.game.FiniteFusionGame;
 import ch.uzh.ifi.hase.soprafs24.game.WomboComboGame;
 import ch.uzh.ifi.hase.soprafs24.websocket.TimeDTO;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs24.entity.Player;
-import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.game.FusionFrenzyGame;
 import ch.uzh.ifi.hase.soprafs24.game.Game;
 import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
@@ -18,8 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+
 
 @Service
 @Transactional
@@ -30,6 +30,7 @@ public class GameService {
     private final EnumMap<GameMode, Class<? extends Game>> gameModes = new EnumMap<>(GameMode.class);
     private final SimpMessagingTemplate messagingTemplate;
 
+    private static final String MESSAGE_LOBBY_GAME = "/topic/lobbies/%d/game";
     private final LobbyService lobbyService;
 
     private final Map<Long, Timer> timers;
@@ -70,10 +71,35 @@ public class GameService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
+    void updateWinsAndLosses(Player winner, Lobby lobby) {
+        for (Player player : lobby.getPlayers()) {
+            if (player == winner)
+                player.addWinsToUser(1);
+            else
+                player.addLossesToUser(1);
+        }
+    }
+
+    void updatePlayerStatistics(Player player, Word result) {
+        User user = player.getUser();
+        if (user == null) {
+            return;
+        }
+
+        user.setCombinationsMade(user.getCombinationsMade() + 1);
+        if (result.isNewlyDiscovered()) {
+            user.setDiscoveredWords(user.getDiscoveredWords() + 1);
+        }
+        if (user.getRarestWordFound() == null || result.getReachability() < user.getRarestWordFound().getReachability()) {
+            user.setRarestWordFound(result);
+        }
+    }
+
     public Word play(Player player, List<Word> words) {
         Lobby lobby = player.getLobby();
         Game game = instantiateGame(lobby.getMode());
         Word result = game.makeCombination(player, words);
+        updatePlayerStatistics(player, result);
 
         if (game.winConditionReached(player)) {
             if(timers.get(lobby.getCode()) != null){
@@ -84,6 +110,8 @@ public class GameService {
             lobby.setStatus(LobbyStatus.PREGAME);
             lobby.setGameTime(0);
             messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new InstructionDTO(Instruction.stop));
+            updateWinsAndLosses(player, lobby);
+            messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP));
         }
 
         return result;
@@ -126,9 +154,16 @@ public class GameService {
 
                 for(int t : new int[]{10, 30, 60, 180, 300})
                     if (remainingTime == t) {
-                        messagingTemplate.convertAndSend("/topic/lobbies/" + lobby.getCode() + "/game", new TimeDTO(String.valueOf(t)));
+                        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()),
+                                new TimeDTO(String.valueOf(t)));
                     }
 
+                if (remainingTime <= 0) {
+                    gameTimer.cancel(); // Stop the timer when time's up
+                    lobby.setStatus(LobbyStatus.PREGAME);
+                    messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()),
+                            new InstructionDTO(Instruction.STOP));
+                }
                 remainingTime -= 10; // Decrement remaining time by 10
             }
         };
