@@ -133,11 +133,7 @@ public class GameService {
     }
 
     public void endGame(Lobby lobby) {
-        Timer gameTimer = timers.get(lobby.getCode());
-        if (gameTimer != null) {
-            gameTimer.cancel();
-            timers.remove(lobby.getCode());
-        }
+        cancelAndRemoveTimer(lobby.getCode());
 
         lobby.setStatus(LobbyStatus.PREGAME);
         lobby.setGameTime(0);
@@ -162,15 +158,7 @@ public class GameService {
             public void run() {
                 try {
                     if (remainingTime <= 0) {
-                        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
-                        transactionTemplate.execute(status -> {
-                            Lobby lobby = lobbyService.getLobbyByCode(lobbyCode);
-                            if (lobby.getMode() != GameMode.STANDARD) {
-                                setPlayersLost(lobby);
-                            }
-                            endGame(lobby);
-                            return null;
-                        });
+                        endTimer(lobbyCode);
                     }
 
                     for (int t : new int[]{10, 30, 60, 180, 300}) {
@@ -189,11 +177,35 @@ public class GameService {
         };
     }
 
+    private void endTimer(long lobbyCode) {
+        TransactionTemplate transactionTemplate = new TransactionTemplate(transactionManager);
+        transactionTemplate.execute(status -> {
+            Lobby lobby = lobbyService.getLobbyByCode(lobbyCode);
+            if (lobby == null) {
+                cancelAndRemoveTimer(lobbyCode);
+                return null;
+            }
+            if (lobby.getMode() != GameMode.STANDARD) {
+                setPlayersLost(lobby);
+            }
+            endGame(lobby);
+            return null;
+        });
+    }
+
     private void setPlayersLost(Lobby lobby) {
         for (Player player : lobby.getPlayers()) {
             if (player.getStatus() == PlayerStatus.PLAYING) {
                 player.setStatus(PlayerStatus.LOST);
             }
+        }
+    }
+
+    private void cancelAndRemoveTimer(long lobbyCode) {
+        Timer gameTimer = timers.get(lobbyCode);
+        if (gameTimer != null) {
+            gameTimer.cancel();
+            timers.remove(lobbyCode);
         }
     }
 
