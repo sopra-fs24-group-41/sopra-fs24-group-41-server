@@ -18,6 +18,7 @@ public class FusionFrenzyGame extends Game {
         super(playerService, combinationService, wordService);
     }
 
+    @Override
     public void setupPlayers(List<Player> players) {
         setupStartingWords();
         Word targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
@@ -29,6 +30,7 @@ public class FusionFrenzyGame extends Game {
         }
     }
 
+    @Override
     public Word makeCombination(Player player, List<Word> words) {
         if (words.size() == 2) {
             Combination combination = combinationService.getCombination(words.get(0), words.get(1));
@@ -44,11 +46,16 @@ public class FusionFrenzyGame extends Game {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
+    @Override
     public boolean winConditionReached(Player player) {
         if (player.getWords().contains(player.getTargetWord())) {
             player.setStatus(PlayerStatus.WON);
+            for (Player p : player.getLobby().getPlayers()) {
+                if (p == player) p.setStatus(PlayerStatus.WON);
+                else p.setStatus(PlayerStatus.LOST);
+            }
             return true;
-        };
+        }
         return false;
     }
 }

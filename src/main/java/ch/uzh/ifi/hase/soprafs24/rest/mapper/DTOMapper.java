@@ -79,6 +79,7 @@ public interface DTOMapper {
     @Mapping(source = "playerWords", target = "playerWords")
     @Mapping(source = "targetWord", target = "targetWord")
     @Mapping(source = "status", target = "status")
+    @Mapping(source = "user", target = "user")
     PlayerGetDTO convertEntityToPlayerGetDTO(Player player);
 
     @Mapping(source = "username", target = "username")

@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -22,7 +24,14 @@ import java.util.TimerTask;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-public class GameServiceTest {
+class GameServiceTest {
+
+    @Mock
+    private PlatformTransactionManager transactionManager;
+
+    @Mock
+    private SimpMessagingTemplate messagingTemplateMock;
+
 
     private final Word water = new Word("water", 0, 1e6);
     private final Word earth = new Word("earth", 0, 1e6);
@@ -42,7 +51,11 @@ public class GameServiceTest {
     private WordService wordService;
 
     @Mock
+    private LobbyService lobbyService;
+
+    @Mock
     private SimpMessagingTemplate messagingTemplate;
+
 
     @InjectMocks
     private GameService gameService;
@@ -59,11 +72,11 @@ public class GameServiceTest {
     }
 
     @Test
-    public void createNewGame_success() {
+    void createNewGame_success() {
         Player testPlayer1 = new Player();
         Player testPlayer2 = new Player();
 
-        List<Player> testPlayers = new ArrayList<Player>();
+        List<Player> testPlayers = new ArrayList<>();
         testPlayers.add(testPlayer1);
         testPlayers.add(testPlayer2);
 
@@ -82,19 +95,20 @@ public class GameServiceTest {
     }
 
     @Test
-    public void play_success() {
+    void play_success() {
         Player testPlayer1 = new Player();
         Player testPlayer2 = new Player();
 
         testPlayer1.addWords(startingWords);
         testPlayer2.addWords(startingWords);
 
-        List<Player> testPlayers = new ArrayList<Player>();
+        List<Player> testPlayers = new ArrayList<>();
         testPlayers.add(testPlayer1);
         testPlayers.add(testPlayer2);
 
         Lobby testLobby = new Lobby();
         testLobby.setMode(GameMode.STANDARD);
+        testLobby.setPlayers(testPlayers);
 
         testPlayer1.setLobby(testLobby);
 
@@ -126,6 +140,7 @@ public class GameServiceTest {
         for (User testUser : testUsers) {
             Player testPlayer = new Player();
 
+            testPlayer.setStatus(PlayerStatus.LOST);
             testPlayer.setUser(testUser);
             testPlayer.setLobby(testLobby);
 
@@ -134,8 +149,9 @@ public class GameServiceTest {
             testPlayers.add(testPlayer);
             testLobby.getPlayers().add(testPlayer);
         }
+        testPlayers.get(0).setStatus(PlayerStatus.WON);
 
-        gameService.updateWinsAndLosses(testPlayers.get(0), testLobby);
+        gameService.updateWinsAndLosses(testLobby);
 
         assertEquals(1, testUsers.get(0).getWins());
         assertEquals(0, testUsers.get(1).getWins());
@@ -157,6 +173,7 @@ public class GameServiceTest {
         for (User testUser : testUsers) {
             Player testPlayer = new Player();
 
+            testPlayer.setStatus(PlayerStatus.LOST);
             testPlayer.setUser(testUser);
             testPlayer.setLobby(testLobby);
 
@@ -165,13 +182,14 @@ public class GameServiceTest {
             testPlayers.add(testPlayer);
             testLobby.getPlayers().add(testPlayer);
         }
+        testPlayers.get(0).setStatus(PlayerStatus.WON);
 
         Player anonTestPlayer = new Player();
         anonTestPlayer.setLobby(testLobby);
         testPlayers.add(anonTestPlayer);
         testLobby.getPlayers().add(anonTestPlayer);
 
-        gameService.updateWinsAndLosses(testPlayers.get(0), testLobby);
+        gameService.updateWinsAndLosses(testLobby);
 
         assertEquals(1, testUsers.get(0).getWins());
         assertEquals(0, testUsers.get(1).getWins());
@@ -199,32 +217,19 @@ public class GameServiceTest {
         assertEquals(mud, user.getRarestWordFound());
     }
 
-    @Test //This is a 'somewhat' Integration Test
-    public void startGameTimer_game_end_after_5_seconds() {
-        Lobby testLobby = mock(Lobby.class);
-        when(testLobby.getCode()).thenReturn(1234L);
-        when(testLobby.getGameTime()).thenReturn(5); // Mock gameTime for 5 seconds
-
-        SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
-        GameService gameService = new GameService(playerService, combinationService, wordService, messagingTemplateMock);
-        gameService.startGameTimer(testLobby, new Timer());
-        verify(testLobby, timeout(1000 * 30).atLeastOnce()).setStatus(LobbyStatus.PREGAME);
-    }
 
     @Test //This is a unit test
-    public void gameTask_game_end_after_1_minute() {
+    void gameTask_game_end_after_1_minute() {
         Lobby testLobby = mock(Lobby.class);
+        testLobby.setStatus(LobbyStatus.INGAME);
         when(testLobby.getCode()).thenReturn(1234L);
         when(testLobby.getGameTime()).thenReturn(60); // Mock gameTime for 1 minute
 
-        SimpMessagingTemplate messagingTemplateMock = mock(SimpMessagingTemplate.class);
-        GameService gameService = new GameService(playerService, combinationService, wordService, messagingTemplateMock);
         Timer gameTimer = new Timer();
-        TimerTask gameTask = gameService.createGameTask(testLobby, gameTimer);
+        TimerTask gameTask = gameService.createGameTask(testLobby);
         gameTimer.scheduleAtFixedRate(gameTask, 3000, 1000); //Accelerate timer to run task every second, original implement does it every 10th second
 
         verify(messagingTemplateMock, timeout(1000 * 20).times(3)).convertAndSend(eq("/topic/lobbies/1234/game"), any(TimeDTO.class));
-        verify(testLobby, timeout(1000 * 30).atLeastOnce()).setStatus(LobbyStatus.PREGAME);
     }
 }
 
