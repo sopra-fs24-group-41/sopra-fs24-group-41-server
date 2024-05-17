@@ -23,6 +23,18 @@ public interface DTOMapper {
 
     @Mapping(source = "username", target = "username")
     @Mapping(source = "password", target = "password")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "favourite", ignore = true)
+    @Mapping(target = "wins", ignore = true)
+    @Mapping(target = "losses", ignore = true)
+    @Mapping(target = "token", ignore = true)
+    @Mapping(target = "player", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "profilePicture", ignore = true)
+    @Mapping(target = "creationDate", ignore = true)
+    @Mapping(target = "combinationsMade", ignore = true)
+    @Mapping(target = "discoveredWords", ignore = true)
+    @Mapping(target = "rarestWordFound", ignore = true)
     User convertUserPostDTOtoEntity(UserLoginPostDTO userLoginPostDTO);
 
     @Mapping(source = "id", target = "id")
@@ -43,6 +55,19 @@ public interface DTOMapper {
     UserSecretDTO convertEntityToUserSecretGetDTO(User user);
 
     @Mapping(source = "token", target = "token")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "username", ignore = true)
+    @Mapping(target = "favourite", ignore = true)
+    @Mapping(target = "wins", ignore = true)
+    @Mapping(target = "losses", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "player", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "profilePicture", ignore = true)
+    @Mapping(target = "creationDate", ignore = true)
+    @Mapping(target = "combinationsMade", ignore = true)
+    @Mapping(target = "discoveredWords", ignore = true)
+    @Mapping(target = "rarestWordFound", ignore = true)
     User convertUserTokenPostDTOtoEntity(UserTokenPostDTO userTokenPostDTO);
 
     @Mapping(source = "code", target = "code")
@@ -71,6 +96,7 @@ public interface DTOMapper {
     @Mapping(source = "playerWords", target = "playerWords")
     @Mapping(source = "targetWord", target = "targetWord")
     @Mapping(source = "status", target = "status")
+    @Mapping(target = "resultWord", ignore = true)
     PlayerPlayedDTO convertEntityToPlayerPlayedDTO(Player player);
 
     @Mapping(source = "id", target = "id")
@@ -85,6 +111,17 @@ public interface DTOMapper {
     @Mapping(source = "username", target = "username")
     @Mapping(source = "favourite", target = "favourite")
     @Mapping(source = "profilePicture", target = "profilePicture")
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "wins", ignore = true)
+    @Mapping(target = "losses", ignore = true)
+    @Mapping(target = "password", ignore = true)
+    @Mapping(target = "token", ignore = true)
+    @Mapping(target = "player", ignore = true)
+    @Mapping(target = "status", ignore = true)
+    @Mapping(target = "creationDate", ignore = true)
+    @Mapping(target = "combinationsMade", ignore = true)
+    @Mapping(target = "discoveredWords", ignore = true)
+    @Mapping(target = "rarestWordFound", ignore = true)
     User convertUserPutDTOtoEntity(UserPutDTO userPutDTO);
 
 }
