@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs24.repository.AchievementRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.Optional;
 
@@ -16,6 +17,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class AchievementServiceTest {
     @Mock
     private AchievementRepository achievementRepository;
+
+    @Mock
+    private SimpMessagingTemplate messagingTemplate;
 
     @InjectMocks
     private AchievementService achievementService;
@@ -39,6 +43,8 @@ public class AchievementServiceTest {
 
         Mockito.when(achievementRepository.findById(achievement.getName()))
                 .thenReturn(Optional.of(achievement));
+
+        Mockito.doNothing().when(messagingTemplate).convertAndSend(Mockito.any());
 
         player = new Player("123", "player", null);
         user = new User();

@@ -220,4 +220,8 @@ public class User implements Serializable {
     public void addAchievement (Achievement achievement) {
         this.achievements.add(achievement);
     }
+
+    public boolean hasAchievement(Achievement achievement) {
+        return this.achievements.contains(achievement);
+    }
 }
