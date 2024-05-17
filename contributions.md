@@ -175,4 +175,4 @@ Worked on:
 **Tmmn - Timon Leupp**
 - Resolved Mapper warnings [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/208)
 - cleaned up websocket code on [client]() and [server (+ testing)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/209)
-- Supported in [UI improvements](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/115) (=> [example](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/115/commits/580a4bef3a35acf9b295e84228183ddbbcf04f58))
+- Supported in [UI improvements](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/115) (=> [example](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/115/commits/580a4bef3a35acf9b295e84228183ddbbcf04f58), [example](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/commit/f18234a5c8d1fd97b20ae3e50d187ce02dfca5dd), [example](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/commit/9b0ca8648b35e53759df8b298c52a5dd0f72b978))
