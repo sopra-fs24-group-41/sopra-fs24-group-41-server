@@ -181,3 +181,8 @@ Worked on:
 - Cleaned up most of the UI on Client side and adjusted on Server when needed, Biggest Changes were: Refactored the WordBoard such that it renders properly based on the width of the single Word css and not just the number of words, Used a Typewriter effect for the Timer popups (Refactored Timer on Server side because some bugs happened there), Fixed up Error Messages, Changed from simple `alert` to something more pleasant to look at.
 - Frontend [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/125)
 - Backend [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/199)
+
+**Grizzlytron - Lucas Timothy Leo Bär**
+- Fixed a Bug with playercount [Issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/108)
+- Created an Errorpopup that displays the errors received from server. Also added a check if the client tries to join a lobby which is already in game. [Issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/111)
+- Worked on achievements page and the underlying frame in client. [Issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/97)
