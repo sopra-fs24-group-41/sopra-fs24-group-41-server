@@ -148,7 +148,7 @@ Worked on:
 
 ## 06.05 - 12.05 Week 7
 **Tmmn - Timon Leupp**
-- Lobbies are no deleted after 3 hours of inactivity. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/194)
+- Lobbies are now deleted after 3 hours of inactivity. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/194)
 - User can rejoin their lobby. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/195)
 - Set up logging [here](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/commit/560a80bc73cd0f29e03efe27f031f3512aa70108)
 - Refactored update lobby to using update booleans in lobby class and no longer passing a Map. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/196)
@@ -170,3 +170,9 @@ Worked on:
 **JacquelineUlken - Jacqueline Ulken**
 - Implemented check for newly discovered words and sending that information in the Get requests [#178](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/178)
 - Implemented highlighting newly discovered words [#98](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/98)
+
+## 13.05 - 19.05 Week 8
+**Tmmn - Timon Leupp**
+- Resolved Mapper warnings [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/208)
+- cleaned up websocket code on [client]() and [server (+ testing)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/209)
+- Supported in [UI improvements](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/115) (=> [example](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/115/commits/580a4bef3a35acf9b295e84228183ddbbcf04f58))
