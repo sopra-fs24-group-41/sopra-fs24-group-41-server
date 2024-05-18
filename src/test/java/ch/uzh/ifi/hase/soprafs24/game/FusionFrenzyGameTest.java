@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.game;
 
+import ch.qos.logback.core.sift.AbstractAppenderFactoryUsingJoran;
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
@@ -11,14 +12,14 @@ import ch.uzh.ifi.hase.soprafs24.service.WordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class FiniteFusionGameTest {
+class FusionFrenzyTest {
     private Player player1;
     private Player player2;
     private List<Player> players;
@@ -35,7 +36,7 @@ class FiniteFusionGameTest {
     private WordService wordService;
 
     @InjectMocks
-    private FiniteFusionGame game;
+    private FusionFrenzyGame game;
 
     @BeforeEach
     void setup() {
@@ -62,33 +63,14 @@ class FiniteFusionGameTest {
         Word testWord = new Word("testWord", 3, 0.125);
         Mockito.doReturn(testWord)
                 .when(wordService).getRandomWordWithinReachability(Mockito.anyDouble(), Mockito.anyDouble());
-
         game.setupPlayers(players);
 
         assertEquals(4, player1.getWords().size());
         assertEquals(4, player2.getWords().size());
         assertEquals(testWord, player1.getTargetWord());
         assertEquals(testWord, player2.getTargetWord());
-    }
-
-    @Test
-    void playerLoses_success() {
-        Mockito.doNothing().when(playerService).resetPlayer(Mockito.any());
-
-        game.playerLoses(player1);
-
-        assertEquals(PlayerStatus.LOST, player1.getStatus());
-    }
-
-    @Test
-    void playFiniteFusion_noUsesLeft_success() {
-        Word water = new Word("water", 0, 1e6);
-        Word fire = new Word("fire", 0, 1e6);
-
-        player1.addWord(water, 1);
-        player1.addWord(fire, 0);
-
-        assertThrows(ResponseStatusException.class, () -> game.playFiniteFusion(player1, List.of(water, fire)));
+        assertEquals(PlayerStatus.PLAYING, player1.getStatus());
+        assertEquals(PlayerStatus.PLAYING, player2.getStatus());
     }
 
     @Test
@@ -96,12 +78,12 @@ class FiniteFusionGameTest {
         Word water = new Word("water", 0, 1e6);
         Word fire = new Word("fire", 0, 1e6);
         Word steam = new Word("steam", 1, 0.5);
-        player1.addWord(water, 3);
-        player1.addWord(fire, 3);
+        player1.addWord(water);
+        player1.addWord(fire);
 
         Mockito.doReturn(new Combination(water, fire, steam)).when(combinationService).getCombination(water, fire);
 
-        game.playFiniteFusion(player1, List.of(water, fire));
+        game.makeCombination(player1, List.of(water, fire));
 
         assertEquals(1, player1.getPoints());
         assertTrue(player1.getWords().contains(steam));
@@ -114,7 +96,6 @@ class FiniteFusionGameTest {
 
         player1.addWords(List.of(word1, word2));
         player1.setTargetWord(word2);
-        player1.setStatus(PlayerStatus.PLAYING);
 
         boolean result = game.winConditionReached(player1);
 
