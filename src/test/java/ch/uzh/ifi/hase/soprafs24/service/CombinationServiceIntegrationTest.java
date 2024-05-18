@@ -18,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @WebAppConfiguration
 @SpringBootTest
-public class CombinationServiceIntegrationTest {
+class CombinationServiceIntegrationTest {
 
     @Qualifier("combinationRepository")
     @Autowired
@@ -41,7 +41,7 @@ public class CombinationServiceIntegrationTest {
     }
 
     @Test
-    public void getCombination_manyCombinations_success() {
+    void getCombination_manyCombinations_success() {
         Combination combo1 = combinationService.getCombination(new Word("fire"), new Word("water"));
         Combination combo2 = combinationService.getCombination(new Word("fire"), new Word("water"));
         Combination combo3 = combinationService.getCombination(new Word("fire"), new Word("earth"));
@@ -55,7 +55,7 @@ public class CombinationServiceIntegrationTest {
     }
 
     @Test
-    public void makeCombinations_multipleCombinations_success() {
+    void makeCombinations_multipleCombinations_success() {
         ArrayList<Word> startingWords = new ArrayList<>(Arrays.asList(new Word("water"), new Word("earth"),
                 new Word("fire"), new Word("air")));
 

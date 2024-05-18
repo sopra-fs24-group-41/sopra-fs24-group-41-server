@@ -9,7 +9,7 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class APIServiceTest {
+class APIServiceTest {
 
     @InjectMocks
     private APIService apiService;
@@ -20,7 +20,7 @@ public class APIServiceTest {
     }
 
     @Test
-    public void getVertexAIWord_success() throws IOException {
+    void getVertexAIWord_success() throws IOException {
         String result = apiService.getVertexAIWord("water", "fire");
 
         assertNotNull(result);
@@ -29,7 +29,7 @@ public class APIServiceTest {
     }
 
     @Test
-    public void getRandomWord_success() {
+    void getRandomWord_success() {
         String result = apiService.getRandomWord();
 
         assertNotNull(result);
@@ -37,7 +37,7 @@ public class APIServiceTest {
     }
 
     @Test
-    public void generateCombination_success() {
+    void generateCombination_success() {
         String result = apiService.generateCombinationResult("water", "fire");
 
         assertNotNull(result);

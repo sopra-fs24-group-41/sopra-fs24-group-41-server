@@ -13,7 +13,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-public class PlayerWordRepositoryIntegrationTest {
+class PlayerWordRepositoryIntegrationTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -22,7 +22,7 @@ public class PlayerWordRepositoryIntegrationTest {
     private PlayerWordRepository playerWordRepository;
 
     @Test
-    public void findAllByPlayer() {
+    void findAllByPlayer() {
         // given
         Player player = new Player("123", "test", null);
 
@@ -49,7 +49,7 @@ public class PlayerWordRepositoryIntegrationTest {
     }
 
     @Test
-    public void findAllByWord() {
+    void findAllByWord() {
         // given
         Player player = new Player("123", "test", null);
 

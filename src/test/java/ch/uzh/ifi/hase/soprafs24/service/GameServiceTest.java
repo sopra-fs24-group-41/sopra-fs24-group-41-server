@@ -13,7 +13,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -25,13 +24,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class GameServiceTest {
-
-    @Mock
-    private PlatformTransactionManager transactionManager;
-
-    @Mock
-    private SimpMessagingTemplate messagingTemplateMock;
-
 
     private final Word water = new Word("water", 0, 1e6);
     private final Word earth = new Word("earth", 0, 1e6);
@@ -120,13 +112,51 @@ class GameServiceTest {
         when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
         when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
         when(combinationService.getCombination(water, earth)).thenReturn(testCombination);
-        Mockito.doNothing().when(messagingTemplate).convertAndSend(Mockito.any());
 
         assertEquals(startingWords, testPlayer1.getWords());
 
         gameService.play(testPlayer1, playingWords);
 
         assertEquals(mud, testPlayer1.getWords().get(4));
+    }
+
+    @Test
+    void play_won_success() {
+        Player testPlayer1 = new Player();
+        Player testPlayer2 = new Player();
+
+        testPlayer1.addWords(startingWords);
+        testPlayer2.addWords(startingWords);
+
+        List<Player> testPlayers = new ArrayList<>();
+        testPlayers.add(testPlayer1);
+        testPlayers.add(testPlayer2);
+
+        Lobby testLobby = new Lobby();
+        testLobby.setMode(GameMode.FUSIONFRENZY);
+        testLobby.setStatus(LobbyStatus.INGAME);
+        testLobby.setPlayers(testPlayers);
+
+        testPlayer1.setLobby(testLobby);
+        testPlayer1.setTargetWord(mud);
+
+        List<Word> playingWords = new ArrayList<>();
+        playingWords.add(water);
+        playingWords.add(earth);
+
+        Combination testCombination = new Combination(water, earth, mud);
+        when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
+        when(combinationService.getCombination(water, earth)).thenReturn(testCombination);
+
+        assertEquals(startingWords, testPlayer1.getWords());
+
+        gameService.play(testPlayer1, playingWords);
+
+        assertEquals(mud, testPlayer1.getWords().get(4));
+        verify(messagingTemplate, Mockito.times(1)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
+        assertEquals(PlayerStatus.WON, testPlayer1.getStatus());
+        assertEquals(LobbyStatus.PREGAME, testLobby.getStatus());
     }
   
     @Test
@@ -229,7 +259,7 @@ class GameServiceTest {
         TimerTask gameTask = gameService.createGameTask(testLobby);
         gameTimer.scheduleAtFixedRate(gameTask, 3000, 1000); //Accelerate timer to run task every second, original implement does it every 10th second
 
-        verify(messagingTemplateMock, timeout(1000 * 20).times(3)).convertAndSend(eq("/topic/lobbies/1234/game"), any(TimeDTO.class));
+        verify(messagingTemplate, timeout(1000 * 20).times(3)).convertAndSend(eq("/topic/lobbies/1234/game"), any(TimeDTO.class));
     }
 }
 

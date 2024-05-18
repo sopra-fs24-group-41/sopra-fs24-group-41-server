@@ -19,7 +19,7 @@ import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class PlayerServiceTest {
+class PlayerServiceTest {
 
     @Mock
     private PlayerRepository playerRepository;
@@ -65,7 +65,7 @@ public class PlayerServiceTest {
     }
 
     @Test
-    public void findPlayerByToken_validInput_success() {
+    void findPlayerByToken_validInput_success() {
         Mockito.when(playerRepository.findByToken(Mockito.anyString())).thenReturn(testPlayer1);
 
         Player checkedPlayer = playerService.findPlayerByToken(testPlayer1.getToken());
@@ -75,14 +75,14 @@ public class PlayerServiceTest {
     }
 
     @Test
-    public void findPlayerByToken_invalidToken_throwsNotFoundException() {
+    void findPlayerByToken_invalidToken_throwsNotFoundException() {
         Mockito.when(playerRepository.findByToken(Mockito.anyString())).thenReturn(null);
 
-        assertThrows(ResponseStatusException.class, () -> playerService.findPlayerByToken(Mockito.anyString()));
+        assertThrows(ResponseStatusException.class, () -> playerService.findPlayerByToken("1234"));
     }
 
     @Test
-    public void removePlayer_success() {
+    void removePlayer_success() {
         // given
         Mockito.doNothing().when(playerRepository).delete(Mockito.any());
 
