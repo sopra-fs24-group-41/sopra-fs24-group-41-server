@@ -19,7 +19,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-public class PlayerRepositoryIntegrationTest {
+class PlayerRepositoryIntegrationTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -103,7 +103,7 @@ public class PlayerRepositoryIntegrationTest {
     }
 
     @Test
-    public void addSingleWord_success() {
+    void addSingleWord_success() {
         Word water = new Word("water");
         testPlayer1.addWord(water);
 
@@ -112,7 +112,7 @@ public class PlayerRepositoryIntegrationTest {
     }
 
     @Test
-    public void addWord_sameWordTwice_success() {
+    void addWord_sameWordTwice_success() {
         Word water = new Word("water");
         testPlayer1.addWord(water);
         testPlayer1.addWord(water);
@@ -123,7 +123,7 @@ public class PlayerRepositoryIntegrationTest {
     }
 
     @Test
-    public void addWord_sameWordDifferentPlayer_success() {
+    void addWord_sameWordDifferentPlayer_success() {
         Word water = new Word("water");
         testPlayer1.addWord(water);
         testPlayer2.addWord(water);
@@ -133,7 +133,7 @@ public class PlayerRepositoryIntegrationTest {
     }
 
     @Test
-    public void findById_success() {
+    void findById_success() {
         // when
         Player found = playerRepository.findById(testPlayer1.getId());
 
@@ -148,7 +148,7 @@ public class PlayerRepositoryIntegrationTest {
     }
 
     @Test
-    public void findByToken_success() {
+    void findByToken_success() {
         // when
         Player found = playerRepository.findByToken(testPlayer1.getToken());
 
@@ -163,7 +163,7 @@ public class PlayerRepositoryIntegrationTest {
     }
 
     @Test
-    public void findByUser_Id_success() {
+    void findByUser_Id_success() {
         // when
         Player found = playerRepository.findByUser_Id(testPlayer1.getUser().getId());
 
@@ -178,7 +178,7 @@ public class PlayerRepositoryIntegrationTest {
     }
 
     @Test
-    public void findByOwnedLobby_Code_success() {
+    void findByOwnedLobby_Code_success() {
         // when
         Player found = playerRepository.findByOwnedLobby_Code(testPlayer1.getOwnedLobby().getCode());
 
@@ -193,7 +193,7 @@ public class PlayerRepositoryIntegrationTest {
     }
 
     @Test
-    public void findAllByLobby_Code_success() {
+    void findAllByLobby_Code_success() {
         // when
         List<Player> found = playerRepository.findAllByLobby_Code(testLobby.getCode());
 

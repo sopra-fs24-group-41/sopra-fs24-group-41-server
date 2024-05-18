@@ -1,7 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.game;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
-import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.service.CombinationService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.WordService;
@@ -14,7 +13,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class GameTest {
+class GameTest {
     private Player player1;
     private Player player2;
     private List<Player> players;
@@ -44,7 +43,7 @@ public class GameTest {
     }
 
     @Test
-    public void setupPlayers_success() {
+    void setupPlayers_success() {
         Mockito.doNothing().when(playerService).resetPlayer(Mockito.any());
         game.setupPlayers(players);
 

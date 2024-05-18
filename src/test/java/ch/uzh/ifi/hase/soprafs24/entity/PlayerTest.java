@@ -8,7 +8,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class PlayerTest {
+class PlayerTest {
     private Player player;
 
     private final Word water = new Word("water");
@@ -30,7 +30,7 @@ public class PlayerTest {
     }
 
     @Test
-    public void addWords_success() {
+    void addWords_success() {
         player.addWords(startingWords);
         assertEquals(startingWords, player.getWords());
         assertEquals(startingWords.size(), player.getPlayerWords().size());

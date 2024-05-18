@@ -5,20 +5,14 @@ import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
-import ch.uzh.ifi.hase.soprafs24.game.Game;
 import ch.uzh.ifi.hase.soprafs24.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.web.WebAppConfiguration;
 
-import javax.persistence.Lob;
-import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
