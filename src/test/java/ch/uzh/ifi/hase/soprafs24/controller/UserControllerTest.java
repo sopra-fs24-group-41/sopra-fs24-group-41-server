@@ -225,7 +225,7 @@ class UserControllerTest {
         userPutDTO.setFavourite("Okay");
         userPutDTO.setProfilePicture("BlueFrog");
 
-        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND)).when(userService).authUser(1L, "User not found");
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND)).when(userService).authUser(1L, "WrongToken");
 
         MockHttpServletRequestBuilder putRequest = put("/users/{id}", 1L)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -233,7 +233,7 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(userPutDTO));
 
-        mockMvc.perform(putRequest).andExpect(status().isUnauthorized());
+        mockMvc.perform(putRequest).andExpect(status().isNotFound());
     }
 
     @Test
