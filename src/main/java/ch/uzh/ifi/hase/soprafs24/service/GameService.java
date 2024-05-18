@@ -115,7 +115,7 @@ public class GameService {
         updatePlayerStatistics(player, result);
 
         if (game.winConditionReached(player)) {
-            endGame(lobby);
+            endGame(lobby, String.format("%s has won the game!", player.getName()));
         }
         return result;
     }
@@ -132,14 +132,14 @@ public class GameService {
         }
     }
 
-    public void endGame(Lobby lobby) {
+    public void endGame(Lobby lobby, String reason) {
         cancelAndRemoveTimer(lobby.getCode());
 
         lobby.setStatus(LobbyStatus.PREGAME);
         lobby.setGameTime(0);
 
         updateWinsAndLosses(lobby);
-        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP, "Time is up!"));
+        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP, reason));
     }
 
     public void startTimer(Lobby lobby){
@@ -188,7 +188,7 @@ public class GameService {
             if (lobby.getMode() != GameMode.STANDARD) {
                 setPlayersLost(lobby);
             }
-            endGame(lobby);
+            endGame(lobby, "Time is up!");
             return null;
         });
     }

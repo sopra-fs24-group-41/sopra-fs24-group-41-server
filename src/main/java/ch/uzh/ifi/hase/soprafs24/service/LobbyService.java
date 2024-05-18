@@ -180,7 +180,7 @@ public class LobbyService {
         Lobby foundLobby = getLobbyByCode(lobbyCode);
         if (foundLobby.getStatus() != LobbyStatus.PREGAME) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "this lobby does not accept new players, wait until the game is finished");
+                    "This lobby does not accept new players, wait until the game is finished");
         }
 
         if (foundLobby.getPlayers().stream().anyMatch(player -> player.getName().equals(playerName))) {

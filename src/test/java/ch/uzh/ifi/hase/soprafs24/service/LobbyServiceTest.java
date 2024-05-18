@@ -311,5 +311,6 @@ class LobbyServiceTest {
         Mockito.doNothing().when(lobbyRepository).delete(Mockito.any());
         lobbyService.checkAndRemoveInactiveLobbies(1);
         verify(lobbyRepository, Mockito.times(1)).delete(testLobby);
+        verify(messagingTemplate, Mockito.times(2)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 }

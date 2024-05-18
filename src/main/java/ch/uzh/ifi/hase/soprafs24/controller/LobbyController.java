@@ -128,10 +128,27 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.CREATED)
     public void startGame(@PathVariable String code, @RequestHeader String playerToken) {
         Lobby lobby = getAuthenticatedLobby(code, playerToken);
+        if (lobby.getStatus() != LobbyStatus.PREGAME) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "There is already an ongoing game in this lobby");
+        }
         gameService.createNewGame(lobby);
         lobby.setStatus(LobbyStatus.INGAME);
         messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, getPublicLobbiesGetDTOList());
         messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.START));
+    }
+
+    @DeleteMapping("/lobbies/{code}/games")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void stopGame(@PathVariable String code, @RequestHeader String playerToken) {
+        Lobby lobby = getAuthenticatedLobby(code, playerToken);
+        if (lobby.getStatus() != LobbyStatus.INGAME) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "There is no ongoing game in this lobby");
+        }
+        gameService.endGame(lobby, "The game was stopped by the owner");
+        messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, getPublicLobbiesGetDTOList());
+        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP));
     }
 
     @GetMapping("/lobbies/{lobbyCode}/players/{playerId}")
@@ -152,8 +169,7 @@ public class LobbyController {
         Lobby lobby = lobbyService.getLobbyByCode(lobbyCodeLong);
 
         if (lobbyService.allPlayersLost(lobby)) {
-            lobby.setStatus(LobbyStatus.PREGAME);
-            messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP));
+            gameService.endGame(lobby, "All players have lost the game");
         }
         else {
             messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.UPDATE));
