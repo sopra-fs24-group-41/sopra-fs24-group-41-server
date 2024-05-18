@@ -72,10 +72,13 @@ public class CombinationService {
     }
 
     public Combination saveCombination(Combination combination) {
+        boolean isNewCombination;
         try {
             combination = findCombination(combination.getWord1(), combination.getWord2());
+            isNewCombination = false;
         }
         catch (CombinationNotFoundException ignored) {
+            isNewCombination = true;
         }
 
         Word word1 = combination.getWord1();
@@ -86,7 +89,14 @@ public class CombinationService {
 
         Word resultWord = combination.getResult();
         resultWord.setDepth(min(resultWord.getDepth(), depth));
+        if (!isNewCombination) {
+            // subtract the reachability added by the combination with the old depths
+            double oldReachability = 1.0 / (1L << combination.getDepth());
+            resultWord.setReachability(resultWord.getReachability() - oldReachability);
+        }
         resultWord.setReachability(resultWord.getReachability() + reachability);
+
+        combination.setDepth(resultWord.getDepth());
 
         combinationRepository.saveAndFlush(combination);
         wordService.saveWord(resultWord);
