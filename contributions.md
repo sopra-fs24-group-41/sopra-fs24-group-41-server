@@ -174,8 +174,9 @@ Worked on:
 ## 13.05 - 19.05 Week 8
 **Tmmn - Timon Leupp**
 - Resolved Mapper warnings [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/208)
-- cleaned up websocket code on [client]() and [server (+ testing)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/209)
+- cleaned up websocket code on [client](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/133) and [server (+ testing)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/209)
 - Supported in [UI improvements](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/115) (=> [example](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/115/commits/580a4bef3a35acf9b295e84228183ddbbcf04f58), [example](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/commit/f18234a5c8d1fd97b20ae3e50d187ce02dfca5dd), [example](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/commit/9b0ca8648b35e53759df8b298c52a5dd0f72b978))
+- Introduced new endpoints to stop a game and delete a user [here](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/209)
 
 **na50r - Rosan Shanmuganathan**
 - Cleaned up most of the UI on Client side and adjusted on Server when needed, Biggest Changes were: Refactored the WordBoard such that it renders properly based on the width of the single Word css and not just the number of words, Used a Typewriter effect for the Timer popups (Refactored Timer on Server side because some bugs happened there), Fixed up Error Messages, Changed from simple `alert` to something more pleasant to look at.
