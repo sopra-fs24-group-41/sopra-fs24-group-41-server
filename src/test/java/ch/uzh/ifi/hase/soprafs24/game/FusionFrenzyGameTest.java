@@ -1,6 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.game;
 
-import ch.qos.logback.core.sift.AbstractAppenderFactoryUsingJoran;
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
