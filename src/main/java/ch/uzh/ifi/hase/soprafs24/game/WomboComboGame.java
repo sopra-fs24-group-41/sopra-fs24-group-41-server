@@ -54,7 +54,7 @@ public class WomboComboGame extends Game {
         return result;
     }
 
-    private void setNewTargetWord(Player player) {
+    void setNewTargetWord(Player player) {
         double minReachability = 0.1;
         Word targetWord = wordService.getRandomWordWithinReachability(minReachability, 0.3);
         int maxIter = 1000;
