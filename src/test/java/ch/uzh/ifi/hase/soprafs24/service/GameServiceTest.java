@@ -9,7 +9,6 @@ import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
-import ch.uzh.ifi.hase.soprafs24.websocket.TimeDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -158,7 +157,7 @@ class GameServiceTest {
         gameService.play(testPlayer1, playingWords);
 
         assertEquals(mud, testPlayer1.getWords().get(4));
-        verify(messagingTemplate, Mockito.times(1)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
+        verify(messagingTemplate, Mockito.times(2)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
         assertEquals(PlayerStatus.WON, testPlayer1.getStatus());
         assertEquals(LobbyStatus.PREGAME, testLobby.getStatus());
     }
