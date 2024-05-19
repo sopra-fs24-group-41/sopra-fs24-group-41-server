@@ -34,6 +34,7 @@ class FiniteFusionGameTest {
     @Mock
     private WordService wordService;
 
+    @Spy
     @InjectMocks
     private FiniteFusionGame game;
 
@@ -78,6 +79,36 @@ class FiniteFusionGameTest {
         game.playerLoses(player1);
 
         assertEquals(PlayerStatus.LOST, player1.getStatus());
+    }
+
+    @Test
+    void makeCombination_success() {
+        Word water = new Word("water", 0, 1e6);
+        Word fire = new Word("fire", 0, 1e6);
+        Word steam = new Word("steam", 1, 0.5);
+        player1.addWord(water);
+        player1.addWord(fire);
+        player1.setStatus(PlayerStatus.PLAYING);
+
+        Mockito.doReturn(new Combination(water, fire, steam)).when(combinationService).getCombination(water, fire);
+        Mockito.doReturn(steam).when(game).playFiniteFusion(Mockito.any(), Mockito.any());
+
+        Word result = game.makeCombination(player1, List.of(water, fire));
+
+        assertEquals(steam, result);
+    }
+
+    @Test
+    void makeCombination_wrongNumberOfWords_throwsException() {
+        Word water = new Word("water", 0, 1e6);
+        Word fire = new Word("fire", 0, 1e6);
+        Word steam = new Word("steam", 1, 0.5);
+        player1.addWord(water);
+        player1.addWord(fire);
+        player1.addWord(steam);
+
+        assertThrows(ResponseStatusException.class,
+                () -> game.makeCombination(player1, List.of(water, fire, steam)));
     }
 
     @Test

@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.game;
 
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
@@ -10,12 +11,12 @@ import ch.uzh.ifi.hase.soprafs24.service.WordService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class WomboComboGameTest {
     private Player player1;
@@ -67,6 +68,53 @@ class WomboComboGameTest {
         assertEquals(4, player2.getWords().size());
         assertEquals(testWord, player1.getTargetWord());
         assertEquals(testWord, player2.getTargetWord());
+    }
+
+    @Test
+    void makeCombination_success() {
+        Word water = new Word("water", 0, 1e6);
+        Word fire = new Word("fire", 0, 1e6);
+        Word steam = new Word("steam", 1, 0.5);
+        player1.addWord(water);
+        player1.addWord(fire);
+
+        Mockito.doReturn(new Combination(water, fire, steam)).when(combinationService).getCombination(water, fire);
+
+        game.makeCombination(player1, List.of(water, fire));
+
+        assertEquals(1, player1.getPoints());
+        assertTrue(player1.getWords().contains(steam));
+    }
+
+    @Test
+    void makeCombination_reachesTargetWord_success() {
+        Word water = new Word("water", 0, 1e6);
+        Word fire = new Word("fire", 0, 1e6);
+        Word steam = new Word("steam", 1, 0.5);
+        Word plasma = new Word("plasma", 3, 0.125);
+        player1.addWord(water);
+        player1.addWord(fire);
+        player1.setTargetWord(steam);
+
+        Mockito.doReturn(new Combination(water, fire, steam)).when(combinationService).getCombination(water, fire);
+
+        game.makeCombination(player1, List.of(water, fire));
+
+        assertEquals(11, player1.getPoints());
+        assertTrue(player1.getWords().contains(steam));
+    }
+
+    @Test
+    void makeCombination_wrongNumberOfWords_throwsException() {
+        Word water = new Word("water", 0, 1e6);
+        Word fire = new Word("fire", 0, 1e6);
+        Word steam = new Word("steam", 1, 0.5);
+        player1.addWord(water);
+        player1.addWord(fire);
+        player1.addWord(steam);
+
+        assertThrows(ResponseStatusException.class,
+                () -> game.makeCombination(player1, List.of(water, fire, steam)));
     }
 
     @Test
