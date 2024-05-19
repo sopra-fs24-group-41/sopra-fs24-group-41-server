@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
+import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
 import ch.uzh.ifi.hase.soprafs24.websocket.TimeDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -262,7 +263,7 @@ class GameServiceTest {
         TimerTask gameTask = gameService.createGameTask(testLobby);
         gameTimer.scheduleAtFixedRate(gameTask, 3000, 1000); //Accelerate timer to run task every second, original implement does it every 10th second
 
-        verify(messagingTemplate, timeout(1000 * 20).times(3)).convertAndSend(eq("/topic/lobbies/1234/game"), any(TimeDTO.class));
+        verify(messagingTemplate, timeout(1000 * 20).times(3)).convertAndSend(eq("/topic/lobbies/1234/game"), any(InstructionDTO.class));
     }
 }
 
