@@ -72,4 +72,31 @@ class CombinationServiceIntegrationTest {
             assertTrue(word.getReachability() <= maxReachability);
         }
     }
+
+    @Test
+    void makeCombinations_manyCombinations_testVertexAPI() {
+        ArrayList<Word> startingWords = new ArrayList<>(Arrays.asList(new Word("water"), new Word("earth"),
+                new Word("fire"), new Word("air")));
+
+        for (Word word : startingWords) {
+            Word foundWord = wordService.getWord(word);
+            foundWord.setDepth(0);
+            foundWord.setReachability(1e6);
+            wordService.saveWord(foundWord);
+        }
+
+        combinationService.makeCombinations(150);
+
+        for (Combination combination : combinationRepository.findAll()) {
+            String resultWord = combination.getResult().getName();
+            if (resultWord.contains(combination.getWord1().getName()) || resultWord.contains(combination.getWord2().getName())) {
+                System.out.println("##### WARNING");
+            }
+            else
+                System.out.println("#####");
+            System.out.println("i: " + combination.getWord1().getName());
+            System.out.println("d: " + combination.getWord2().getName());
+            System.out.println("r: " + resultWord);
+        }
+    }
 }
