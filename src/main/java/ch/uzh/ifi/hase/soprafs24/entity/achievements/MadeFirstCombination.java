@@ -7,15 +7,15 @@ import javax.persistence.Entity;
 
 
 @Entity
-public class CreatedZaddy extends Achievement {
+public class MadeFirstCombination extends Achievement {
 
-    public CreatedZaddy() {
-        setTitle("...how?");
-        setDescription("Create zaddy through any combination.");
-        setProfilePicture("zaddy");
+    public MadeFirstCombination() {
+        setTitle("Baby's first combination");
+        setDescription("Merge your first combination");
+        setProfilePicture("baby");
     }
 
     boolean unlockConditionFulfilled(Player player, Combination combination) {
-        return combination.getResult().getName().equals("zaddy");
+        return true;
     }
 }
