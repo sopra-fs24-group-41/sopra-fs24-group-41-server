@@ -211,7 +211,6 @@ public class User implements Serializable {
     public void setRarestWordFound(Word rarestFoundWord) {
         this.rarestWordFound = rarestFoundWord;
     }
-    public void setCreationDate(LocalDate creationDate) {this.creationDate = creationDate;}
 
     public Set<Achievement> getAchievements() {
         return new HashSet<Achievement>(this.achievements);
