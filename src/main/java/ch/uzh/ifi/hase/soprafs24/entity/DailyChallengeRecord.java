@@ -1,5 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
+import org.hibernate.annotations.Cascade;
+
 import javax.persistence.*;
 
 @Entity
@@ -10,6 +12,7 @@ public class DailyChallengeRecord {
     @Id
     @ManyToOne
     @JoinColumn(name="dailychallenge")
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
     private DailyChallenge dailyChallenge;
 
     @Id

@@ -55,4 +55,13 @@ public class PlayerService {
         playerRepository.delete(player);
         log.debug("successfully deleted player {}", player);
     }
+
+    public void deletePlayer(Player player) {
+        if (player.getUser() != null) {
+            User user = player.getUser();
+            user.setPlayer(null);
+            player.setUser(null);
+        }
+        playerRepository.delete(player);
+    }
 }

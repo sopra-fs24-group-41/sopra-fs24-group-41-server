@@ -7,7 +7,6 @@ import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.DailyChallengeRecordGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerPlayedDTO;
-import ch.uzh.ifi.hase.soprafs24.rest.dto.WordDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.DailyChallengeService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
@@ -45,18 +44,23 @@ public class DailyChallengeController {
         return DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(player);
     }
 
-    @PutMapping("/challenges")
+    @PutMapping("/challenges/players/{playerId}")
     @ResponseStatus(HttpStatus.OK)
-    public PlayerPlayedDTO play(@RequestHeader String userToken, @RequestBody List<Word> words) {
-        if (userToken == null || userToken.isEmpty())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User token is empty!");
+    public PlayerPlayedDTO play(@PathVariable long playerId, @RequestHeader String playerToken, @RequestBody List<Word> words) {
+        Player player = validatePlayer(playerId, playerToken);
 
-        User user = userService.checkToken(userToken);
-
-        Word result = dailyChallengeService.play(user.getPlayer(), words);
-        PlayerPlayedDTO playerPlayedDTO = DTOMapper.INSTANCE.convertEntityToPlayerPlayedDTO(user.getPlayer());
+        Word result = dailyChallengeService.play(player, words);
+        PlayerPlayedDTO playerPlayedDTO = DTOMapper.INSTANCE.convertEntityToPlayerPlayedDTO(player);
         playerPlayedDTO.setResultWord(DTOMapper.INSTANCE.convertEntityToWordDTO(result));
         return playerPlayedDTO;
+    }
+
+    @DeleteMapping("/challenges/players/{playerId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void quitDailyChallenge(@PathVariable long playerId, @RequestHeader String playerToken) {
+        Player player = validatePlayer(playerId, playerToken);
+
+        playerService.deletePlayer(player);
     }
 
     @GetMapping("/challenges/records")
@@ -65,12 +69,25 @@ public class DailyChallengeController {
         List<DailyChallengeRecord> records = dailyChallengeService.getRecords();
         List<DailyChallengeRecordGetDTO> recordDTOs = new ArrayList<>();
 
-        for (DailyChallengeRecord record : records) {
-            recordDTOs.add(DTOMapper.INSTANCE.convertEntityToDailyChallengeRecordGetDTO(record));
+        for (DailyChallengeRecord recordItem : records) {
+            recordDTOs.add(DTOMapper.INSTANCE.convertEntityToDailyChallengeRecordGetDTO(recordItem));
         }
 
         return recordDTOs;
     }
 
-    @
+    Player validatePlayer(long playerId, String playerToken) {
+        if (playerToken == null || playerToken.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Player token is empty!");
+
+        Player player = playerService.findPlayerByToken(playerToken);
+
+        if (player.getId() != playerId)
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Wrong token for player");
+
+        if (player.getUser() == null)
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "No user found for player");
+
+        return player;
+    }
 }

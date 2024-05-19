@@ -47,13 +47,13 @@ public class DailyChallengeService {
         this.wordService = wordService;
     }
 
-    public DailyChallengeRecord getDailyChallengeRecord(DailyChallengeRecord record) {
+    public DailyChallengeRecord getDailyChallengeRecord(DailyChallengeRecord recordItem) {
         Optional<DailyChallengeRecord> foundRecord = dailyChallengeRecordRepository
                 .findById(new DailyChallengeRecordId(
-                        record.getDailyChallenge().getId(),
-                        record.getUser().getId()));
+                        recordItem.getDailyChallenge().getId(),
+                        recordItem.getUser().getId()));
 
-        return foundRecord.orElseGet(() -> dailyChallengeRecordRepository.saveAndFlush(record));
+        return foundRecord.orElseGet(() -> dailyChallengeRecordRepository.saveAndFlush(recordItem));
     }
 
     public List<DailyChallengeRecord> getRecords() {
@@ -63,8 +63,8 @@ public class DailyChallengeService {
 //    @Scheduled(cron = "0 * * * * *")
     @EventListener(ApplicationReadyEvent.class)
     public void createNewDailyChallenge() {
-        dailyChallengeRepository.deleteAll();
         dailyChallengeRecordRepository.deleteAll();
+        dailyChallengeRepository.deleteAll();
 
         DailyChallenge dailyChallenge = new DailyChallenge();
         dailyChallenge.setTargetWord(wordService.getRandomWordWithinReachability(0.1, 0.3));
