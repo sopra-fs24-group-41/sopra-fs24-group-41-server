@@ -32,10 +32,12 @@ public abstract class Achievement implements Serializable {
 
     abstract boolean unlockConditionFulfilled(Player player, Combination combination);
 
-    public void unlock(Player player, Combination combination) {
+    public boolean unlock(Player player, Combination combination) {
         if (unlockConditionFulfilled(player, combination)) {
             player.getUser().addAchievement(this);
+            return true;
         }
+        return false;
     }
 
     @Override
