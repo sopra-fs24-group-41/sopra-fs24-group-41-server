@@ -9,12 +9,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import org.mockito.internal.junit.MockitoTestListener;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
-public class UserServiceTest {
+class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -25,7 +28,7 @@ public class UserServiceTest {
     private User testUser;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // given
@@ -43,7 +46,15 @@ public class UserServiceTest {
     }
 
     @Test
-    public void createUser_validInputs_success() {
+    void findUserById_nonExistingUser_throwsException() {
+        Long id = 64623626L;
+        Mockito.doReturn(Optional.empty()).when(userRepository).findById(id);
+
+        assertThrows(ResponseStatusException.class, () -> userService.getUserById(id));
+    }
+
+    @Test
+    void createUser_validInputs_success() {
         // when -> any object is being save in the userRepository -> return the dummy
         // testUser
         User createdUser = userService.createUser(testUser);
@@ -59,7 +70,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void createUser_duplicateName_throwsException() {
+    void createUser_duplicateName_throwsException() {
         // given -> a first user has already been created
         userService.createUser(testUser);
 
@@ -72,7 +83,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void createUser_duplicateInputs_throwsException() {
+    void createUser_duplicateInputs_throwsException() {
         // given -> a first user has already been created
         userService.createUser(testUser);
 
@@ -85,7 +96,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void logInUser_validInputs_returnsUser() {
+    void logInUser_validInputs_returnsUser() {
         userService.createUser(testUser);
         User userCredentials = testUser;
 
@@ -98,7 +109,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void logInUser_validCredentials_setsOnlineStatus() {
+    void logInUser_validCredentials_setsOnlineStatus() {
         userService.createUser(testUser);
         User userCredentials = testUser;
 
@@ -109,7 +120,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void logInUser_nonExistingUsername_throwsException() {
+    void logInUser_nonExistingUsername_throwsException() {
         userService.createUser(testUser);
         User userCredentials = testUser;
         userCredentials.setUsername("non_existing_username");
@@ -120,7 +131,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void logInUser_wrongPassword_throwsException() {
+    void logInUser_wrongPassword_throwsException() {
         userService.createUser(testUser);
         User userCredentials = new User();
         userCredentials.setUsername(testUser.getUsername());
@@ -132,7 +143,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void logOutUser_validToken_success() {
+    void logOutUser_validToken_success() {
         testUser.setStatus(UserStatus.ONLINE);
         String token = testUser.getToken();
 
@@ -143,7 +154,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void logOutUser_nonExistingToken_throwsException() {
+    void logOutUser_nonExistingToken_throwsException() {
         testUser.setStatus(UserStatus.ONLINE);
         String token = testUser.getToken() + "1234";
 
@@ -153,7 +164,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void checkToken_validToken_success() {
+    void checkToken_validToken_success() {
         Mockito.when(userRepository.findByToken(Mockito.any())).thenReturn(testUser);
 
         User checkedUser = userService.checkToken(testUser.getToken());
@@ -163,14 +174,35 @@ public class UserServiceTest {
     }
 
     @Test
-    public void checkToken_invalidToken_throwsUnauthorizedException() {
+    void checkToken_invalidToken_throwsUnauthorizedException() {
         Mockito.when(userRepository.findByToken(Mockito.any())).thenReturn(null);
 
         assertThrows(ResponseStatusException.class, () -> userService.checkToken(Mockito.any()));
     }
 
     @Test
-    public void update_success() {
+    void authUser_success() {
+        Mockito.doReturn(testUser).when(userRepository).findByToken(Mockito.any());
+
+        assertEquals(testUser, userService.authUser(1L, "1234"));
+    }
+
+    @Test
+    void authUser_nonExistingUser_throwsException() {
+        Mockito.doReturn(null).when(userRepository).findByToken(Mockito.any());
+
+        assertThrows(ResponseStatusException.class, () -> userService.authUser(1L, "123456"));
+    }
+
+    @Test
+    void authUser_wrongId_throwsException() {
+        Mockito.doReturn(testUser).when(userRepository).findByToken(Mockito.any());
+
+        assertThrows(ResponseStatusException.class, () -> userService.authUser(13L, "1234"));
+    }
+
+    @Test
+    void update_success() {
         // Mocking repository behavior
         User foundUser = new User();
         foundUser.setUsername("Peter");
@@ -193,7 +225,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void update_fail_username_with_spaces() {
+    void update_fail_username_with_spaces() {
         User foundUser = new User();
         foundUser.setUsername("Peter");
         Mockito.when(userRepository.findByToken("1234")).thenReturn(foundUser);
@@ -212,7 +244,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void update_fail_username_empty() {
+    void update_fail_username_empty() {
         User foundUser = new User();
         foundUser.setUsername("Peter");
         Mockito.when(userRepository.findByToken("1234")).thenReturn(foundUser);
@@ -231,7 +263,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void update_fail_favourite_with_spaces() {
+    void update_fail_favourite_with_spaces() {
         User foundUser = new User();
         foundUser.setUsername("Peter");
         Mockito.when(userRepository.findByToken("1234")).thenReturn(foundUser);
@@ -250,7 +282,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void update_fail_conflict() {
+    void update_fail_conflict() {
         User foundUser = new User();
         foundUser.setUsername("Peter");
         User conflictUser = new User();
@@ -271,7 +303,7 @@ public class UserServiceTest {
     }
 
     @Test
-    public void update_success_empty_favourite_to_zaddy() {
+    void update_success_empty_favourite_to_zaddy() {
         // Mocking repository behavior
         User foundUser = new User();
         foundUser.setUsername("Peter");
@@ -288,12 +320,12 @@ public class UserServiceTest {
         User checkUser = userService.editUser("1234", updatedUser);
 
         // Assertions
-        assertEquals(checkUser.getFavourite(), "Zaddy");
+        assertEquals("Zaddy", checkUser.getFavourite());
 
     }
 
     @Test
-    public void update_success_unchanged_username() {
+    void update_success_unchanged_username() {
         // Mocking repository behavior
         User foundUser = new User();
         foundUser.setUsername("Peter");

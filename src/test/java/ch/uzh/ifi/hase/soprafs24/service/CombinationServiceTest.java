@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 
-public class CombinationServiceTest {
+class CombinationServiceTest {
 
     private Word word1;
     private Word word2;
@@ -43,7 +43,7 @@ public class CombinationServiceTest {
     private CombinationService combinationService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         word1 = new Word("water");
@@ -65,30 +65,30 @@ public class CombinationServiceTest {
     }
 
     @Test
-    public void findCombination_success() {
+    void findCombination_success() {
         Combination foundCombination = combinationService.findCombination(word1, word2);
         assertEquals(combination1, foundCombination);
     }
 
     @Test
-    public void findSwappedCombination_success() {
+    void findSwappedCombination_success() {
         Combination foundCombination = combinationService.findCombination(word2, word1);  // swapped words
         assertEquals(combination1, foundCombination);
     }
 
     @Test
-    public void findCombination_throwsException() {
+    void findCombination_throwsException() {
         assertThrows(CombinationNotFoundException.class, () -> combinationService.findCombination(word1, word3));
     }
 
     @Test
-    public void getCombination_existingCombination_success() {
+    void getCombination_existingCombination_success() {
         Combination foundCombination = combinationService.getCombination(word1, word2);
         assertEquals(combination1, foundCombination);
     }
 
     @Test
-    public void getCombination_newCombination_success() {
+    void getCombination_newCombination_success() {
         Combination newCombination = combinationService.getCombination(word1, word2);
         assertEquals(combination1, newCombination);
     }
@@ -142,5 +142,32 @@ public class CombinationServiceTest {
         // Return the result after three tries
         Mockito.when(apiService.generateCombinationResult(Mockito.any(), Mockito.any())).thenReturn(""," ", result1.getName());
         assertEquals(result1, combinationService.generateCombinationResult(word1, word2));
+    }
+
+    @Test
+    void generateWordWithinReachability_success() {
+        Word result3 = new Word("hell", 4, 0.07);
+        Combination combination3 = new Combination(word4, word4, result3);
+
+        Mockito.doReturn(word1, word2)
+                .when(wordService).getRandomWordWithinReachability(
+                        AdditionalMatchers.leq((double) 1),
+                        AdditionalMatchers.geq((double) 1));
+
+        Mockito.doReturn(word3, word4)
+                .when(wordService).getRandomWordWithinReachability(
+                        AdditionalMatchers.leq(0.05),
+                        AdditionalMatchers.geq(0.05));
+
+        Mockito.doReturn(combination1).when(combinationService).findCombination(word1, word2);
+        Mockito.doReturn(combination1).when(combinationService).findCombination(word2, word2);
+        Mockito.doThrow(CombinationNotFoundException.class).when(combinationService).findCombination(word3, word4);
+        Mockito.doThrow(CombinationNotFoundException.class).when(combinationService).findCombination(word4, word4);
+
+        Mockito.doReturn(combination2).when(combinationService).createCombination(word3, word4);
+        Mockito.doReturn(combination3).when(combinationService).createCombination(word4, word4);
+
+        Word actualResult = combinationService.generateWordWithinReachability(0.5, 2);
+        assertEquals(result3, actualResult);
     }
 }
