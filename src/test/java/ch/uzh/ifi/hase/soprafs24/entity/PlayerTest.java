@@ -6,8 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PlayerTest {
     private Player player;
@@ -28,6 +27,42 @@ class PlayerTest {
         startingWords.add(earth);
         startingWords.add(fire);
         startingWords.add(air);
+    }
+
+    @Test
+    void equals_returnsTrue() {
+        player.setId(1234);
+        player.setToken("abcd");
+
+        Player player2 = new Player();
+        player2.setId(1234);
+        player2.setToken("abcd");
+
+        assertTrue(player.equals(player2));
+        assertTrue(player2.equals(player));
+    }
+
+    @Test
+    void notEqual_returnsFalse() {
+        player.setId(12345);
+        player.setToken("abcd");
+
+        Player player2 = new Player();
+        player2.setId(1234);
+        player2.setToken("abcd");
+
+        assertFalse(player.equals(player2));
+        assertFalse(player2.equals(player));
+    }
+
+    @Test
+    void compareWithNull_returnsFalse() {
+        player.setId(12345);
+        player.setToken("abcd");
+
+        Player player2 = null;
+
+        assertFalse(player.equals(player2));
     }
 
     @Test
