@@ -120,7 +120,7 @@ public class CombinationService {
 
     public Boolean validResult(Word result) {
         // might add some more validation later, therefore separate method
-        return result.getName().trim().length() > 1;
+        return result.getName().trim().length() > 1 && result.getName().trim().length() <= 20;
     }
 
 
