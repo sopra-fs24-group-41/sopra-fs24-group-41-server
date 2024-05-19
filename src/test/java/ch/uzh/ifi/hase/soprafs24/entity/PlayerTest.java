@@ -15,8 +15,6 @@ class PlayerTest {
     private final Word earth = new Word("earth");
     private final Word fire = new Word("fire");
     private final Word air = new Word("air");
-    private final Word mud = new Word("mud");
-
     private List<Word> startingWords;
 
     @BeforeEach

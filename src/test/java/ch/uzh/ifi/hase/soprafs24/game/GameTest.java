@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 

@@ -22,8 +22,6 @@ class WomboComboGameTest {
     private Player player1;
     private Player player2;
     private List<Player> players;
-    private Lobby lobby = new Lobby();
-
 
     @Mock
     private PlayerService playerService;
@@ -45,7 +43,7 @@ class WomboComboGameTest {
         players.add(player1);
         players.add(player2);
 
-        lobby = new Lobby(1234, "test lobby");
+        Lobby lobby = new Lobby(1234, "test lobby");
         lobby.setPlayers(new ArrayList<>());
         for (Player player : players) {
             lobby.addPlayer(player);
