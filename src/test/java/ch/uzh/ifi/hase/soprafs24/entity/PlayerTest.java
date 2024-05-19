@@ -38,8 +38,8 @@ class PlayerTest {
         player2.setId(1234);
         player2.setToken("abcd");
 
-        assertTrue(player.equals(player2));
-        assertTrue(player2.equals(player));
+        assertEquals(player, player2);
+        assertEquals(player2, player);
     }
 
     @Test
@@ -51,8 +51,8 @@ class PlayerTest {
         player2.setId(1234);
         player2.setToken("abcd");
 
-        assertFalse(player.equals(player2));
-        assertFalse(player2.equals(player));
+        assertNotEquals(player, player2);
+        assertNotEquals(player2, player);
     }
 
     @Test
@@ -62,7 +62,7 @@ class PlayerTest {
 
         Player player2 = null;
 
-        assertFalse(player.equals(player2));
+        assertNotEquals(player, player2);
     }
 
     @Test

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.sql.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +80,8 @@ class GameTest {
         player1.addWord(fire);
         player1.addWord(steam);
 
+        List<Word> words = new ArrayList<>(List.of(water, fire, steam));
         assertThrows(ResponseStatusException.class,
-                () -> game.makeCombination(player1, List.of(water, fire, steam)));
+                () -> game.makeCombination(player1, words));
     }
 }

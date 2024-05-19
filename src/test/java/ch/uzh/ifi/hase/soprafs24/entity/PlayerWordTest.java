@@ -4,8 +4,7 @@ import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class PlayerWordTest {
     private PlayerWord playerWord;
@@ -27,8 +26,8 @@ class PlayerWordTest {
     void equals_returnsTrue() {
         PlayerWord playerWord2 = new PlayerWord(player, word, 3);
 
-        assertTrue(playerWord.equals(playerWord2));
-        assertTrue(playerWord2.equals(playerWord));
+        assertEquals(playerWord, playerWord2);
+        assertEquals(playerWord2, playerWord);
     }
 
     @Test
@@ -36,14 +35,14 @@ class PlayerWordTest {
         Word word2 = new Word("amber", 3, 0.27);
         PlayerWord playerWord2 = new PlayerWord(player, word2, 3);
 
-        assertFalse(player.equals(playerWord2));
-        assertFalse(playerWord2.equals(player));
+        assertNotEquals(player, playerWord2);
+        assertNotEquals(playerWord2, player);
     }
 
     @Test
     void compareWithNull_returnsFalse() {
         PlayerWord playerWord2 = null;
 
-        assertFalse(playerWord.equals(playerWord2));
+        assertNotEquals(playerWord, playerWord2);
     }
 }

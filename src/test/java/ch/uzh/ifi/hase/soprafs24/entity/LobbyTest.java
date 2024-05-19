@@ -35,8 +35,8 @@ class LobbyTest {
         lobby.setName("abcd");
         lobby2.setName("abcd");
 
-        assertTrue(lobby.equals(lobby2));
-        assertTrue(lobby2.equals(lobby));
+        assertEquals(lobby, lobby2);
+        assertEquals(lobby2, lobby);
     }
 
     @Test
@@ -50,14 +50,14 @@ class LobbyTest {
         lobby.setName("abcd");
         lobby2.setName("abcdefghi");
 
-        assertFalse(lobby.equals(lobby2));
-        assertFalse(lobby2.equals(lobby));
+        assertNotEquals(lobby, lobby2);
+        assertNotEquals(lobby2, lobby);
     }
 
     @Test
     void compareWithNull_returnsFalse() {
         Lobby lobby2 = null;
 
-        assertFalse(lobby.equals(lobby2));
+        assertNotEquals(lobby, lobby2);
     }
 }

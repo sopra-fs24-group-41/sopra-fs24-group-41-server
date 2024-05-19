@@ -18,7 +18,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class FusionFrenzyTest {
+class FusionFrenzyGameTest {
     private Player player1;
     private Player player2;
     private List<Player> players;
@@ -81,8 +81,9 @@ class FusionFrenzyTest {
         player1.addWord(fire);
         player1.addWord(steam);
 
+        List<Word> words = new ArrayList<>(List.of(water, fire, steam));
         assertThrows(ResponseStatusException.class,
-                () -> game.makeCombination(player1, List.of(water, fire, steam)));
+                () -> game.makeCombination(player1, words));
     }
 
     @Test
@@ -99,22 +100,6 @@ class FusionFrenzyTest {
         assertEquals(testWord, player2.getTargetWord());
         assertEquals(PlayerStatus.PLAYING, player1.getStatus());
         assertEquals(PlayerStatus.PLAYING, player2.getStatus());
-    }
-
-    @Test
-    void playFiniteFusion_success() {
-        Word water = new Word("water", 0, 1e6);
-        Word fire = new Word("fire", 0, 1e6);
-        Word steam = new Word("steam", 1, 0.5);
-        player1.addWord(water);
-        player1.addWord(fire);
-
-        Mockito.doReturn(new Combination(water, fire, steam)).when(combinationService).getCombination(water, fire);
-
-        game.makeCombination(player1, List.of(water, fire));
-
-        assertEquals(1, player1.getPoints());
-        assertTrue(player1.getWords().contains(steam));
     }
 
     @Test

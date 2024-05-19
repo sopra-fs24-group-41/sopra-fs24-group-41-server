@@ -22,8 +22,6 @@ class FiniteFusionGameTest {
     private Player player1;
     private Player player2;
     private List<Player> players;
-    private Lobby lobby = new Lobby();
-
 
     @Mock
     private PlayerService playerService;
@@ -46,7 +44,7 @@ class FiniteFusionGameTest {
         players.add(player1);
         players.add(player2);
 
-        lobby = new Lobby(1234, "test lobby");
+        Lobby lobby = new Lobby(1234, "test lobby");
         lobby.setPlayers(new ArrayList<>());
         for (Player player : players) {
             lobby.addPlayer(player);
@@ -107,8 +105,9 @@ class FiniteFusionGameTest {
         player1.addWord(fire);
         player1.addWord(steam);
 
+        List<Word> words = new ArrayList<>(List.of(water, fire, steam));
         assertThrows(ResponseStatusException.class,
-                () -> game.makeCombination(player1, List.of(water, fire, steam)));
+                () -> game.makeCombination(player1, words));
     }
 
     @Test
@@ -119,7 +118,8 @@ class FiniteFusionGameTest {
         player1.addWord(water, 1);
         player1.addWord(fire, 0);
 
-        assertThrows(ResponseStatusException.class, () -> game.playFiniteFusion(player1, List.of(water, fire)));
+        List<Word> words = new ArrayList<>(List.of(water, fire));
+        assertThrows(ResponseStatusException.class, () -> game.playFiniteFusion(player1, words));
     }
 
     @Test

@@ -3,8 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest {
     private User user;
@@ -25,8 +24,8 @@ class UserTest {
         user2.setPassword("1234");
         user2.setId(1234L);
 
-        assertTrue(user.equals(user2));
-        assertTrue(user2.equals(user));
+        assertEquals(user, user2);
+        assertEquals(user2, user);
     }
 
     @Test
@@ -36,14 +35,14 @@ class UserTest {
         user2.setPassword("1234");
         user2.setId(1235L);
 
-        assertFalse(user.equals(user2));
-        assertFalse(user2.equals(user));
+        assertNotEquals(user, user2);
+        assertNotEquals(user2, user);
     }
 
     @Test
     void compareWithNull_returnsFalse() {
         User user2 = null;
 
-        assertFalse(user.equals(user2));
+        assertNotEquals(user, user2);
     }
 }

@@ -91,7 +91,6 @@ class WomboComboGameTest {
         Word water = new Word("water", 0, 1e6);
         Word fire = new Word("fire", 0, 1e6);
         Word steam = new Word("steam", 1, 0.5);
-        Word plasma = new Word("plasma", 3, 0.125);
         player1.addWord(water);
         player1.addWord(fire);
         player1.setTargetWord(steam);
@@ -113,8 +112,9 @@ class WomboComboGameTest {
         player1.addWord(fire);
         player1.addWord(steam);
 
+        List<Word> words = new ArrayList<>(List.of(water, fire, steam));
         assertThrows(ResponseStatusException.class,
-                () -> game.makeCombination(player1, List.of(water, fire, steam)));
+                () -> game.makeCombination(player1, words));
     }
 
     @Test
