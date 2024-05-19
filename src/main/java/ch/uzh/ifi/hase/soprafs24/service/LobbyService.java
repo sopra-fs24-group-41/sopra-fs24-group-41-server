@@ -91,7 +91,7 @@ public class LobbyService {
             transactionTemplate = new TransactionTemplate(transactionManager);
             transactionTemplate.execute(status -> {
                 messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE,
-                        new InstructionDTO(Instruction.UPDATE_LOBBY, getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList()));
+                        new InstructionDTO(Instruction.UPDATE_LOBBY_LIST, getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList()));
                 return null;
             });
         } catch(Exception e) {
