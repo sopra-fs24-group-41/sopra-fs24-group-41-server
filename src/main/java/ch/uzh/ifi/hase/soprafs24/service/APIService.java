@@ -33,7 +33,7 @@ public class APIService {
     public String getVertexAIWord(String word1, String word2) throws IOException {
         String instance = String.format("""
                         {
-                            "context":  "You are a helpful AI assistant that is tasked with creating the outputs for an element combination game. You receive 2 objects are formatted with '+' symbol. For example: 'Earth + Water'. You have to return what element would make the most sense to be created by combining these two objects. You can create any object, person, or thing from fiction or reality, as long as it makes sense for the two inputted objects to equal the new object. Consult the examples for further clarification. Try to not exceed a word length over 10 characters. Avoid making just concatenations of two words if it exceeds the word length, instead, return a synonym or one of the two input words",
+                            "context":  "You are an AI assistant that is tasked with creating the outputs for an element combination game. You receive 2 objects that are formatted with the '+' symbol. For example: 'Earth + Water'. You have to return what element would make the most sense to be created by combining these two objects. You can create any object, person, or thing, as long as it is from reality or well-known fiction and makes sense for the two inputted objects to equal the new object. Consult the examples for further clarification. Try to not exceed a word length over 10 characters. Avoid making just concatenations of two words or using adjectives, instead, return a synonym or one of the two input words",
                             "examples": [
                                 {
                                     "input": {"content": "Earth + Water"},
