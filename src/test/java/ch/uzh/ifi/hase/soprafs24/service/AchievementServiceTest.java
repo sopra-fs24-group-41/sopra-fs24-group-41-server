@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -25,6 +27,7 @@ public class AchievementServiceTest {
     private AchievementService achievementService;
 
     private Achievement achievement;
+    private Lobby lobby;
     private Player player;
     private User user;
     private Combination combination;
@@ -52,6 +55,13 @@ public class AchievementServiceTest {
 
         user.setPlayer(player);
         player.setUser(user);
+
+        lobby = new Lobby(1234, "Lobby");
+        lobby.setOwner(player);
+        player.setOwnedLobby(lobby);
+
+        player.setLobby(lobby);
+        lobby.setPlayers(new ArrayList<>(Arrays.asList(player)));
 
         combination = new Combination(new Word("water"), new Word("earth"), new Word("mud"));
 
