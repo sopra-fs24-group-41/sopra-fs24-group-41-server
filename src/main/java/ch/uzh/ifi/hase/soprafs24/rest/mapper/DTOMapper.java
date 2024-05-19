@@ -124,4 +124,8 @@ public interface DTOMapper {
     @Mapping(target = "rarestWordFound", ignore = true)
     User convertUserPutDTOtoEntity(UserPutDTO userPutDTO);
 
+    @Mapping(source = "user", target = "user")
+    @Mapping(source = "numberOfCombinations", target = "numberOfCombinations")
+    DailyChallengeRecordGetDTO convertEntityToDailyChallengeRecordGetDTO(DailyChallengeRecord dailyChallengeRecord);
+
 }

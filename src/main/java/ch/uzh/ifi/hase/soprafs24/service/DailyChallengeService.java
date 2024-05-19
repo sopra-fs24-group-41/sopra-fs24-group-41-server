@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.game.DailyChallengeGame;
 import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRecordRepository;
@@ -8,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -53,17 +56,31 @@ public class DailyChallengeService {
         return foundRecord.orElseGet(() -> dailyChallengeRecordRepository.saveAndFlush(record));
     }
 
-    @Scheduled(cron = "* * * * * *")
+    public List<DailyChallengeRecord> getRecords() {
+        return dailyChallengeRecordRepository.findAll();
+    }
+
+//    @Scheduled(cron = "0 * * * * *")
+    @EventListener(ApplicationReadyEvent.class)
     public void createNewDailyChallenge() {
-        System.out.println("test123");
+        dailyChallengeRepository.deleteAll();
+        dailyChallengeRecordRepository.deleteAll();
+
+        DailyChallenge dailyChallenge = new DailyChallenge();
+        dailyChallenge.setTargetWord(wordService.getRandomWordWithinReachability(0.1, 0.3));
+        dailyChallengeRepository.saveAndFlush(dailyChallenge);
     }
 
     public Player startGame(User user) {
         Player player = new Player(UUID.randomUUID().toString(), user.getUsername(), null);
+        player.setUser(user);
+        player.setStatus(PlayerStatus.PLAYING);
+        user.setPlayer(player);
 
         Word targetWord = getTargetWord();
         DailyChallengeGame game = new DailyChallengeGame(playerService, combinationService, wordService, targetWord);
         game.setUpPlayer(player);
+
         return player;
     }
 
@@ -87,12 +104,7 @@ public class DailyChallengeService {
 
         DailyChallengeRecord dailyChallengeRecord = getDailyChallengeRecord(new DailyChallengeRecord(dailyChallenge, player.getUser(), player.getPoints()));
         dailyChallengeRecord.setNumberOfCombinations(min(dailyChallengeRecord.getNumberOfCombinations(), player.getPoints()));
+
+        player.setStatus(PlayerStatus.WON);
     }
-
-    // functions:
-    // initialize game?
-    // insert user with attempts -- endGame
-    // play (like in GameService)
-    // reset with sch. task
-
 }
