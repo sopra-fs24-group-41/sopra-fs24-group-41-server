@@ -1,11 +1,9 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import ch.uzh.ifi.hase.soprafs24.entity.achievements.Achievement;
+import ch.uzh.ifi.hase.soprafs24.entity.achievements.*;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
-import ch.uzh.ifi.hase.soprafs24.entity.achievements.CreatedMud;
-import ch.uzh.ifi.hase.soprafs24.entity.achievements.CreatedZaddy;
 import ch.uzh.ifi.hase.soprafs24.repository.AchievementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -44,7 +42,9 @@ public class AchievementService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void setup() {
-        achievements.addAll(Set.of(get(new CreatedMud()), get(new CreatedZaddy())));
+        achievements.addAll(Set.of(get(new CreatedMud()), get(new CreatedZaddy()), get(new LostAlone()), get(new LostAsOwner()),
+                get(new MadeFirstCombination()), get(new MadeNoNewWords()), get(new Won100Times()), get(new WonAgainst7()),
+                get(new WonWomboComboWithoutTarget()), get(new Discovered20Words()), get(new Merged100Words())));
     }
 
     public void awardAchievements(Player player, Combination combination) {
