@@ -12,7 +12,8 @@ public class DailyChallenge implements Serializable {
     private Long id;
 
     @Column(nullable = false)
-    private String targetWord;
+    @ManyToOne
+    private Word targetWord;
 
     public Long getId() {
         return id;
@@ -22,11 +23,11 @@ public class DailyChallenge implements Serializable {
         this.id = id;
     }
 
-    public String getTargetWord() {
+    public Word getTargetWord() {
         return targetWord;
     }
 
-    public void setTargetWord(String targetWord) {
+    public void setTargetWord(Word targetWord) {
         this.targetWord = targetWord;
     }
 }
