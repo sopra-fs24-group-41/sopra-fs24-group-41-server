@@ -1,6 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
+import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,6 +12,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
@@ -20,6 +23,15 @@ class UserServiceTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PlayerService playerService;
+
+    @Mock
+    private SimpMessagingTemplate messagingTemplate;
+
+    @Mock
+    private LobbyService lobbyService;
 
     @InjectMocks
     private UserService userService;
@@ -176,7 +188,7 @@ class UserServiceTest {
     void checkToken_invalidToken_throwsUnauthorizedException() {
         Mockito.when(userRepository.findByToken(Mockito.any())).thenReturn(null);
 
-        assertThrows(ResponseStatusException.class, () -> userService.checkToken(Mockito.any()));
+        assertThrows(ResponseStatusException.class, () -> userService.checkToken("1234"));
     }
 
     @Test
@@ -224,45 +236,21 @@ class UserServiceTest {
     }
 
     @Test
-    void update_fail_username_with_spaces() {
-        User foundUser = new User();
-        foundUser.setUsername("Peter");
-        Mockito.when(userRepository.findByToken("1234")).thenReturn(foundUser);
-        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
-
-        User updatedUser = new User();
-        updatedUser.setProfilePicture("PinkBunny");
-        updatedUser.setFavourite("Daddy");
-        updatedUser.setUsername("Jas on");
-
-        // Catching the ResponseStatusException
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.editUser("1234", updatedUser));
-
-        // Verifying the status code
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    void updateUser_usernameWithSpaces_badRequestException() {
+        updateUser_badFormatting_badRequestException("Daddy", "Jas on");
     }
 
     @Test
-    void update_fail_username_empty() {
-        User foundUser = new User();
-        foundUser.setUsername("Peter");
-        Mockito.when(userRepository.findByToken("1234")).thenReturn(foundUser);
-        Mockito.when(userRepository.findByUsername(Mockito.anyString())).thenReturn(null);
-
-        User updatedUser = new User();
-        updatedUser.setProfilePicture("PinkBunny");
-        updatedUser.setFavourite("Daddy");
-        updatedUser.setUsername("");
-
-        // Catching the ResponseStatusException
-        ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.editUser("1234", updatedUser));
-
-        // Verifying the status code
-        assertEquals(HttpStatus.BAD_REQUEST, exception.getStatus());
+    void updateUser_UserNameEmpty_badRequestException() {
+        updateUser_badFormatting_badRequestException("Daddy", "");
     }
 
     @Test
-    void update_fail_favourite_with_spaces() {
+    void updateUser_FavouriteWithSpaces_badRequestException() {
+        updateUser_badFormatting_badRequestException("Da ddy", "Jason");
+    }
+
+    void updateUser_badFormatting_badRequestException(String favourite, String username) {
         User foundUser = new User();
         foundUser.setUsername("Peter");
         Mockito.when(userRepository.findByToken("1234")).thenReturn(foundUser);
@@ -270,8 +258,8 @@ class UserServiceTest {
 
         User updatedUser = new User();
         updatedUser.setProfilePicture("PinkBunny");
-        updatedUser.setFavourite("Da ddy");
-        updatedUser.setUsername("Jason");
+        updatedUser.setFavourite(favourite);
+        updatedUser.setUsername(username);
 
         // Catching the ResponseStatusException
         ResponseStatusException exception = assertThrows(ResponseStatusException.class, () -> userService.editUser("1234", updatedUser));
@@ -344,5 +332,37 @@ class UserServiceTest {
         assertEquals(checkUser.getFavourite(), updatedUser.getFavourite());
         assertEquals(checkUser.getUsername(), updatedUser.getUsername());
         assertEquals(checkUser.getProfilePicture(), updatedUser.getProfilePicture());
+    }
+
+    @Test
+    void deleteUser_noPlayer_success() {
+        // Mocking repository behavior
+        Mockito.doNothing().when(userRepository).delete(Mockito.any());
+
+        // Invoking the method under test
+        userService.deleteUser(testUser);
+
+        // Verifying the method call
+        Mockito.verify(userRepository, Mockito.times(1)).delete(Mockito.any());
+    }
+
+    @Test
+    void deleteUser_withPlayer_success() {
+        // Mocking repository behavior
+        Lobby lobby = new Lobby(1234, "TestLobby");
+
+        Player player = new Player("123", "Peter", lobby);
+        player.setLobby(lobby);
+        player.setUser(testUser);
+        testUser.setPlayer(player);
+
+        Mockito.doNothing().when(userRepository).delete(Mockito.any());
+
+        // Invoking the method under test
+        userService.deleteUser(testUser);
+
+        // Verifying the method call
+        Mockito.verify(userRepository, Mockito.times(1)).delete(Mockito.any());
+        Mockito.verify(playerService, Mockito.times(1)).removePlayer(player);
     }
 }

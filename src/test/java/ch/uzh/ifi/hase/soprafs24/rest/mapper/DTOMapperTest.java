@@ -2,9 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.rest.mapper;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
-import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
-import ch.uzh.ifi.hase.soprafs24.entity.Player;
-import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import org.junit.jupiter.api.Test;
 
@@ -17,9 +15,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * DTOMapperTest
  * Tests if the mapping between the internal and the external/API representation works.
  */
-public class DTOMapperTest {
+class DTOMapperTest {
+
+    // tests convertUserPostDTOtoEntity
     @Test
-    public void testCreateUser_fromUserPostDTO_toUser_success() {
+    void testCreateUser_fromUserPostDTO_toUser_success() {
         // create UserPostDTO
         UserLoginPostDTO userLoginPostDTO = new UserLoginPostDTO();
         userLoginPostDTO.setPassword("password");
@@ -33,8 +33,9 @@ public class DTOMapperTest {
         assertEquals(userLoginPostDTO.getUsername(), user.getUsername());
     }
 
+    // tests convertEntityToUserGetDTO
     @Test
-    public void testGetUser_fromUser_toUserGetDTO_success() {
+    void testGetUser_fromUser_toUserGetDTO_success() {
         // create User
         User user = new User();
         user.setPassword("password");
@@ -51,8 +52,9 @@ public class DTOMapperTest {
         assertEquals(user.getStatus(), userGetDTO.getStatus());
     }
 
+    // tests convertEntityToUserSecretGetDTO
     @Test
-    public void testLogInUser_fromUser_toUserSecretDTO_success() {
+    void testLogInUser_fromUser_toUserSecretDTO_success() {
         User user = new User();
         user.setToken("1");
 
@@ -61,8 +63,23 @@ public class DTOMapperTest {
         assertEquals(user.getToken(), userSecretDTO.getToken());
     }
 
+    // tests convertUserTokenPostDTOtoEntity
     @Test
-    public void testGetLobbies_fromLobby_toLobbyGetDTO_success() {
+    void testCreateUser_fromUserTokenPostDTO_toUser_success() {
+        // create UserTokenPostDTO
+        UserTokenPostDTO userTokenPostDTO = new UserTokenPostDTO();
+        userTokenPostDTO.setToken("token");
+
+        // MAP -> Create user
+        User user = DTOMapper.INSTANCE.convertUserTokenPostDTOtoEntity(userTokenPostDTO);
+
+        // check content
+        assertEquals(userTokenPostDTO.getToken(), user.getToken());
+    }
+
+    // tests convertEntityToLobbyGetDTO
+    @Test
+    void testGetLobbies_fromLobby_toLobbyGetDTO_success() {
         Lobby testLobby = new Lobby(1234, "test Lobby");
         testLobby.setMode(GameMode.STANDARD);
 
@@ -111,8 +128,9 @@ public class DTOMapperTest {
         assertEquals(testLobby.getMode(), lobbyGetDTO.getMode());
     }
 
+    // tests convertEntityToPlayerJoinedDTO
     @Test
-    public void testCreateLobby_fromPlayerAndLobby_toPlayerJoinedDTO() {
+    void testCreateLobby_fromPlayerAndLobby_toPlayerJoinedDTO() {
         Lobby testLobby = new Lobby(1234, "test Lobby");
         testLobby.setMode(GameMode.STANDARD);
 
@@ -140,5 +158,83 @@ public class DTOMapperTest {
         PlayerJoinedDTO playerJoinedDTO = DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(testPlayer);
 
         assertEquals(testPlayer.getToken(), playerJoinedDTO.getPlayerToken());
+    }
+
+    // tests convertEntityToPlayerWordDTO
+    @Test
+    void testConvertFromPlayerWordToPlayerWordDTO() {
+        PlayerWord testPlayerWord = new PlayerWord(new Player("123", "testplayer", null),
+                new Word("testWord"));
+
+        PlayerWordDTO playerWordDTO = DTOMapper.INSTANCE.convertEntityToPlayerWordDTO(testPlayerWord);
+
+        assertEquals(testPlayerWord.getWord().getName(), playerWordDTO.getWord().getName());
+        assertEquals(testPlayerWord.getUses(), playerWordDTO.getUses());
+        assertEquals(testPlayerWord.getTimestamp(), playerWordDTO.getTimestamp());
+    }
+
+    // tests convertEntityToWordDTO
+    @Test
+    void testConvertWordToWordDTO() {
+        Word testWord = new Word("testWord");
+
+        WordDTO wordDTO = DTOMapper.INSTANCE.convertEntityToWordDTO(testWord);
+
+        assertEquals(testWord.getName(), wordDTO.getName());
+        assertEquals(testWord.isNewlyDiscovered(), wordDTO.isNewlyDiscovered());
+    }
+
+    // tests convertEntityToPlayerPlayedDTO
+    @Test
+    void testConvertPlayerToPlayerPlayedDTO() {
+        Player testPlayer = new Player("123", "testplayer", null);
+        testPlayer.setId(4);
+        testPlayer.setPoints(32);
+
+        PlayerPlayedDTO playerPlayedDTO = DTOMapper.INSTANCE.convertEntityToPlayerPlayedDTO(testPlayer);
+
+        assertEquals(testPlayer.getPoints(), playerPlayedDTO.getPoints());
+        assertEquals(testPlayer.getPlayerWords().size(), playerPlayedDTO.getPlayerWords().size());
+        assertEquals(testPlayer.getStatus(), playerPlayedDTO.getStatus());
+    }
+
+    // tests convertEntityToPlayerGetDTO
+    @Test
+    void testConvertPlayerToPlayerGetDTO() {
+        Player testPlayer = new Player("123", "testplayer", null);
+        testPlayer.setId(4);
+        testPlayer.setPoints(32);
+
+        User testUser = new User();
+        testUser.setId(1L);
+        testUser.setPassword("testPassword");
+        testUser.setUsername("firstname@lastname");
+        testUser.setStatus(UserStatus.OFFLINE);
+        testUser.setToken("1");
+
+        testUser.setPlayer(testPlayer);
+        testPlayer.setUser(testUser);
+
+        PlayerGetDTO playerGetDTO = DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(testPlayer);
+
+        assertEquals(testPlayer.getId(), playerGetDTO.getId());
+        assertEquals(testPlayer.getName(), playerGetDTO.getName());
+        assertEquals(testPlayer.getPoints(), playerGetDTO.getPoints());
+        assertEquals(testPlayer.getPlayerWords().size(), playerGetDTO.getPlayerWords().size());
+        assertEquals(testPlayer.getStatus(), playerGetDTO.getStatus());
+        assertEquals(testPlayer.getUser().getUsername(), playerGetDTO.getUser().getUsername());
+    }
+
+    // tests convertUserPutDTOtoEntity
+    @Test
+    void testConvertUserPutDTOtoEntity() {
+        UserPutDTO userPutDTO = new UserPutDTO();
+        userPutDTO.setFavourite("favourite");
+        userPutDTO.setUsername("username");
+
+        User user = DTOMapper.INSTANCE.convertUserPutDTOtoEntity(userPutDTO);
+
+        assertEquals(userPutDTO.getFavourite(), user.getFavourite());
+        assertEquals(userPutDTO.getUsername(), user.getUsername());
     }
 }

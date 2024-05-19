@@ -1,8 +1,8 @@
 package ch.uzh.ifi.hase.soprafs24.game;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
-import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
+import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.service.CombinationService;
 import ch.uzh.ifi.hase.soprafs24.service.PlayerService;
 import ch.uzh.ifi.hase.soprafs24.service.WordService;

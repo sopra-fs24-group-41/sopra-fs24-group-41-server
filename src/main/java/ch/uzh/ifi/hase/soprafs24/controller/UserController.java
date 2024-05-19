@@ -95,6 +95,14 @@ public class UserController {
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(user.getPlayer().getLobby());
     }
 
+    @DeleteMapping("users/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable String id, @RequestHeader String userToken) {
+        long userIdLong = parseUserId(id);
+        User user = userService.authUser(userIdLong, userToken);
+        userService.deleteUser(user);
+    }
+
     private long parseUserId(String idString) {
         try {
             return Long.parseLong(idString);

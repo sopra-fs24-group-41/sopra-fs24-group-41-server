@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @WebAppConfiguration
 @SpringBootTest
-public class PlayerServiceIntegrationTest {
+class PlayerServiceIntegrationTest {
 
     @Qualifier("playerRepository")
     @Autowired
@@ -46,7 +46,7 @@ public class PlayerServiceIntegrationTest {
     }
 
     @Test
-    public void findPlayerByToken_validInput_success() {
+    void findPlayerByToken_validInput_success() {
         Player testPlayer = new Player("234", "test", null);
         playerRepository.save(testPlayer);
 
@@ -57,15 +57,16 @@ public class PlayerServiceIntegrationTest {
     }
 
     @Test
-    public void findPlayerByToken_invalidToken_throwsNotFoundException() {
+    void findPlayerByToken_invalidToken_throwsNotFoundException() {
         Player testPlayer = new Player("345", "tester", null);
         playerRepository.save(testPlayer);
 
-        assertThrows(ResponseStatusException.class, () -> playerService.findPlayerByToken(testPlayer.getToken()+"23"));
+        String faultyToken = testPlayer.getToken() + "23";
+        assertThrows(ResponseStatusException.class, () -> playerService.findPlayerByToken(faultyToken));
     }
 
     @Test
-    public void removePlayer_success() {
+    void removePlayer_success() {
         assertNull(playerRepository.findByToken("678"));
 
         User testUser = new User();
