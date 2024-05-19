@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import java.util.Arrays;
 import java.util.List;
@@ -48,6 +49,8 @@ class GameServiceTest {
     @Mock
     private SimpMessagingTemplate messagingTemplate;
 
+    @Mock
+    private PlatformTransactionManager transactionManager;
 
     @InjectMocks
     private GameService gameService;
