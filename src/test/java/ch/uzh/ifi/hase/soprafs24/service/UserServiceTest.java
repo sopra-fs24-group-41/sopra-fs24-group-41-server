@@ -15,6 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserServiceTest {
@@ -37,7 +39,7 @@ class UserServiceTest {
     private User testUser;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         // given
@@ -52,6 +54,14 @@ class UserServiceTest {
         // when -> any object is being save in the userRepository -> return the dummy
         // testUser
         Mockito.when(userRepository.save(Mockito.any())).thenReturn(testUser);
+    }
+
+    @Test
+    void findUserById_nonExistingUser_throwsException() {
+        Long id = 64623626L;
+        Mockito.doReturn(Optional.empty()).when(userRepository).findById(id);
+
+        assertThrows(ResponseStatusException.class, () -> userService.getUserById(id));
     }
 
     @Test
@@ -71,7 +81,7 @@ class UserServiceTest {
     }
 
     @Test
-    void createUser_duplicateName_throwsException() {
+    void createUser_duplicateUsername_throwsException() {
         // given -> a first user has already been created
         userService.createUser(testUser);
 
@@ -166,6 +176,27 @@ class UserServiceTest {
         Mockito.when(userRepository.findByToken(Mockito.any())).thenReturn(null);
 
         assertThrows(ResponseStatusException.class, () -> userService.checkToken("1234"));
+    }
+
+    @Test
+    void authUser_success() {
+        Mockito.doReturn(testUser).when(userRepository).findByToken(Mockito.any());
+
+        assertEquals(testUser, userService.authUser(1L, "1234"));
+    }
+
+    @Test
+    void authUser_nonExistingUser_throwsException() {
+        Mockito.doReturn(null).when(userRepository).findByToken(Mockito.any());
+
+        assertThrows(ResponseStatusException.class, () -> userService.authUser(1L, "123456"));
+    }
+
+    @Test
+    void authUser_wrongId_throwsException() {
+        Mockito.doReturn(testUser).when(userRepository).findByToken(Mockito.any());
+
+        assertThrows(ResponseStatusException.class, () -> userService.authUser(13L, "1234"));
     }
 
     @Test

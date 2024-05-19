@@ -48,7 +48,7 @@ public class FiniteFusionGame extends Game {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
-    private Word playFiniteFusion(Player player, List<Word> words) {
+    Word playFiniteFusion(Player player, List<Word> words) {
         PlayerWord playerWord1 = player.getPlayerWord(words.get(0));
         PlayerWord playerWord2 = player.getPlayerWord(words.get(1));
         if (playerWord1.getUses() > 0 && playerWord2.getUses() > 0) {
@@ -69,7 +69,7 @@ public class FiniteFusionGame extends Game {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
-    private void playerLoses(Player player) {
+    void playerLoses(Player player) {
         playerService.resetPlayer(player);
         setupStartingWords();
         player.addWords(startingWords);
