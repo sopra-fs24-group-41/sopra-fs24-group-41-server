@@ -3,24 +3,26 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "DAILYCHALLENGE")
+@Table(name = "DAILYCHALLENGERECORD")
 @IdClass(DailyChallengeRecordId.class)
 public class DailyChallengeRecord {
 
     @Id
-    private Long challengeId;
+    @ManyToOne
+    @JoinColumn(name="dailychallenge")
+    private DailyChallenge dailyChallenge;
 
     @Id
-    @OneToOne
-    @JoinColumn(name = "user")
+    @ManyToOne
+    @JoinColumn(name="users")
     private User user;
 
     @Column(nullable = false)
     private int numberOfCombinations = 0;
 
-    public Long getChallengeId() { return challengeId; }
+    public DailyChallenge dailyChallenge() { return dailyChallenge; }
 
-    public void setChallengeId(Long challengeId) { this.challengeId = challengeId; }
+    public void setChallengeId(DailyChallenge dailyChallenge) { this.dailyChallenge = dailyChallenge; }
 
     public User getUser() { return user; }
 
