@@ -139,7 +139,7 @@ public class GameService {
         lobby.setGameTime(0);
 
         updateWinsAndLosses(lobby);
-        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP, reason));
+        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP, null, reason));
     }
 
     public void startTimer(Lobby lobby){
@@ -164,7 +164,7 @@ public class GameService {
                     for (int t : new int[]{10, 30, 60, 180, 300}) {
                         if (remainingTime == t) {
                             messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobbyCode),
-                                    new TimeDTO(String.valueOf(t)));
+                                    new InstructionDTO(Instruction.UPDATE_TIMER, new TimeDTO(String.valueOf(t))));
                             break;
                         }
                     }

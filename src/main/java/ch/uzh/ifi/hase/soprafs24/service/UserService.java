@@ -197,13 +197,15 @@ public class UserService {
             if (player.getOwnedLobby() == null) {
                 Lobby lobby = player.getLobby();
                 playerService.removePlayer(player);
-                messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_CODE, lobby.getCode()), DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby));
+                messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_CODE, lobby.getCode()),
+                        new InstructionDTO(Instruction.UPDATE_LOBBY, DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby)));
             }
             else {
                 lobbyService.removeLobby(player.getOwnedLobby());
-                messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, lobbyService.getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList());
+                messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE,
+                        new InstructionDTO(Instruction.UPDATE_LOBBY_LIST, lobbyService.getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList()));
                 messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, player.getOwnedLobby().getCode()),
-                        new InstructionDTO(Instruction.KICK, "The lobby was closed by the owner"));
+                        new InstructionDTO(Instruction.KICK, null, "The lobby was closed by the owner"));
             }
         }
         userRepository.delete(user);
