@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Repository("dailyChallengeRepository")
 public interface DailyChallengeRepository extends JpaRepository<DailyChallenge, Long> {
-    Optional<DailyChallenge> findById(long id);
+    DailyChallenge findById(long id);
 }

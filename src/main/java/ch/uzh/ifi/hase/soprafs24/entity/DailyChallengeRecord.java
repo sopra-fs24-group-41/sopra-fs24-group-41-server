@@ -18,17 +18,27 @@ public class DailyChallengeRecord {
     private User user;
 
     @Column(nullable = false)
-    private int numberOfCombinations = 0;
+    private long numberOfCombinations = 10000;
 
-    public DailyChallenge dailyChallenge() { return dailyChallenge; }
+    public DailyChallengeRecord(DailyChallenge dailyChallenge, User user, long numberOfCombinations) {
+        this.dailyChallenge = dailyChallenge;
+        this.user = user;
+        this.numberOfCombinations = numberOfCombinations;
+    }
 
-    public void setChallengeId(DailyChallenge dailyChallenge) { this.dailyChallenge = dailyChallenge; }
+    public DailyChallengeRecord() {
+
+    }
+
+    public DailyChallenge getDailyChallenge() { return dailyChallenge; }
+
+    public void setChallenge(DailyChallenge dailyChallenge) { this.dailyChallenge = dailyChallenge; }
 
     public User getUser() { return user; }
 
     public void setUser(User user) { this.user = user; }
 
-    public int getNumberOfCombinations() { return numberOfCombinations; }
+    public long getNumberOfCombinations() { return numberOfCombinations; }
 
-    public void setNumberOfCombinations(int numberOfCombinations) { this.numberOfCombinations = numberOfCombinations; }
+    public void setNumberOfCombinations(long numberOfCombinations) { this.numberOfCombinations = numberOfCombinations; }
 }
