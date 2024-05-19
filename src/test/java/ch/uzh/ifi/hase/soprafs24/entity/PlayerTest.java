@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class PlayerTest {
+class PlayerTest {
     private Player player;
 
     private final Word water = new Word("water");
@@ -20,7 +21,7 @@ public class PlayerTest {
     private List<Word> startingWords;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         player = new Player();
         startingWords = new ArrayList<>();
         startingWords.add(water);
@@ -30,9 +31,44 @@ public class PlayerTest {
     }
 
     @Test
-    public void addWords_success() {
+    void addWords_success() {
         player.addWords(startingWords);
         assertEquals(startingWords, player.getWords());
         assertEquals(startingWords.size(), player.getPlayerWords().size());
+    }
+
+    @Test
+    void addWordsWithUses_success() {
+        player.addWords(startingWords, 5);
+
+        for (Word word : startingWords) {
+            assertEquals(word, player.getPlayerWord(word).getWord());
+            assertEquals(5, player.getPlayerWord(word).getUses());
+        }
+    }
+
+    @Test
+    void addWordWithUses_newPlayerWord_success() {
+        player.addWord(water, 5);
+
+        assertEquals(water, player.getPlayerWord(water).getWord());
+        assertEquals(5, player.getPlayerWord(water).getUses());
+    }
+
+    @Test
+    void addWordWithUses_existingPlayerWord_success() {
+        player.addWord(water, 5);
+        player.addWord(water, 3);
+
+        assertEquals(water, player.getPlayerWord(water).getWord());
+        assertEquals(8, player.getPlayerWord(water).getUses());
+    }
+
+    @Test
+    void getPlayerWord_success() {
+        player.addWords(startingWords);
+
+        PlayerWord result = player.getPlayerWord(water);
+        assertEquals(water, result.getWord());
     }
 }
