@@ -84,17 +84,20 @@ class CombinationServiceIntegrationTest {
         }
 
         combinationService.makeCombinations(150);
+        int warningCount = 0;
 
         for (Combination combination : combinationRepository.findAll()) {
             String resultWord = combination.getResult().getName();
             if (resultWord.contains(combination.getWord1().getName()) || resultWord.contains(combination.getWord2().getName())) {
                 System.out.println("##### WARNING");
+                warningCount++;
             }
             else
                 System.out.println("#####");
-            System.out.println("i: " + combination.getWord1().getName());
-            System.out.println("d: " + combination.getWord2().getName());
-            System.out.println("r: " + resultWord);
+            System.out.println("i1: " + combination.getWord1().getName());
+            System.out.println("i2: " + combination.getWord2().getName());
+            System.out.println("res: " + resultWord);
         }
+        System.out.println("Total Number of Warnings: " + warningCount);
     }
 }
