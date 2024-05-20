@@ -9,10 +9,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.HttpStatus;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
+import org.reflections.util.ConfigurationBuilder;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -42,9 +48,20 @@ public class AchievementService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void setup() {
-        achievements.addAll(Set.of(get(new CreatedMud()), get(new CreatedZaddy()), get(new LostAlone()), get(new LostAsOwner()),
-                get(new MadeFirstCombination()), get(new MadeNoNewWords()), get(new Won100Times()), get(new WonAgainst7()),
-                get(new WonWomboComboWithoutTarget()), get(new Discovered20Words()), get(new Merged100Words())));
+        Reflections reflections = new Reflections(new ConfigurationBuilder()
+                .forPackage("ch.uzh.ifi.hase.soprafs24.entity.achievements")
+                .setScanners(Scanners.SubTypes));
+
+        Set<Class<? extends Achievement>> achievementClasses = reflections.getSubTypesOf(Achievement.class);
+
+        for (Class<? extends Achievement> achievementClass : achievementClasses) {
+            try {
+                achievements.add(get(achievementClass.getDeclaredConstructor().newInstance()));
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                String errorMessage = String.format("Achievement %s could not be instantiated! Exception: %s", achievementClass.getSimpleName(), e);
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, errorMessage);
+            }
+        }
     }
 
     public void awardAchievements(Player player, Combination combination) {
