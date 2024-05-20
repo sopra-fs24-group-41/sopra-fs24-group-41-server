@@ -2,9 +2,8 @@ package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
-import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRecordRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.repository.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -29,26 +28,47 @@ class DailyChallengeServiceIntegrationTest {
     @Autowired
     private DailyChallengeRecordRepository dailyChallengeRecordRepository;
 
+    @Qualifier("wordRepository")
+    @Autowired
+    private WordRepository wordRepository;
+
     @Autowired
     private WordService wordService;
 
+    @Qualifier("userRepository")
     @Autowired
     private UserRepository userRepository;
+
+    @Qualifier("combinationRepository")
+    @Autowired
+    private CombinationRepository combinationRepository;
 
     @Autowired
     private DailyChallengeService dailyChallengeService;
 
     @BeforeEach
     void setup() {
-        MockitoAnnotations.openMocks(this);
-
         dailyChallengeRecordRepository.deleteAll();
         dailyChallengeRepository.deleteAll();
         userRepository.deleteAll();
+        combinationRepository.deleteAll();
+        wordRepository.deleteAll();
+    }
+
+    @AfterEach
+    void cleanup() {
+        dailyChallengeRecordRepository.deleteAll();
+        dailyChallengeRepository.deleteAll();
+        userRepository.deleteAll();
+        combinationRepository.deleteAll();
+        wordRepository.deleteAll();
     }
 
     @Test
     void createNewDailyChallenge_success() {
+        Word word = new Word("volcano", 3, 0.125);
+        wordService.saveWord(word);
+
         dailyChallengeService.createNewDailyChallenge();
 
         assertFalse(dailyChallengeRepository.findAll().isEmpty());

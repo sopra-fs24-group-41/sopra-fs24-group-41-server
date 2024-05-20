@@ -2,6 +2,7 @@ package ch.uzh.ifi.hase.soprafs24.repository;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +64,14 @@ class DailyChallengeRecordRepositoryIntegrationTest {
 
         dailyChallengeRecord = new DailyChallengeRecord(dailyChallenge, user, 3);
         entityManager.persistAndFlush(dailyChallengeRecord);
+    }
+
+    @AfterEach
+    void cleanup() {
+        dailyChallengeRecordRepository.deleteAll();
+        dailyChallengeRepository.deleteAll();
+        wordRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test

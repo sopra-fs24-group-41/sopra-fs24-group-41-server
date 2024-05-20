@@ -44,13 +44,9 @@ class GameServiceIntegrationTest {
     @Autowired
     private GameService gameService;
 
-    @Autowired
-    private DailyChallengeRepository dailyChallengeRepository;
-
     @BeforeEach
     public void setup() {
         combinationRepository.deleteAll();
-        dailyChallengeRepository.deleteAll();
         wordRepository.deleteAll();
         userRepository.deleteAll();
         playerRepository.deleteAll();

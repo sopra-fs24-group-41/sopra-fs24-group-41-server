@@ -40,8 +40,6 @@ class LobbyServiceIntegrationTest {
 
     @Autowired
     private LobbyService lobbyService;
-    @Autowired
-    private PlayerRepository playerRepository;
 
     @BeforeEach
     public void setup() {

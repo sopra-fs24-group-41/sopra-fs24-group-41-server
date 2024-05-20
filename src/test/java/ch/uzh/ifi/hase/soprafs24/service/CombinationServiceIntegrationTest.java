@@ -35,13 +35,9 @@ class CombinationServiceIntegrationTest {
     @Autowired
     private CombinationService combinationService;
 
-    @Autowired
-    private DailyChallengeRepository dailyChallengeRepository;
-
     @BeforeEach
     public void setup() {
         combinationRepository.deleteAll();
-        dailyChallengeRepository.deleteAll();
         wordRepository.deleteAll();
     }
 

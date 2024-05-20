@@ -16,6 +16,7 @@ public class DailyChallenge implements Serializable {
     private long id;
 
     @ManyToOne
+    @JoinColumn(name="word")
     private Word targetWord;
 
     public DailyChallenge() {
