@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -67,12 +68,14 @@ class PlayerRepositoryIntegrationTest {
         testUser1.setUsername("firstname@lastname");
         testUser1.setStatus(UserStatus.OFFLINE);
         testUser1.setToken("1");
+        testUser1.setCreationDate(LocalDate.now());
 
         testUser2 = new User();
         testUser2.setPassword("testPassword2");
         testUser2.setUsername("firstname@lastname2");
         testUser2.setStatus(UserStatus.OFFLINE);
         testUser2.setToken("2");
+        testUser2.setCreationDate(LocalDate.now());
 
         testUser1.setPlayer(testPlayer1);
         testPlayer1.setUser(testUser1);

@@ -187,3 +187,7 @@ Worked on:
 - Fixed a Bug with playercount [Issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/108)
 - Created an Errorpopup that displays the errors received from server. Also added a check if the client tries to join a lobby which is already in game. [Issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/111)
 - Worked on achievements page and the underlying frame in client. [Issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/97)
+
+**Aquamarine - Alexandru-Mihai Hurjui**
+- Improved test coverage from 70% to 84%: [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/214)
+- Added support for daily challenges on the backend: [Link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/218)
