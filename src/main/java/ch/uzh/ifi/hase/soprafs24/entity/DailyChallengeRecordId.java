@@ -7,6 +7,9 @@ public class DailyChallengeRecordId implements Serializable {
 
     private Long user;
 
+    public DailyChallengeRecordId() {
+    }
+
     public DailyChallengeRecordId(long dailyChallenge, Long user) {
         this.dailyChallenge = dailyChallenge;
         this.user = user;

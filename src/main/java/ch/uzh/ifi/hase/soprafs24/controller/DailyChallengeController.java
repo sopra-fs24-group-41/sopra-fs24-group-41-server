@@ -6,6 +6,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.DailyChallengeRecordGetDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerGetDTO;
+import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerJoinedDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.PlayerPlayedDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.DailyChallengeService;
@@ -32,15 +33,22 @@ public class DailyChallengeController {
         this.dailyChallengeService = dailyChallengeService;
     }
 
-    @PostMapping("/challenges")
-    @ResponseStatus(HttpStatus.OK)
-    public PlayerGetDTO startChallenge(@RequestHeader String userToken) {
+    @PostMapping("/challenges/players")
+    @ResponseStatus(HttpStatus.CREATED)
+    public PlayerJoinedDTO startChallenge(@RequestHeader String userToken) {
         if (userToken == null || userToken.isEmpty())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User token is empty!");
 
         User user = userService.checkToken(userToken);
         Player player = dailyChallengeService.startGame(user);
 
+        return DTOMapper.INSTANCE.convertEntityToPlayerJoinedDTO(player);
+    }
+
+    @GetMapping("/challenges/players/{playerId}")
+    @ResponseStatus(HttpStatus.OK)
+    public PlayerGetDTO getPlayer(@PathVariable long playerId, @RequestHeader String playerToken) {
+        Player player = validatePlayer(playerId, playerToken);
         return DTOMapper.INSTANCE.convertEntityToPlayerGetDTO(player);
     }
 
