@@ -214,6 +214,22 @@ class LobbyControllerTest {
     }
 
     @Test
+    void givenLobby_validCode_thenLobbyStatusReturned() throws Exception {
+        // given
+        given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get(String.format("/lobbies/%s/status", testLobby.getCode()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is(testLobby.getStatus().toString())));
+    }
+
+    @Test
     void createLobbyByUser_validToken_thenLobbyAndPlayerTokenReturned() throws Exception {
         // given
         testUser1.setPlayer(null);
