@@ -16,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -74,6 +75,7 @@ class PlayerServiceIntegrationTest {
         testUser.setPassword("testPassword");
         testUser.setToken("678");
         testUser.setStatus(UserStatus.OFFLINE);
+        testUser.setCreationDate(LocalDate.now());
         User savedUser = userRepository.saveAndFlush(testUser);
 
         Lobby testLobby = new Lobby(123, "this is a new lobby");
