@@ -57,10 +57,18 @@ public class LobbyController {
     }
 
     @GetMapping("/lobbies/{code}")
+    @ResponseStatus(HttpStatus.OK)
     public LobbyGetDTO getLobbyByCode(@PathVariable String code) {
         long parsedLobbyCode = parseLobbyCode(code);
         Lobby lobby = lobbyService.getLobbyByCode(parsedLobbyCode);
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
+    }
+
+    @GetMapping("/lobbies/{code}/status")
+    public LobbyStatusGetDTO getLobbyStatus(@PathVariable String code) {
+        long parsedLobbyCode = parseLobbyCode(code);
+        Lobby lobby = lobbyService.getLobbyByCode(parsedLobbyCode);
+        return DTOMapper.INSTANCE.convertEntityToLobbyStatusGetDTO(lobby);
     }
 
     @PostMapping("/lobbies")
