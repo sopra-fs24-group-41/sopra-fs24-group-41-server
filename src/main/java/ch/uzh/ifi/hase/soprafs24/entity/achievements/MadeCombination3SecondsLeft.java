@@ -21,7 +21,7 @@ public class MadeCombination3SecondsLeft extends Achievement {
     public boolean unlockConditionFulfilled(Player player, Combination combination) {
         Lobby lobby = player.getLobby();
         Integer gameTime = player.getLobby().getGameTime();
-        if (gameTime == null) return false;
+        if (gameTime <= 0) return false;
         long elapsedSeconds = ChronoUnit.SECONDS.between(lobby.getStartTime(), LocalDateTime.now());
         return gameTime - elapsedSeconds <= 3;
     }
