@@ -37,13 +37,13 @@ class FusionFrenzyGameTest {
 
     @BeforeEach
     void setup() {
-        player1 = new Player();
-        player2 = new Player();
+        Lobby lobby = new Lobby(1234, "test lobby");
+        player1 = new Player("1234", "testPlayer1", lobby);
+        player2 = new Player("2345", "testPlayer2", lobby);
         players = new ArrayList<>();
         players.add(player1);
         players.add(player2);
 
-        Lobby lobby = new Lobby(1234, "test lobby");
         lobby.setPlayers(new ArrayList<>());
         for (Player player : players) {
             lobby.addPlayer(player);
@@ -111,7 +111,5 @@ class FusionFrenzyGameTest {
         boolean result = game.winConditionReached(player1);
 
         assertTrue(result);
-        assertEquals(PlayerStatus.WON, player1.getStatus());
-        assertEquals(PlayerStatus.LOST, player2.getStatus());
     }
 }

@@ -6,6 +6,7 @@ import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.game.*;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.websocket.TimeDTO;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
@@ -39,6 +40,7 @@ public class GameService {
     private final DailyChallengeService dailyChallengeService;
 
     private final Map<Long, Timer> timers;
+    private static final String MESSAGE_LOBBY_BASE = "/topic/lobbies";
     private static final String MESSAGE_LOBBY_GAME = "/topic/lobbies/%d/game";
 
     @Autowired
@@ -115,7 +117,11 @@ public class GameService {
         updatePlayerStatistics(player, result);
 
         if (game.winConditionReached(player)) {
+            player = playerService.setWinnerAndLoser(player);
             endGame(lobby, String.format("%s has won the game!", player.getName()));
+        }
+        else if (allPlayersLost(lobby)) {
+            endGame(lobby, "All players have lost the game!");
         }
         return result;
     }
@@ -145,7 +151,10 @@ public class GameService {
         updateWinsAndLosses(lobby);
         if (lobby.getMode() == GameMode.DAILYCHALLENGE)
             dailyChallengeService.updateRecords(lobby);
-        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP, reason));
+
+        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP, null, reason));
+        messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE,
+                new InstructionDTO(Instruction.UPDATE_LOBBY_LIST, lobbyService.getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList()));
     }
 
     public void startTimer(Lobby lobby){
@@ -170,7 +179,7 @@ public class GameService {
                     for (int t : new int[]{10, 30, 60, 180, 300}) {
                         if (remainingTime == t) {
                             messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobbyCode),
-                                    new TimeDTO(String.valueOf(t)));
+                                    new InstructionDTO(Instruction.UPDATE_TIMER, new TimeDTO(String.valueOf(t))));
                             break;
                         }
                     }
@@ -215,4 +224,7 @@ public class GameService {
         }
     }
 
+    public boolean allPlayersLost(Lobby lobby) {
+        return lobby.getPlayers().stream().allMatch(player -> player.getStatus() == PlayerStatus.LOST);
+    }
 }

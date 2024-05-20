@@ -48,14 +48,6 @@ public class FusionFrenzyGame extends Game {
 
     @Override
     public boolean winConditionReached(Player player) {
-        if (player.getWords().contains(player.getTargetWord())) {
-            player.setStatus(PlayerStatus.WON);
-            for (Player p : player.getLobby().getPlayers()) {
-                if (p == player) p.setStatus(PlayerStatus.WON);
-                else p.setStatus(PlayerStatus.LOST);
-            }
-            return true;
-        }
-        return false;
+        return player.getWords().contains(player.getTargetWord());
     }
 }

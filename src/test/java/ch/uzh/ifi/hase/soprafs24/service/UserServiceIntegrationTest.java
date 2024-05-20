@@ -12,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -162,6 +164,7 @@ class UserServiceIntegrationTest {
         testUser.setUsername("testUsername");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1234");
+        testUser.setCreationDate(LocalDate.now());
         userRepository.save(testUser);
 
         User checkedUser = userService.checkToken(testUser.getToken());
@@ -179,6 +182,7 @@ class UserServiceIntegrationTest {
         testUser.setUsername("testUsername");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1234");
+        testUser.setCreationDate(LocalDate.now());
         userRepository.saveAndFlush(testUser);
 
         String faultyToken = testUser.getToken() + "2";

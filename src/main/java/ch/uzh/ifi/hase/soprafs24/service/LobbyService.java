@@ -82,7 +82,7 @@ public class LobbyService {
                     if (minutesDifference >= thresholdMinutes) {
                         removeLobby(lobby);
                         messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()),
-                                new InstructionDTO(Instruction.KICK, "The lobby was closed due to inactivity"));
+                                new InstructionDTO(Instruction.KICK, null, "The lobby was closed due to inactivity"));
                         log.debug("Lobby with code {} was last active on {} and was closed due to inactivity", lobby.getCode(), lobby.getLastModified());
                     }
                 }
@@ -90,7 +90,8 @@ public class LobbyService {
             });
             transactionTemplate = new TransactionTemplate(transactionManager);
             transactionTemplate.execute(status -> {
-                messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList());
+                messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE,
+                        new InstructionDTO(Instruction.UPDATE_LOBBY_LIST, getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList()));
                 return null;
             });
         } catch(Exception e) {
@@ -102,10 +103,12 @@ public class LobbyService {
         return lobbyRepository.findAllByPublicAccess(true);
     }
 
+    // TODO: decide if we want to remove this method
     public boolean allPlayersReady(Lobby lobby) {
         return lobby.getPlayers().stream().allMatch(player -> player.getStatus() == PlayerStatus.READY);
     }
 
+    // TODO: decide if we want to remove this method
     public boolean allPlayersLost(Lobby lobby) {
         return lobby.getPlayers().stream().allMatch(player -> player.getStatus() == PlayerStatus.LOST);
     }

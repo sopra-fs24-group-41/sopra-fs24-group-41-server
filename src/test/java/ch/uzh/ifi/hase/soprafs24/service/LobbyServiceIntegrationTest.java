@@ -19,6 +19,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -58,6 +59,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
 
@@ -85,6 +87,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
 
@@ -142,6 +145,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User testUser2 = new User();
         testUser2.setId(2L);
@@ -149,6 +153,7 @@ class LobbyServiceIntegrationTest {
         testUser2.setUsername("firstname2@lastname2");
         testUser2.setStatus(UserStatus.OFFLINE);
         testUser2.setToken("2");
+        testUser2.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
         User savedTestUser2 = userRepository.saveAndFlush(testUser2);
@@ -192,6 +197,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
         Player testPlayer = lobbyService.createLobbyFromUser(savedTestUser, true);
@@ -214,6 +220,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
         Player testPlayer = lobbyService.createLobbyFromUser(savedTestUser, true);
@@ -249,6 +256,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
         Player testPlayer = lobbyService.createLobbyFromUser(savedTestUser, true);
@@ -272,6 +280,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
         Player testPlayer = lobbyService.createLobbyFromUser(savedTestUser, true);
