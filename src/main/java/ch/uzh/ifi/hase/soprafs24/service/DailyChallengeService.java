@@ -1,8 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
-import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
-import ch.uzh.ifi.hase.soprafs24.game.DailyChallengeGame;
 import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRecordRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRepository;
 import org.slf4j.Logger;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 
 import static java.lang.Math.min;
 
@@ -30,20 +27,14 @@ public class DailyChallengeService {
 
     private final DailyChallengeRecordRepository dailyChallengeRecordRepository;
 
-    private final PlayerService playerService;
-    private final CombinationService combinationService;
     private final WordService wordService;
 
     @Autowired
     public DailyChallengeService(@Qualifier("dailyChallengeRepository") DailyChallengeRepository dailyChallengeRepository,
                                  @Qualifier("dailyChallengeRecordRepository") DailyChallengeRecordRepository dailyChallengeRecordRepository,
-                                 PlayerService playerService,
-                                 CombinationService combinationService,
                                  WordService wordService) {
         this.dailyChallengeRepository = dailyChallengeRepository;
         this.dailyChallengeRecordRepository = dailyChallengeRecordRepository;
-        this.playerService = playerService;
-        this.combinationService = combinationService;
         this.wordService = wordService;
     }
 
@@ -52,15 +43,6 @@ public class DailyChallengeService {
                 .findById(new DailyChallengeRecordId(
                         recordItem.getDailyChallenge().getId(),
                         recordItem.getUser().getId()));
-
-        String debug_string = "Looking for: " + recordItem.getUser().getId(); // TODO remove debugging statements
-
-        if (foundRecord.isEmpty())
-            debug_string += "; user not found";
-        else
-            debug_string += "; found. Number of comb: " + foundRecord.get().getNumberOfCombinations();
-
-        System.out.println(debug_string);
 
         return foundRecord.orElseGet(() -> dailyChallengeRecordRepository.saveAndFlush(recordItem));
     }
@@ -71,7 +53,7 @@ public class DailyChallengeService {
 
 //    @Scheduled(cron = "0 * * * * *")
     @EventListener(ApplicationReadyEvent.class)
-    public void createNewDailyChallenge() {
+    void createNewDailyChallenge() {
         dailyChallengeRecordRepository.deleteAll();
         dailyChallengeRepository.deleteAll();
 
@@ -80,41 +62,18 @@ public class DailyChallengeService {
         dailyChallengeRepository.saveAndFlush(dailyChallenge);
     }
 
-    public Player startGame(User user) {
-        Player player = new Player(UUID.randomUUID().toString(), user.getUsername(), null);
-        player.setUser(user);
-        player.setStatus(PlayerStatus.PLAYING);
-        user.setPlayer(player);
-
-        Word targetWord = getTargetWord();
-        DailyChallengeGame game = new DailyChallengeGame(playerService, combinationService, wordService, targetWord);
-        game.setUpPlayer(player);
-
-        return player;
-    }
+    public DailyChallenge getDailyChallenge() { return dailyChallengeRepository.findAll().get(0); }
 
     public Word getTargetWord() {
-        return dailyChallengeRepository.findAll().get(0).getTargetWord();
+        return getDailyChallenge().getTargetWord();
     }
 
-    public Word play(Player player, List<Word> words) {
-        Word targetWord = getTargetWord();
-        DailyChallengeGame game = new DailyChallengeGame(playerService, combinationService, wordService, targetWord);
-        Word result = game.makeCombination(player, words);
+    public void updateRecords(Lobby lobby) {
+        DailyChallenge dailyChallenge = getDailyChallenge();
 
-        if (game.winConditionReached(player)) {
-            endGame(player);
+        for (Player player : lobby.getPlayers()) {
+            DailyChallengeRecord dailyChallengeRecord = getDailyChallengeRecord(new DailyChallengeRecord(dailyChallenge, player.getUser(), player.getPoints()));
+            dailyChallengeRecord.setNumberOfCombinations(min(dailyChallengeRecord.getNumberOfCombinations(), player.getPoints()));
         }
-        return result;
-    }
-
-    void endGame(Player player) {
-        DailyChallenge dailyChallenge = dailyChallengeRepository.findAll().get(0);
-
-        System.out.println("player id: " + player.getId() + "   user id: " + player.getUser().getId());
-        DailyChallengeRecord dailyChallengeRecord = getDailyChallengeRecord(new DailyChallengeRecord(dailyChallenge, player.getUser(), player.getPoints()));
-        dailyChallengeRecord.setNumberOfCombinations(min(dailyChallengeRecord.getNumberOfCombinations(), player.getPoints()));
-
-        player.setStatus(PlayerStatus.WON);
     }
 }

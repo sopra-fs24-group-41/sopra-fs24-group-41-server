@@ -18,6 +18,15 @@ public class DailyChallenge implements Serializable {
     @ManyToOne
     private Word targetWord;
 
+    public DailyChallenge() {
+
+    }
+
+    public DailyChallenge(long id, Word targetWord) {
+        this.id = id;
+        this.targetWord = targetWord;
+    }
+
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
