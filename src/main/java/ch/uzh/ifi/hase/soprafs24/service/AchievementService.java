@@ -1,10 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.entity.achievements.*;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.AchievementRepository;
+import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -30,6 +32,7 @@ public class AchievementService {
     private final AchievementRepository achievementRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final Set<Achievement> achievements = new HashSet<Achievement>();
+    private static final String MESSAGE_ACHIEVEMENT = "/topic/achievements/%d";
 
     @Autowired
     public AchievementService(@Qualifier("achievementRepository") AchievementRepository achievementRepository, SimpMessagingTemplate messagingTemplate) {
@@ -71,7 +74,7 @@ public class AchievementService {
         for (Achievement achievement : achievements) {
             if (!user.hasAchievement(achievement) && achievement.unlockConditionFulfilled(player, combination)) {
                 user.addAchievement(achievement);
-                messagingTemplate.convertAndSend(String.format("/topic/achievements/%d", user.getId()), achievement);
+                messagingTemplate.convertAndSend(String.format(MESSAGE_ACHIEVEMENT, user.getId()), new InstructionDTO(Instruction.ACHIEVEMENT, achievement));
             }
         }
     }
