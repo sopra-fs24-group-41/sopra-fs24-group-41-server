@@ -128,6 +128,17 @@ class DTOMapperTest {
         assertEquals(testLobby.getMode(), lobbyGetDTO.getMode());
     }
 
+    // tests convertEntityToLobbyStatusGetDTO
+    @Test
+    void testGetLobbyStatus_fromLobby_toLobbyStatusGetDTO_success() {
+        Lobby testLobby = new Lobby(1234, "test Lobby");
+        testLobby.setMode(GameMode.STANDARD);
+
+        LobbyStatusGetDTO lobbyStatusGetDTO = DTOMapper.INSTANCE.convertEntityToLobbyStatusGetDTO(testLobby);
+
+        assertEquals(testLobby.getStatus(), lobbyStatusGetDTO.getStatus());
+    }
+
     // tests convertEntityToPlayerJoinedDTO
     @Test
     void testCreateLobby_fromPlayerAndLobby_toPlayerJoinedDTO() {
