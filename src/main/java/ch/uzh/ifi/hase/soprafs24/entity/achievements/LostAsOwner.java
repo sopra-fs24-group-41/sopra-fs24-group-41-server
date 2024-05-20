@@ -13,7 +13,7 @@ public class LostAsOwner extends Achievement {
     public LostAsOwner() {
         setTitle("But it's MY party!");
         setDescription("Lose a game against other players in a lobby you own.");
-        setProfilePicture("party_hat");
+        setProfilePicture("partydude");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {

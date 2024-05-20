@@ -12,7 +12,7 @@ public class MadeFirstCombination extends Achievement {
     public MadeFirstCombination() {
         setTitle("Baby's first combination");
         setDescription("Merge your first combination");
-        setProfilePicture("baby");
+        setProfilePicture("pixelshiba");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {

@@ -12,7 +12,7 @@ public class Won100Times extends Achievement {
     public Won100Times() {
         setTitle("Time well spent");
         setDescription("Win 100 games.");
-        setProfilePicture("galaxy_gorilla");
+        setProfilePicture("sunglassesgorilla");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {

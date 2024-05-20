@@ -12,7 +12,7 @@ public class CreatedMud extends Achievement {
     public CreatedMud() {
         setTitle("This stuff is everywhere!");
         setDescription("Create mud through any combination.");
-        setProfilePicture("mud");
+        setProfilePicture("mudman");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {
