@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,6 +65,7 @@ class GameServiceIntegrationTest {
         Lobby testLobby = new Lobby();
         testLobby.setMode(GameMode.WOMBOCOMBO);
         testLobby.setPlayers(List.of(player));
+        testLobby.setStartTime(LocalDateTime.now());
         player.setLobby(testLobby);
 
         Word word1 = new Word("water", 0, 100);

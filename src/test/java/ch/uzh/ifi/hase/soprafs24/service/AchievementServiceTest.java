@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
@@ -58,6 +59,7 @@ public class AchievementServiceTest {
 
         lobby = new Lobby(1234, "Lobby");
         lobby.setOwner(player);
+        lobby.setStartTime(LocalDateTime.now());
         player.setOwnedLobby(lobby);
 
         player.setLobby(lobby);
@@ -71,8 +73,6 @@ public class AchievementServiceTest {
     @Test
     void getAchievement_found() {
         Achievement foundAchievement = achievementService.get(achievement);
-
-        System.out.println(foundAchievement.getName());
 
         assertEquals(achievement, foundAchievement);
     }
