@@ -5,8 +5,6 @@ import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRecordRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -47,8 +45,7 @@ public class DailyChallengeService {
         return dailyChallengeRecordRepository.findAll();
     }
 
-//    @Scheduled(cron = "0 * * * * *")
-    @EventListener(ApplicationReadyEvent.class)
+    @Scheduled(cron = "0 0 0 * * *")
     void createNewDailyChallenge() {
         dailyChallengeRecordRepository.deleteAll();
         dailyChallengeRepository.deleteAll();

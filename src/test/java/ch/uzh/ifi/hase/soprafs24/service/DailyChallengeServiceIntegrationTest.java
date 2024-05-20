@@ -55,15 +55,6 @@ class DailyChallengeServiceIntegrationTest {
         wordRepository.deleteAll();
     }
 
-    @AfterEach
-    void cleanup() {
-        dailyChallengeRecordRepository.deleteAll();
-        dailyChallengeRepository.deleteAll();
-        userRepository.deleteAll();
-        combinationRepository.deleteAll();
-        wordRepository.deleteAll();
-    }
-
     @Test
     void createNewDailyChallenge_success() {
         Word word = new Word("volcano", 3, 0.125);

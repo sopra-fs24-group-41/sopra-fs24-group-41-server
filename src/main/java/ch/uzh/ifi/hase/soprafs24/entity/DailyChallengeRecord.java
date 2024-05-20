@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.*;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -11,14 +12,17 @@ import java.util.Objects;
 @IdClass(DailyChallengeRecordId.class)
 public class DailyChallengeRecord implements Serializable {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Id
     @ManyToOne
-    @JoinColumn(name="dailychallenge")
+    @JoinColumn(name="daily_challenge")
     private DailyChallenge dailyChallenge;
 
     @Id
     @ManyToOne
-    @JoinColumn(name="users")
+    @JoinColumn(name="user_id")
     private User user;
 
     @Column(nullable = false)

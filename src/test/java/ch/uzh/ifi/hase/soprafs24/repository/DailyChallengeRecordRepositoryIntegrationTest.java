@@ -66,14 +66,6 @@ class DailyChallengeRecordRepositoryIntegrationTest {
         entityManager.persistAndFlush(dailyChallengeRecord);
     }
 
-    @AfterEach
-    void cleanup() {
-        dailyChallengeRecordRepository.deleteAll();
-        dailyChallengeRepository.deleteAll();
-        wordRepository.deleteAll();
-        userRepository.deleteAll();
-    }
-
     @Test
     void findsById_success() {
         Optional<DailyChallengeRecord> foundRecord = dailyChallengeRecordRepository.findById(

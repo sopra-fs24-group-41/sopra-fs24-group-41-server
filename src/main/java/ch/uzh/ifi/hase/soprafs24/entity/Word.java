@@ -5,6 +5,7 @@ import org.hibernate.proxy.HibernateProxy;
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,6 +29,9 @@ public class Word implements Serializable {
 
     @Column
     private double reachability;
+
+    @OneToMany(mappedBy = "targetWord", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DailyChallenge> dailyChallenges = new ArrayList<>();
 
     @Transient
     private boolean newlyDiscovered = false;
@@ -100,5 +104,13 @@ public class Word implements Serializable {
 
     public void setNewlyDiscovered(boolean newlyDiscovered) {
         this.newlyDiscovered = newlyDiscovered;
+    }
+
+    public List<DailyChallenge> getDailyChallenges() {
+        return dailyChallenges;
+    }
+
+    public void setDailyChallenges(List<DailyChallenge> dailyChallenges) {
+        this.dailyChallenges = dailyChallenges;
     }
 }

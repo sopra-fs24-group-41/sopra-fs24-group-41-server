@@ -4,6 +4,8 @@ import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -16,8 +18,12 @@ public class DailyChallenge implements Serializable {
     private long id;
 
     @ManyToOne
-    @JoinColumn(name="word")
+    @JoinColumn(name="target_word")
     private Word targetWord;
+
+    @OneToMany(mappedBy = "dailyChallenge", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DailyChallengeRecord> challengeRecords = new ArrayList<>();
+
 
     public DailyChallenge() {
 
@@ -58,5 +64,13 @@ public class DailyChallenge implements Serializable {
 
     public void setTargetWord(Word targetWord) {
         this.targetWord = targetWord;
+    }
+
+    public List<DailyChallengeRecord> getChallengeRecords() {
+        return challengeRecords;
+    }
+
+    public void setChallengeRecords(List<DailyChallengeRecord> records) {
+        this.challengeRecords = records;
     }
 }
