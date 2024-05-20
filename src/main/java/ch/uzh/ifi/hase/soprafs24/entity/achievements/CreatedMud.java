@@ -15,7 +15,7 @@ public class CreatedMud extends Achievement {
         setProfilePicture("mud");
     }
 
-    boolean unlockConditionFulfilled(Player player, Combination combination) {
+    public boolean unlockConditionFulfilled(Player player, Combination combination) {
         return combination.getResult().getName().equals("mud");
     }
 }

@@ -15,7 +15,7 @@ public class MadeFirstCombination extends Achievement {
         setProfilePicture("baby");
     }
 
-    boolean unlockConditionFulfilled(Player player, Combination combination) {
+    public boolean unlockConditionFulfilled(Player player, Combination combination) {
         return true;
     }
 }

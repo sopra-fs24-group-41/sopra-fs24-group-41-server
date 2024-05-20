@@ -16,7 +16,7 @@ public class LostAlone extends Achievement {
         setProfilePicture("alone");
     }
 
-    boolean unlockConditionFulfilled(Player player, Combination combination) {
+    public boolean unlockConditionFulfilled(Player player, Combination combination) {
         return player.getStatus() == PlayerStatus.LOST
                 && player.getLobby().getPlayers().size() == 1;
     }

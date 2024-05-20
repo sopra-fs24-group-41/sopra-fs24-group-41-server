@@ -16,7 +16,7 @@ public class LostAsOwner extends Achievement {
         setProfilePicture("party_hat");
     }
 
-    boolean unlockConditionFulfilled(Player player, Combination combination) {
+    public boolean unlockConditionFulfilled(Player player, Combination combination) {
         return player.getStatus() == PlayerStatus.LOST
                 && player.getLobby().getPlayers().size() >= 2
                 && player.getLobby().getOwner() == player;

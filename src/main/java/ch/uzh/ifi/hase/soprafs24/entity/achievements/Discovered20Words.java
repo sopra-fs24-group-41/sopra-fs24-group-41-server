@@ -15,7 +15,7 @@ public class Discovered20Words extends Achievement {
         setProfilePicture("astronaut");
     }
 
-    boolean unlockConditionFulfilled(Player player, Combination combination) {
+    public boolean unlockConditionFulfilled(Player player, Combination combination) {
         return player.getUser().getDiscoveredWords() > 20;
     }
 }

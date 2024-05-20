@@ -15,7 +15,7 @@ public class Merged100Words extends Achievement {
         setProfilePicture("platypus");
     }
 
-    boolean unlockConditionFulfilled(Player player, Combination combination) {
+    public boolean unlockConditionFulfilled(Player player, Combination combination) {
         return player.getUser().getCombinationsMade() > 100;
     }
 }

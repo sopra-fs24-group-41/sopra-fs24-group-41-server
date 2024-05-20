@@ -52,10 +52,9 @@ public class AchievementService {
         if (user == null) return;
 
         for (Achievement achievement : achievements) {
-            if (!user.hasAchievement(achievement)){
-                if (achievement.unlock(player, combination)) {
-                    messagingTemplate.convertAndSend(String.format("/topic/achievements/%d", user.getId()), achievement);
-                }
+            if (!user.hasAchievement(achievement) && achievement.unlockConditionFulfilled(player, combination)) {
+                user.addAchievement(achievement);
+                messagingTemplate.convertAndSend(String.format("/topic/achievements/%d", user.getId()), achievement);
             }
         }
     }

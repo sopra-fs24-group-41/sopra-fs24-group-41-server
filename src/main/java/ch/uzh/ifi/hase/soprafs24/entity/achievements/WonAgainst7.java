@@ -16,7 +16,7 @@ public class WonAgainst7 extends Achievement {
         setProfilePicture("gold");
     }
 
-    boolean unlockConditionFulfilled(Player player, Combination combination) {
+    public boolean unlockConditionFulfilled(Player player, Combination combination) {
         return player.getStatus() == PlayerStatus.WON
                 && player.getLobby().getPlayers().size() >= 8;
     }

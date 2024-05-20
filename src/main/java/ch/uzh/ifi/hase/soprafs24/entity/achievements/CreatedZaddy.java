@@ -15,7 +15,7 @@ public class CreatedZaddy extends Achievement {
         setProfilePicture("zaddy");
     }
 
-    boolean unlockConditionFulfilled(Player player, Combination combination) {
+    public boolean unlockConditionFulfilled(Player player, Combination combination) {
         return combination.getResult().getName().equals("zaddy");
     }
 }

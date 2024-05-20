@@ -15,7 +15,7 @@ public class Won100Times extends Achievement {
         setProfilePicture("galaxy_gorilla");
     }
 
-    boolean unlockConditionFulfilled(Player player, Combination combination) {
+    public boolean unlockConditionFulfilled(Player player, Combination combination) {
         return player.getUser().getWins() >= 100;
     }
 }

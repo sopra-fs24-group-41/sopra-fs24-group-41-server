@@ -14,9 +14,10 @@ public class MadeNoNewWords extends Achievement {
         setTitle("Whole lot of nothing");
         setDescription("Play a game with other people, make at least one combination, and loose without adding any new words to the word board.");
         setProfilePicture("platypus");
+        setHidden(true);
     }
 
-    boolean unlockConditionFulfilled(Player player, Combination combination) {
+    public boolean unlockConditionFulfilled(Player player, Combination combination) {
         return player.getLobby().getPlayers().size() >= 2
                 && player.getPlayerWords().size() == 4
                 && player.getStatus() == PlayerStatus.LOST;

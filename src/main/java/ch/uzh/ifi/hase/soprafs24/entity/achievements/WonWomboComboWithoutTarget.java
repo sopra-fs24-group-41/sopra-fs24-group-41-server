@@ -15,9 +15,10 @@ public class WonWomboComboWithoutTarget extends Achievement {
         setTitle("I won... I guess?");
         setDescription("Win a game of Wombo Combo without actually reaching a target word.");
         setProfilePicture("puppy");
+        setHidden(true);
     }
 
-    boolean unlockConditionFulfilled(Player player, Combination combination) {
+    public boolean unlockConditionFulfilled(Player player, Combination combination) {
         int mergedWords = player.getPlayerWords().size() - 4;
         return player.getStatus() == PlayerStatus.WON
                 && player.getLobby().getMode() == GameMode.WOMBOCOMBO

@@ -30,15 +30,10 @@ public abstract class Achievement implements Serializable {
     @Column
     private String profilePicture;
 
-    abstract boolean unlockConditionFulfilled(Player player, Combination combination);
+    @Column
+    private boolean hidden = false;
 
-    public boolean unlock(Player player, Combination combination) {
-        if (unlockConditionFulfilled(player, combination)) {
-            player.getUser().addAchievement(this);
-            return true;
-        }
-        return false;
-    }
+    public abstract boolean unlockConditionFulfilled(Player player, Combination combination);
 
     @Override
     public final boolean equals(Object o) {
@@ -48,10 +43,7 @@ public abstract class Achievement implements Serializable {
         Class<?> thisEffectiveClass = this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         Achievement that = (Achievement) o;
-        return Objects.equals(getName(), that.getName()) &&
-                Objects.equals(getTitle(), that.getTitle()) &&
-                Objects.equals(getDescription(), that.getDescription()) &&
-                Objects.equals(getProfilePicture(), that.getProfilePicture());
+        return Objects.equals(getName(), that.getName()) && Objects.equals(getTitle(), that.getTitle()) && Objects.equals(getDescription(), that.getDescription()) && Objects.equals(getProfilePicture(), that.getProfilePicture());
     }
 
     @Override
@@ -85,5 +77,13 @@ public abstract class Achievement implements Serializable {
 
     void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 }

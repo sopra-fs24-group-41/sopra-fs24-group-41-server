@@ -79,7 +79,10 @@ public class FiniteFusionGame extends Game {
 
     private Combination playCasual(Player player, List<Word> words) {
         Combination combination = combinationService.getCombination(words.get(0), words.get(1));
-        player.addWord(combination.getResult());
+        if (!player.getWords().contains(combination.getResult())) {
+            player.addPoints(1);
+            player.addWord(combination.getResult());
+        }
         return combination;
     }
 
