@@ -117,7 +117,11 @@ public class GameService {
         updatePlayerStatistics(player, result);
 
         if (game.winConditionReached(player)) {
+            player = playerService.setWinnerAndLoser(player);
             endGame(lobby, String.format("%s has won the game!", player.getName()));
+        }
+        else if (allPlayersLost(lobby)) {
+            endGame(lobby, "All players have lost the game!");
         }
         return result;
     }
@@ -213,4 +217,7 @@ public class GameService {
         }
     }
 
+    public boolean allPlayersLost(Lobby lobby) {
+        return lobby.getPlayers().stream().allMatch(player -> player.getStatus() == PlayerStatus.LOST);
+    }
 }

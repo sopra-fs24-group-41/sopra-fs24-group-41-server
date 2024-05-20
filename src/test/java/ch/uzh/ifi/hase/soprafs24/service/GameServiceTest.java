@@ -125,8 +125,12 @@ class GameServiceTest {
 
     @Test
     void play_won_success() {
-        Player testPlayer1 = new Player();
-        Player testPlayer2 = new Player();
+        Lobby testLobby = new Lobby(1234, "testLobby");
+        testLobby.setMode(GameMode.FUSIONFRENZY);
+        testLobby.setStatus(LobbyStatus.INGAME);
+
+        Player testPlayer1 = new Player("123", "testPlayer1", testLobby);
+        Player testPlayer2 = new Player("234", "testPlayer2", testLobby);
 
         testPlayer1.addWords(startingWords);
         testPlayer2.addWords(startingWords);
@@ -135,9 +139,6 @@ class GameServiceTest {
         testPlayers.add(testPlayer1);
         testPlayers.add(testPlayer2);
 
-        Lobby testLobby = new Lobby();
-        testLobby.setMode(GameMode.FUSIONFRENZY);
-        testLobby.setStatus(LobbyStatus.INGAME);
         testLobby.setPlayers(testPlayers);
 
         testPlayer1.setLobby(testLobby);
@@ -151,6 +152,11 @@ class GameServiceTest {
         when(wordService.saveWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
         when(wordService.getWord(Mockito.any())).then(AdditionalAnswers.returnsFirstArg());
         when(combinationService.getCombination(water, earth)).thenReturn(testCombination);
+        when(playerService.setWinnerAndLoser(Mockito.any())).thenAnswer(invocation -> {
+            Player player = invocation.getArgument(0);
+            player.setStatus(PlayerStatus.WON);
+            return player;
+        });
 
         assertEquals(startingWords, testPlayer1.getWords());
 

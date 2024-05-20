@@ -163,19 +163,11 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.OK)
     public PlayerPlayedDTO play(@PathVariable String lobbyCode, @PathVariable String playerId,
                                 @RequestHeader String playerToken, @RequestBody List<Word> words) {
+        long lobbyCodeLong = parseLobbyCode(lobbyCode);
         Player player = getAuthenticatedPlayer(lobbyCode, playerId, playerToken);
         Word result = gameService.play(player, words);
-
-        long lobbyCodeLong = parseLobbyCode(lobbyCode);
-        Lobby lobby = lobbyService.getLobbyByCode(lobbyCodeLong);
-
-        if (lobbyService.allPlayersLost(lobby)) {
-            gameService.endGame(lobby, "All players have lost the game");
-        }
-        else {
-            messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()),
-                    new InstructionDTO(Instruction.UPDATE_PLAYERS, lobby.getPlayers().stream().map(DTOMapper.INSTANCE::convertEntityToPlayerGetDTO).toList()));
-        }
+        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobbyCodeLong),
+                new InstructionDTO(Instruction.UPDATE_PLAYERS, player.getLobby().getPlayers().stream().map(DTOMapper.INSTANCE::convertEntityToPlayerGetDTO).toList()));
 
         PlayerPlayedDTO playerPlayedDTO = DTOMapper.INSTANCE.convertEntityToPlayerPlayedDTO(player);
         playerPlayedDTO.setResultWord(DTOMapper.INSTANCE.convertEntityToWordDTO(result));

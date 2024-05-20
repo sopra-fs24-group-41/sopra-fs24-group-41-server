@@ -103,10 +103,12 @@ public class LobbyService {
         return lobbyRepository.findAllByPublicAccess(true);
     }
 
+    // TODO: decide if we want to remove this method
     public boolean allPlayersReady(Lobby lobby) {
         return lobby.getPlayers().stream().allMatch(player -> player.getStatus() == PlayerStatus.READY);
     }
 
+    // TODO: decide if we want to remove this method
     public boolean allPlayersLost(Lobby lobby) {
         return lobby.getPlayers().stream().allMatch(player -> player.getStatus() == PlayerStatus.LOST);
     }
