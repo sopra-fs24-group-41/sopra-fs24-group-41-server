@@ -53,6 +53,15 @@ public class DailyChallengeService {
                         recordItem.getDailyChallenge().getId(),
                         recordItem.getUser().getId()));
 
+        String debug_string = "Looking for: " + recordItem.getUser().getId(); // TODO remove debugging statements
+
+        if (foundRecord.isEmpty())
+            debug_string += "; user not found";
+        else
+            debug_string += "; found. Number of comb: " + foundRecord.get().getNumberOfCombinations();
+
+        System.out.println(debug_string);
+
         return foundRecord.orElseGet(() -> dailyChallengeRecordRepository.saveAndFlush(recordItem));
     }
 
@@ -67,7 +76,7 @@ public class DailyChallengeService {
         dailyChallengeRepository.deleteAll();
 
         DailyChallenge dailyChallenge = new DailyChallenge();
-        dailyChallenge.setTargetWord(wordService.getRandomWord()); // TODO update to reachability
+        dailyChallenge.setTargetWord(wordService.getWord(new Word("Steam"))); // TODO update to reachability
         dailyChallengeRepository.saveAndFlush(dailyChallenge);
     }
 
@@ -102,6 +111,7 @@ public class DailyChallengeService {
     void endGame(Player player) {
         DailyChallenge dailyChallenge = dailyChallengeRepository.findAll().get(0);
 
+        System.out.println("player id: " + player.getId() + "   user id: " + player.getUser().getId());
         DailyChallengeRecord dailyChallengeRecord = getDailyChallengeRecord(new DailyChallengeRecord(dailyChallenge, player.getUser(), player.getPoints()));
         dailyChallengeRecord.setNumberOfCombinations(min(dailyChallengeRecord.getNumberOfCombinations(), player.getPoints()));
 
