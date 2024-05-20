@@ -136,7 +136,7 @@ public class LobbyController {
         gameService.createNewGame(lobby);
         lobby.setStatus(LobbyStatus.INGAME);
         messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, new InstructionDTO(Instruction.UPDATE_LOBBY_LIST, getPublicLobbiesGetDTOList()));
-        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.START, null));
+        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.START));
     }
 
     @DeleteMapping("/lobbies/{code}/games")
@@ -149,7 +149,7 @@ public class LobbyController {
         }
         gameService.endGame(lobby, "The game was stopped by the owner");
         messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, new InstructionDTO(Instruction.UPDATE_LOBBY_LIST, getPublicLobbiesGetDTOList()));
-        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP, null));
+        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP));
     }
 
     @GetMapping("/lobbies/{lobbyCode}/players/{playerId}")

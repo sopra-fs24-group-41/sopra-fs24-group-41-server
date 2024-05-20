@@ -12,6 +12,10 @@ public class InstructionDTO {
 
     public InstructionDTO() {}
 
+    public InstructionDTO(Instruction instruction) {
+        this.instruction = instruction;
+    }
+
     public InstructionDTO(Instruction instruction, Object data) {
         this.instruction = instruction;
         this.data = data;
