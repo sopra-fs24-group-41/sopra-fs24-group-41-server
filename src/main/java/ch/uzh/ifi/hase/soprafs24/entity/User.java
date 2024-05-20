@@ -57,7 +57,7 @@ public class User implements Serializable {
     @Column
     private String profilePicture;
 
-    @Column(updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDate creationDate;
 
     @Column(nullable = false)
