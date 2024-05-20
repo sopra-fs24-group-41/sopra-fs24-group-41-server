@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.web.WebAppConfiguration;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -73,6 +74,7 @@ class DailyChallengeServiceIntegrationTest {
         user.setPassword("testPassword");
         user.setStatus(UserStatus.OFFLINE);
         user.setToken("1234");
+        user.setCreationDate(LocalDate.now());
         user = userRepository.saveAndFlush(user);
 
         Word word = new Word("volcano", 3, 0.125);

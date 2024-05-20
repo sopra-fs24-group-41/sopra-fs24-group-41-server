@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,6 +52,7 @@ class DailyChallengeRecordRepositoryIntegrationTest {
         user.setPassword("testPassword");
         user.setStatus(UserStatus.OFFLINE);
         user.setToken("1234");
+        user.setCreationDate(LocalDate.now());
         user = entityManager.merge(user);
         entityManager.persistAndFlush(user);
 
