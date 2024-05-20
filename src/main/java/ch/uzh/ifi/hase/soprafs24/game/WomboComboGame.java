@@ -76,14 +76,6 @@ public class WomboComboGame extends Game {
 
     @Override
     public boolean winConditionReached(Player player) {
-        if (player.getPoints() >= 50) {
-            player.setStatus(PlayerStatus.WON);
-            for (Player p : player.getLobby().getPlayers()) {
-                if (p == player) p.setStatus(PlayerStatus.WON);
-                else p.setStatus(PlayerStatus.LOST);
-            }
-            return true;
-        }
-        return false;
+        return player.getPoints() >= 50;
     }
 }
