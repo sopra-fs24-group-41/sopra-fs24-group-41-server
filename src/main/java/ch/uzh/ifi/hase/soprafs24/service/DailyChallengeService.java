@@ -3,8 +3,6 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRecordRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
@@ -21,8 +19,6 @@ import static java.lang.Math.min;
 @Service
 @Transactional
 public class DailyChallengeService {
-    private final Logger log = LoggerFactory.getLogger(DailyChallengeService.class);
-
     private final DailyChallengeRepository dailyChallengeRepository;
 
     private final DailyChallengeRecordRepository dailyChallengeRecordRepository;
@@ -58,7 +54,7 @@ public class DailyChallengeService {
         dailyChallengeRepository.deleteAll();
 
         DailyChallenge dailyChallenge = new DailyChallenge();
-        dailyChallenge.setTargetWord(wordService.getWord(new Word("Steam"))); // TODO update to reachability
+        dailyChallenge.setTargetWord(wordService.getRandomWordWithinReachability(0.1, 0.4));
         dailyChallengeRepository.saveAndFlush(dailyChallenge);
     }
 

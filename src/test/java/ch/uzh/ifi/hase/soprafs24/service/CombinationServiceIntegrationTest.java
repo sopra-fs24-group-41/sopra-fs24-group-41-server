@@ -3,7 +3,6 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.repository.CombinationRepository;
-import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRecordRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.WordRepository;
 import org.junit.jupiter.api.BeforeEach;

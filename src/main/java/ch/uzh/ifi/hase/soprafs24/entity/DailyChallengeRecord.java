@@ -3,12 +3,13 @@ package ch.uzh.ifi.hase.soprafs24.entity;
 import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Objects;
 
 @Entity
 @Table(name = "DAILYCHALLENGERECORD")
 @IdClass(DailyChallengeRecordId.class)
-public class DailyChallengeRecord {
+public class DailyChallengeRecord implements Serializable {
 
     @Id
     @ManyToOne

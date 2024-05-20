@@ -5,11 +5,8 @@ import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRecordRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
-import org.checkerframework.checker.units.qual.A;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -67,9 +64,8 @@ class DailyChallengeServiceIntegrationTest {
         user.setToken("1234");
         user = userRepository.saveAndFlush(user);
 
-        Word word = new Word("steam");
-        word = wordService.saveWord(word);
-        DailyChallenge dailyChallenge = new DailyChallenge(1L, word);
+        Word word = new Word("volcano", 3, 0.125);
+        wordService.saveWord(word);
 
         Lobby lobby = new Lobby(123, "abcd");
         Player player = new Player("1234", "testUsername", lobby);
