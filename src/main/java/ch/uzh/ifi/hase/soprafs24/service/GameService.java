@@ -156,6 +156,17 @@ public class GameService {
                 new InstructionDTO(Instruction.UPDATE_LOBBY_LIST, lobbyService.getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList()));
     }
 
+    public void abortGame(Lobby lobby, String reason) {
+        cancelAndRemoveTimer(lobby.getCode());
+
+        lobby.setStatus(LobbyStatus.PREGAME);
+        lobby.setGameTime(0);
+
+        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.ABORT_GAME, null, reason));
+        messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE,
+                new InstructionDTO(Instruction.UPDATE_LOBBY_LIST, lobbyService.getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList()));
+    }
+
     public void startTimer(Lobby lobby){
         Timer gameTimer = timers.get(lobby.getCode());
         TimerTask task = createGameTask(lobby);

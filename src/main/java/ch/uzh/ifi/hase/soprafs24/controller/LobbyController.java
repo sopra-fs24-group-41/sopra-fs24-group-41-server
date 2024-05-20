@@ -159,9 +159,9 @@ public class LobbyController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     "There is no ongoing game in this lobby");
         }
-        gameService.endGame(lobby, "The game was stopped by the owner");
+        gameService.abortGame(lobby, "The game was stopped by the owner");
         messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, new InstructionDTO(Instruction.UPDATE_LOBBY_LIST, getPublicLobbiesGetDTOList()));
-        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP));
+        messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.ABORT_GAME));
     }
 
     @GetMapping("/lobbies/{lobbyCode}/players/{playerId}")
