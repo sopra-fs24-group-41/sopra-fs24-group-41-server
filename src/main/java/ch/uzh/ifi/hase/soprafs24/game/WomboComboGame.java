@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 public class WomboComboGame extends Game {
+    private float difficulty = 0.5f;
 
     public WomboComboGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
@@ -24,7 +25,7 @@ public class WomboComboGame extends Game {
         for (Player player : players) {
             playerService.resetPlayer(player);
             player.addWords(startingWords);
-            Word targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
+            Word targetWord = wordService.selectTargetWord(difficulty);
             player.setTargetWord(targetWord);
             player.setStatus(PlayerStatus.PLAYING);
         }
@@ -55,22 +56,8 @@ public class WomboComboGame extends Game {
     }
 
     void setNewTargetWord(Player player) {
-        double minReachability = 0.1;
-        Word targetWord = wordService.getRandomWordWithinReachability(minReachability, 0.3);
-        int maxIter = 1000;
-        int iter = 0;
-        while (player.getWords().contains(targetWord)) {
-            minReachability *= 0.75;
-            targetWord = wordService.getRandomWordWithinReachability(minReachability, 0.3);
-            iter += 1;
-            if (iter >= maxIter) {
-                player.setTargetWord(null);
-                return;
-            }
-            if (iter >= maxIter / 2) {
-                targetWord = combinationService.generateWordWithinReachability(minReachability, 0.3);
-            }
-        }
+        difficulty += 0.125f;
+        Word targetWord = wordService.selectTargetWord(difficulty, player.getWords());
         player.setTargetWord(targetWord);
     }
 

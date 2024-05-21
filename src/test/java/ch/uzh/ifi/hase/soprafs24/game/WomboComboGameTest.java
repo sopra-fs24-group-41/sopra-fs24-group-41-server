@@ -57,8 +57,7 @@ class WomboComboGameTest {
     void setupPlayers_success() {
         Mockito.doNothing().when(playerService).resetPlayer(Mockito.any());
         Word testWord = new Word("testWord", 3, 0.125);
-        Mockito.doReturn(testWord)
-                .when(wordService).getRandomWordWithinReachability(Mockito.anyDouble(), Mockito.anyDouble());
+        Mockito.when(wordService.selectTargetWord(Mockito.anyFloat())).thenReturn(testWord);
         game.setupPlayers(players);
 
         assertEquals(4, player1.getWords().size());
@@ -75,7 +74,7 @@ class WomboComboGameTest {
         player1.addWord(water);
         player1.addWord(fire);
 
-        Mockito.doReturn(new Combination(water, fire, steam)).when(combinationService).getCombination(water, fire);
+        Mockito.when(combinationService.getCombination(water, fire)).thenReturn((new Combination(water, fire, steam)));
 
         game.makeCombination(player1, List.of(water, fire));
 
@@ -115,17 +114,10 @@ class WomboComboGameTest {
     }
 
     @Test
-    void setNewTargetWord_multipleIterations_success() {
-        Word commonWord = new Word("water", 0, 1e6);
-        Word commonWord1 = new Word("mud", 1, 0.5);
+    void setNewTargetWord_success() {
         Word rareWord = new Word("adamantium", 5, 0.05);
 
-        player1.addWord(commonWord);
-        player1.addWord(commonWord1);
-        Mockito.doReturn(player1.getWords().get(1))
-                .when(wordService).getRandomWordWithinReachability(AdditionalMatchers.gt(0.05), Mockito.anyDouble());
-        Mockito.doReturn(rareWord)
-                .when(wordService).getRandomWordWithinReachability(AdditionalMatchers.leq(0.05), Mockito.anyDouble());
+        Mockito.when(wordService.selectTargetWord(Mockito.anyFloat(), Mockito.any())).thenReturn(rareWord);
 
         game.setNewTargetWord(player1);
 

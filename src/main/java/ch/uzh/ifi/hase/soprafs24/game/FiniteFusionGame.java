@@ -15,6 +15,7 @@ import java.util.List;
 
 public class FiniteFusionGame extends Game {
     private static final Integer STARTING_USES = 10;
+    private float difficulty = 0.5f;
 
     public FiniteFusionGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
@@ -23,7 +24,7 @@ public class FiniteFusionGame extends Game {
     @Override
     public void setupPlayers(List<Player> players) {
         setupStartingWords();
-        Word targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
+        Word targetWord = wordService.selectTargetWord(difficulty);
         for (Player player : players) {
             playerService.resetPlayer(player);
             player.addWords(startingWords, STARTING_USES);
