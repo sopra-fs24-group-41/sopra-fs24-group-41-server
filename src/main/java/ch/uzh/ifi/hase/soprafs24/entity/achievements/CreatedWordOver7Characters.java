@@ -7,9 +7,9 @@ import javax.persistence.Entity;
 
 
 @Entity
-public class WordOver7Characters extends Achievement {
+public class CreatedWordOver7Characters extends Achievement {
 
-    public WordOver7Characters() {
+    public CreatedWordOver7Characters() {
         setTitle("Word Architect");
         setDescription("Craft a mega-sized word by joining lots of letters together, turning your word into a skyscraper of language bigger than 7 characters!");
         setProfilePicture("architect");

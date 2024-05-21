@@ -7,9 +7,9 @@ import javax.persistence.Entity;
 
 
 @Entity
-public class WordOver9Characters extends Achievement {
+public class CreatedWordOver9Characters extends Achievement {
 
-    public WordOver9Characters() {
+    public CreatedWordOver9Characters() {
         setTitle("Lexical Magician");
         setDescription("Step into the spotlight as a wizard of words, conjuring a spellbinding creation exceeding 20 characters.");
         setProfilePicture("wizard");
