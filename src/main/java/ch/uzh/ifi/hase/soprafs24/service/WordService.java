@@ -54,8 +54,8 @@ public class WordService {
         float lowerPercentage = clamp(0, desiredDifficulty - margin, 1);
         float upperPercentage = clamp(0, desiredDifficulty + margin, 1);
 
-        int startIndex = (int) Math.floor(lowerPercentage * words.size());
-        int endIndex = (int) Math.ceil(upperPercentage * words.size()) - 1;
+        int startIndex = (int) Math.floor(lowerPercentage * (words.size() - 1));
+        int endIndex = (int) Math.ceil(upperPercentage * (words.size() - 1));
 
         double maxReachability = words.get(startIndex).getReachability();
         double minReachability = words.get(endIndex).getReachability();
