@@ -5,6 +5,7 @@ import org.hibernate.proxy.HibernateProxy;
 import javax.persistence.*;
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,7 +22,7 @@ public class Word implements Serializable {
     private String name;
 
     @OneToMany(mappedBy = "result")
-    private List<Combination> combinations;
+    private List<Combination> combinations = new ArrayList<>();
 
     @Column
     private Integer depth;
@@ -104,7 +105,7 @@ public class Word implements Serializable {
     }
 
     public List<Combination> getCombinations() {
-        return combinations;
+        return List.copyOf(combinations);
     }
 
     public boolean isNewlyDiscovered() {
