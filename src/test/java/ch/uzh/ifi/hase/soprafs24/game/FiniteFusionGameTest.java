@@ -89,9 +89,9 @@ class FiniteFusionGameTest {
         player1.setStatus(PlayerStatus.PLAYING);
 
         Mockito.doReturn(new Combination(water, fire, steam)).when(combinationService).getCombination(water, fire);
-        Mockito.doReturn(steam).when(game).playFiniteFusion(Mockito.any(), Mockito.any());
+        Mockito.doReturn(new Combination(water, fire, steam)).when(game).playFiniteFusion(Mockito.any(), Mockito.any());
 
-        Word result = game.makeCombination(player1, List.of(water, fire));
+        Word result = game.makeCombination(player1, List.of(water, fire)).getResult();
 
         assertEquals(steam, result);
     }

@@ -71,7 +71,7 @@ public class UserService {
         usernameValidation(newUser.getUsername());
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
-        newUser.setProfilePicture("BlueFrog");
+        newUser.setProfilePicture("bluefrog");
         newUser.setCreationDate(LocalDate.now());
         checkDuplicateUser(newUser);
         newUser = userRepository.save(newUser);

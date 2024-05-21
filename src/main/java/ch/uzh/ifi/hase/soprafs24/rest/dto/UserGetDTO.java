@@ -1,7 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.achievements.Achievement;
+
 import java.time.LocalDate;
+import java.util.Set;
 
 public class UserGetDTO {
 
@@ -24,6 +27,8 @@ public class UserGetDTO {
     private int discoveredWords;
 
     private WordDTO rarestWordFound;
+
+    private Set<Achievement> achievements;
 
     public Long getId() {
         return id;
@@ -99,5 +104,13 @@ public class UserGetDTO {
 
     public void setRarestWordFound(WordDTO rarestFoundWord) {
         this.rarestWordFound = rarestFoundWord;
+    }
+
+    public Set<Achievement> getAchievements() {
+        return achievements;
+    }
+
+    public void setAchievements(Set<Achievement> achievements) {
+        this.achievements = achievements;
     }
 }

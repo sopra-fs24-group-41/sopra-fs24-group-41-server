@@ -1,12 +1,15 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.achievements.Achievement;
 import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -69,6 +72,9 @@ public class User implements Serializable {
 
     @ManyToOne
     private Word rarestWordFound = null;
+
+    @ManyToMany
+    private Set<Achievement> achievements = new HashSet<Achievement>();
 
     @Override
     public final boolean equals(Object o) {
@@ -204,5 +210,17 @@ public class User implements Serializable {
 
     public void setRarestWordFound(Word rarestFoundWord) {
         this.rarestWordFound = rarestFoundWord;
+    }
+
+    public Set<Achievement> getAchievements() {
+        return new HashSet<Achievement>(this.achievements);
+    }
+
+    public void addAchievement (Achievement achievement) {
+        this.achievements.add(achievement);
+    }
+
+    public boolean hasAchievement(Achievement achievement) {
+        return this.achievements.contains(achievement);
     }
 }

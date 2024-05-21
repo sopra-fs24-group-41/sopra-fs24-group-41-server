@@ -35,6 +35,7 @@ public interface DTOMapper {
     @Mapping(target = "combinationsMade", ignore = true)
     @Mapping(target = "discoveredWords", ignore = true)
     @Mapping(target = "rarestWordFound", ignore = true)
+    @Mapping(target = "achievements", ignore = true)
     User convertUserPostDTOtoEntity(UserLoginPostDTO userLoginPostDTO);
 
     @Mapping(source = "id", target = "id")
@@ -48,6 +49,7 @@ public interface DTOMapper {
     @Mapping(source = "combinationsMade", target = "combinationsMade")
     @Mapping(source = "discoveredWords", target = "discoveredWords")
     @Mapping(source = "rarestWordFound", target = "rarestWordFound")
+    @Mapping(source = "achievements", target = "achievements")
     UserGetDTO convertEntityToUserGetDTO(User user);
 
     @Mapping(source = "token", target = "token")
@@ -68,6 +70,7 @@ public interface DTOMapper {
     @Mapping(target = "combinationsMade", ignore = true)
     @Mapping(target = "discoveredWords", ignore = true)
     @Mapping(target = "rarestWordFound", ignore = true)
+    @Mapping(target = "achievements", ignore = true)
     User convertUserTokenPostDTOtoEntity(UserTokenPostDTO userTokenPostDTO);
 
     @Mapping(source = "code", target = "code")
@@ -125,6 +128,7 @@ public interface DTOMapper {
     @Mapping(target = "combinationsMade", ignore = true)
     @Mapping(target = "discoveredWords", ignore = true)
     @Mapping(target = "rarestWordFound", ignore = true)
+    @Mapping(target = "achievements", ignore = true)
     User convertUserPutDTOtoEntity(UserPutDTO userPutDTO);
 
 }

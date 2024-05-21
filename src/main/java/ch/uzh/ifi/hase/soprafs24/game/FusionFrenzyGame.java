@@ -31,7 +31,7 @@ public class FusionFrenzyGame extends Game {
     }
 
     @Override
-    public Word makeCombination(Player player, List<Word> words) {
+    public Combination makeCombination(Player player, List<Word> words) {
         if (words.size() == 2) {
             Combination combination = combinationService.getCombination(words.get(0), words.get(1));
             Word result = combination.getResult();
@@ -39,7 +39,7 @@ public class FusionFrenzyGame extends Game {
                 player.addPoints(1);
                 player.addWord(result);
             }
-            return result;
+            return combination;
         }
 
         String errorMessage = "Fusion Frenzy only allows combination of exactly two words!";
