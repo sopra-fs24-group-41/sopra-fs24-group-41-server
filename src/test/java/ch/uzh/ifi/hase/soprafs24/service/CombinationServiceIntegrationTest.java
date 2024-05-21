@@ -37,9 +37,12 @@ public class CombinationServiceIntegrationTest {
     @Autowired
     private WordService wordService;
 
+//    @Autowired
+    @Mock
+    private APIService apiService;
+
     @Autowired
-//    @Spy
-//    @InjectMocks
+    @InjectMocks
     private CombinationService combinationService;
 
     @BeforeEach
@@ -109,8 +112,7 @@ public class CombinationServiceIntegrationTest {
         Word earthquake_new = new Word("earthquake", 1, 1.0 / (1L << 1));
         Combination firstCombination = new Combination(earth, earth, earthquake_new);
 
-//        Mockito.doReturn(earthquake_new).when(spy).generateCombinationResult(earth, earth);
-        Mockito.when(spy.generateCombinationResult(earth, earth)).thenReturn(earthquake_new);
+        Mockito.doReturn(earthquake_new.getName()).when(apiService).generateCombinationResult(earth.getName(), earth.getName());
 
         Word apocalypse_new = new Word("apocalypse", 4, 1.0 / (1L << 4));
         Combination secondCombination = new Combination(earthquake_new, volcano, apocalypse_new);
