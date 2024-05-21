@@ -176,7 +176,6 @@ public class LobbyController {
         Word result = gameService.play(player, words);
         messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobbyCodeLong),
                 new InstructionDTO(Instruction.UPDATE_PLAYERS, player.getLobby().getPlayers().stream().map(DTOMapper.INSTANCE::convertEntityToPlayerGetDTO).toList()));
-
         PlayerPlayedDTO playerPlayedDTO = DTOMapper.INSTANCE.convertEntityToPlayerPlayedDTO(player);
         playerPlayedDTO.setResultWord(DTOMapper.INSTANCE.convertEntityToWordDTO(result));
         return playerPlayedDTO;

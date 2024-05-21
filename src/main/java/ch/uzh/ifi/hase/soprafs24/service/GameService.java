@@ -107,7 +107,8 @@ public class GameService {
         if (result.isNewlyDiscovered()) {
             user.setDiscoveredWords(user.getDiscoveredWords() + 1);
         }
-        if (user.getRarestWordFound() == null || result.getReachability() < user.getRarestWordFound().getReachability()) {
+
+        if (user.getRarestWordFound() == null || result.getReachability() == null || result.getReachability() < user.getRarestWordFound().getReachability()) {
             user.setRarestWordFound(result);
         }
     }

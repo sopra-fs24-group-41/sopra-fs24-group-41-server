@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
+import ch.uzh.ifi.hase.soprafs24.exceptions.WordNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.repository.WordRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -12,7 +13,7 @@ import java.util.List;
 import static java.util.function.Predicate.not;
 
 @Service
-@Transactional
+@Transactional(noRollbackFor = WordNotFoundException.class)
 public class WordService {
     private final WordRepository wordRepository;
     private final CombinationService combinationService;
@@ -54,7 +55,7 @@ public class WordService {
         float upperPercentage = clamp(0, desiredDifficulty + margin, 1);
 
         int startIndex = (int) Math.floor(lowerPercentage * words.size()) - 1;
-        int endIndex = (int) Math.ceil(upperPercentage * words.size());
+        int endIndex = (int) Math.ceil(upperPercentage * words.size()) - 1;
 
         double maxReachability = words.get(startIndex).getReachability();
         double minReachability = words.get(endIndex).getReachability();
@@ -66,10 +67,14 @@ public class WordService {
                 .toList();
 
         if (words.isEmpty()) {
-            return combinationService.generateWordWithinReachability(minReachability, maxReachability);
+            try {
+                return combinationService.generateWordWithinReachability(minReachability, maxReachability);
+            } catch (WordNotFoundException e) {
+                return null;
+            }
         }
 
-        return pickRandom(words.subList(startIndex, endIndex));
+        return pickRandom(words);
     }
 
     public Word getRandomWord() {

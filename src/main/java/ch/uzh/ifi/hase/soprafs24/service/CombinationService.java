@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.exceptions.CombinationNotFoundException;
+import ch.uzh.ifi.hase.soprafs24.exceptions.WordNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.repository.CombinationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,7 +19,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 @Service
-@Transactional
+@Transactional(noRollbackFor = WordNotFoundException.class)
 public class CombinationService {
     private final CombinationRepository combinationRepository;
     private final APIService apiService;
@@ -175,6 +176,6 @@ public class CombinationService {
                 }
             }
         }
-        throw new RuntimeException("Maximum iteration exceeded");
+        throw new WordNotFoundException("within reachability");
     }
 }
