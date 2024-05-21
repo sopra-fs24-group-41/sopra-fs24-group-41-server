@@ -1,4 +1,4 @@
-# M2
+# M4
 
 ## 25.3-07.04 Week 1 & 2 (Including Easter Break)
 
@@ -191,3 +191,6 @@ Worked on:
 **Aquamarine - Alexandru-Mihai Hurjui**
 - Improved test coverage from 70% to 84%: [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/214)
 - Added support for daily challenges on the backend: [Link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/218)
+
+**JacquelineUlken - Jacqueline Ulken**
+- Implemented achievements [#175](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/175) [#176](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/176) [#177](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/177)
