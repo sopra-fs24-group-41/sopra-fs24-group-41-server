@@ -1,19 +1,16 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.entity.*;
-import ch.uzh.ifi.hase.soprafs24.entity.achievements.Achievement;
-import ch.uzh.ifi.hase.soprafs24.entity.achievements.CreatedMud;
-import ch.uzh.ifi.hase.soprafs24.entity.achievements.CreatedZaddy;
+import ch.uzh.ifi.hase.soprafs24.entity.achievements.*;
 import ch.uzh.ifi.hase.soprafs24.repository.AchievementRepository;
+import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -27,17 +24,12 @@ public class AchievementServiceTest {
     @InjectMocks
     private AchievementService achievementService;
 
-    private Achievement achievement;
-    private Lobby lobby;
     private Player player;
     private User user;
-    private Combination combination;
 
     @BeforeEach
     public void setup() {
         MockitoAnnotations.openMocks(this);
-
-        achievement = new CreatedMud();
 
         Mockito.when(achievementRepository.saveAndFlush(Mockito.any(Achievement.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
@@ -45,33 +37,32 @@ public class AchievementServiceTest {
         Mockito.when(achievementRepository.save(Mockito.any(Achievement.class)))
                 .thenAnswer(invocation -> invocation.getArgument(0));
 
-        Mockito.when(achievementRepository.findById(achievement.getName()))
-                .thenReturn(Optional.of(achievement));
+        Mockito.doNothing().when(messagingTemplate).convertAndSend(Mockito.anyString(), Mockito.any(InstructionDTO.class));
 
-        Mockito.doNothing().when(messagingTemplate).convertAndSend(Mockito.any());
-
-        player = new Player("123", "player", null);
+        player = new Player("a", "Player", null);
         user = new User();
         user.setId(1L);
 
         user.setPlayer(player);
         player.setUser(user);
 
-        lobby = new Lobby(1234, "Lobby");
+        Lobby lobby = new Lobby(1, "Player's lobby");
         lobby.setOwner(player);
         lobby.setStartTime(LocalDateTime.now());
         player.setOwnedLobby(lobby);
 
         player.setLobby(lobby);
-        lobby.setPlayers(new ArrayList<>(Arrays.asList(player)));
-
-        combination = new Combination(new Word("water"), new Word("earth"), new Word("mud"));
+        lobby.setPlayers(Collections.singletonList(player));
 
         achievementService.setup();
     }
 
     @Test
     void getAchievement_found() {
+        Achievement achievement = new CreatedMud();
+        Mockito.when(achievementRepository.findById(achievement.getName()))
+                .thenReturn(Optional.of(achievement));
+
         Achievement foundAchievement = achievementService.get(achievement);
 
         assertEquals(achievement, foundAchievement);
@@ -86,10 +77,14 @@ public class AchievementServiceTest {
     }
 
     @Test
-    void awardMudAchievement_success() {
+    void awardMultipleAchievements_success() {
+        Combination combination = new Combination(new Word("water"), new Word("earth"), new Word("mud"));
+
         achievementService.awardAchievements(player, combination);
 
-        assert(user.getAchievements().contains(achievement));
+        assert(user.getAchievements().contains(new CreatedMud()));
+        assert(user.getAchievements().contains(new MadeFirstCombination()));
         assert(!user.getAchievements().contains((new CreatedZaddy())));
+        Mockito.verify(messagingTemplate, Mockito.times(2)).convertAndSend(Mockito.anyString(), Mockito.any(InstructionDTO.class));
     }
 }
