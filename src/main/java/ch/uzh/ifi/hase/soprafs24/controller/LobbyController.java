@@ -119,6 +119,10 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.OK)
     public LobbyGetDTO updateLobby(@PathVariable String code, @RequestBody LobbyPutDTO lobbyPutDTO, @RequestHeader String playerToken) {
         Lobby lobby = getAuthenticatedLobby(code, playerToken);
+        if (lobby.getStatus() != LobbyStatus.PREGAME) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "There is an ongoing game in this lobby, you are not allowed to change the lobby settings before the game has ended");
+        }
 
         lobby = lobbyService.updateLobby(lobby, lobbyPutDTO);
         Map<String, Boolean> updates = lobby.getUpdatedFields();
