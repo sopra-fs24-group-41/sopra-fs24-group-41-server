@@ -33,13 +33,7 @@ public class CombinationService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void setupCombinationDatabase() {
-        List<Word> startingWords = new ArrayList<Word>();
-        startingWords.add(new Word("water"));
-        startingWords.add(new Word("earth"));
-        startingWords.add(new Word("fire"));
-        startingWords.add(new Word("air"));
-
-        makeDefaultCombinations(startingWords);
+        makeDefaultCombinations();
         makeCombinations(20);
     }
 
@@ -77,15 +71,9 @@ public class CombinationService {
         catch (CombinationNotFoundException ignore) {
         }
 
-        Word word1 = combination.getWord1();
-        Word word2 = combination.getWord2();
-
-        int depth = max(word1.getDepth(), word2.getDepth()) + 1;
-        double reachability = 1.0 / (1L << depth);
-
         Word resultWord = combination.getResult();
-        resultWord.setDepth(min(resultWord.getDepth(), depth));
-        resultWord.setReachability(resultWord.getReachability() + reachability);
+        resultWord.updateDepth(combination.getWord1().getDepth(), combination.getWord2().getDepth());
+        resultWord.updateReachability();
 
         combinationRepository.saveAndFlush(combination);
         wordService.saveWord(resultWord);
@@ -125,24 +113,22 @@ public class CombinationService {
 
 
 
-    public void makeDefaultCombinations(List<Word> startingWords) {
-        for (Word word : startingWords) {
-            Word foundWord = wordService.getWord(word);
-            foundWord.setDepth(0);
-            foundWord.setReachability(1e6);
-            wordService.saveWord(foundWord);
-        }
+    public void makeDefaultCombinations() {
+        wordService.saveWord(new Word("water", 0, null));
+        wordService.saveWord(new Word("earth", 0, null));
+        wordService.saveWord(new Word("fire", 0, null));
+        wordService.saveWord(new Word("air", 0, null));
 
-        createCustomCombination(new Word("water"), new Word("water"), new Word("water"));
+        createCustomCombination(new Word("water"), new Word("water"), new Word("lake"));
         createCustomCombination(new Word("water"), new Word("earth"), new Word("mud"));
         createCustomCombination(new Word("water"), new Word("fire"), new Word("steam"));
         createCustomCombination(new Word("water"), new Word("air"), new Word("mist"));
-        createCustomCombination(new Word("earth"), new Word("earth"), new Word("earth"));
+        createCustomCombination(new Word("earth"), new Word("earth"), new Word("hill"));
         createCustomCombination(new Word("earth"), new Word("fire"), new Word("lava"));
         createCustomCombination(new Word("earth"), new Word("air"), new Word("dust"));
-        createCustomCombination(new Word("fire"), new Word("fire"), new Word("fire"));
+        createCustomCombination(new Word("fire"), new Word("fire"), new Word("wildfire"));
         createCustomCombination(new Word("fire"), new Word("air"), new Word("smoke"));
-        createCustomCombination(new Word("air"), new Word("air"), new Word("air"));
+        createCustomCombination(new Word("air"), new Word("air"), new Word("wind"));
     }
 
     public void makeCombinations(int numberOfCombinations) {
