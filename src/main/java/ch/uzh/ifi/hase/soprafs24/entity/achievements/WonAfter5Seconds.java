@@ -16,7 +16,7 @@ public class WonAfter5Seconds extends Achievement {
     public WonAfter5Seconds() {
         setTitle("I am speed.");
         setDescription("Win a game within 5 seconds.");
-        setProfilePicture("speed");
+        setProfilePicture("cat");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {

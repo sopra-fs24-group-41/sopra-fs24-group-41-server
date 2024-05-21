@@ -13,7 +13,7 @@ public class WonAgainst7 extends Achievement {
     public WonAgainst7() {
         setTitle("Master Merger");
         setDescription("Win a game against at least 7 other players.");
-        setProfilePicture("gold");
+        setProfilePicture("redsquid");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {

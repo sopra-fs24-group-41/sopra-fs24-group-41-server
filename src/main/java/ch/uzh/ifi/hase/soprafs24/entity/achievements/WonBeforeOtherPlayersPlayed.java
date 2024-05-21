@@ -14,7 +14,7 @@ public class WonBeforeOtherPlayersPlayed extends Achievement {
     public WonBeforeOtherPlayersPlayed() {
         setTitle("They didn't stand a chance");
         setDescription("Win a game against at least 2 players before either of them could make a new word.");
-        setProfilePicture("king");
+        setProfilePicture("aliendude");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {

@@ -14,7 +14,7 @@ public class LostFiniteFusionNoUses extends Achievement {
     public LostFiniteFusionNoUses() {
         setTitle("We're all out for today.");
         setDescription("Lose a game of Finite Fusion by running out of elements.");
-        setProfilePicture("empty");
+        setProfilePicture("catsy");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {
