@@ -56,7 +56,7 @@ public class WomboComboGame extends Game {
     }
 
     void setNewTargetWord(Player player) {
-        difficulty += 0.125f;
+        difficulty += (float) (0.125f * Math.floor(player.getPoints()/10.0f));
         Word targetWord = wordService.selectTargetWord(difficulty, player.getWords());
         player.setTargetWord(targetWord);
     }
