@@ -14,7 +14,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 public class FiniteFusionGame extends Game {
-    private float difficulty = 0.625f;
+    private float difficulty = 0.75f;
 
     public FiniteFusionGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
