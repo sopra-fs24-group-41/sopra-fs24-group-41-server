@@ -24,6 +24,7 @@ public class CombinationService {
     private final CombinationRepository combinationRepository;
     private final APIService apiService;
     private final WordService wordService;
+    private final List<Word> deadEndWords = List.of(new Word("zaddy"), new Word("daddy"), new Word("swag"));
 
     @Autowired
     public CombinationService(@Qualifier("combinationRepository") CombinationRepository combinationRepository, APIService apiService, WordService wordService) {
@@ -35,6 +36,7 @@ public class CombinationService {
     @EventListener(ApplicationReadyEvent.class)
     public void setupCombinationDatabase() {
         makeDefaultCombinations();
+        makeZaddyChain();
         makeCombinations(20);
     }
 
@@ -58,7 +60,7 @@ public class CombinationService {
     }
 
     public Combination createCombination(Word word1, Word word2) {
-        Word combinationResult = generateCombinationResult(word1, word2);
+        Word combinationResult = deadEndWords.contains(word1) ? word1 : deadEndWords.contains(word2) ? word2 : generateCombinationResult(word1, word2);
 
         Combination combination = new Combination(wordService.getWord(word1), wordService.getWord(word2), wordService.getWord(combinationResult));
         combination = saveCombination(combination);
@@ -112,26 +114,6 @@ public class CombinationService {
         return result.getName().trim().length() > 1;
     }
 
-
-
-    public void makeDefaultCombinations() {
-        wordService.saveWord(new Word("water", 0, null));
-        wordService.saveWord(new Word("earth", 0, null));
-        wordService.saveWord(new Word("fire", 0, null));
-        wordService.saveWord(new Word("air", 0, null));
-
-        createCustomCombination(new Word("water"), new Word("water"), new Word("lake"));
-        createCustomCombination(new Word("water"), new Word("earth"), new Word("mud"));
-        createCustomCombination(new Word("water"), new Word("fire"), new Word("steam"));
-        createCustomCombination(new Word("water"), new Word("air"), new Word("mist"));
-        createCustomCombination(new Word("earth"), new Word("earth"), new Word("hill"));
-        createCustomCombination(new Word("earth"), new Word("fire"), new Word("lava"));
-        createCustomCombination(new Word("earth"), new Word("air"), new Word("dust"));
-        createCustomCombination(new Word("fire"), new Word("fire"), new Word("wildfire"));
-        createCustomCombination(new Word("fire"), new Word("air"), new Word("smoke"));
-        createCustomCombination(new Word("air"), new Word("air"), new Word("wind"));
-    }
-
     public void makeCombinations(int numberOfCombinations) {
         for (int step = 1; step <= numberOfCombinations; step++) {
             int maxIter = 1000;
@@ -158,7 +140,7 @@ public class CombinationService {
     }
 
     public Word generateWordWithinReachability(double minReachability, double maxReachability) {
-        assert(minReachability < maxReachability);
+        assert (minReachability < maxReachability);
 
         int maxDepth = wordService.depthFromReachability(minReachability) + 1;  // since it's floor when casting to int
         int minDepth = wordService.depthFromReachability(maxReachability);
@@ -177,5 +159,61 @@ public class CombinationService {
             }
         }
         throw new WordNotFoundException("within reachability");
+    }
+
+    private void makeDefaultCombinations() {
+        wordService.saveWord(new Word("water", 0, null));
+        wordService.saveWord(new Word("earth", 0, null));
+        wordService.saveWord(new Word("fire", 0, null));
+        wordService.saveWord(new Word("air", 0, null));
+
+        createCustomCombination(new Word("water"), new Word("water"), new Word("lake"));
+        createCustomCombination(new Word("water"), new Word("earth"), new Word("mud"));
+        createCustomCombination(new Word("water"), new Word("fire"), new Word("steam"));
+        createCustomCombination(new Word("water"), new Word("air"), new Word("mist"));
+        createCustomCombination(new Word("earth"), new Word("earth"), new Word("hill"));
+        createCustomCombination(new Word("earth"), new Word("fire"), new Word("lava"));
+        createCustomCombination(new Word("earth"), new Word("air"), new Word("dust"));
+        createCustomCombination(new Word("fire"), new Word("fire"), new Word("wildfire"));
+        createCustomCombination(new Word("fire"), new Word("air"), new Word("smoke"));
+        createCustomCombination(new Word("air"), new Word("air"), new Word("wind"));
+    }
+
+    private void makeZaddyChain() {
+        createCustomCombination(new Word("fire"), new Word("dust"), new Word("ash"));
+        createCustomCombination(new Word("lake"), new Word("lake"), new Word("ocean"));
+        createCustomCombination(new Word("hill"), new Word("hill"), new Word("mountain"));
+        createCustomCombination(new Word("lava"), new Word("lava"), new Word("magma"));
+
+        createCustomCombination(new Word("fire"), new Word("ash"), new Word("charcoal"));
+        createCustomCombination(new Word("earth"), new Word("magma"), new Word("rock"));
+        createCustomCombination(new Word("ocean"), new Word("mountain"), new Word("island"));
+
+        createCustomCombination(new Word("fire"), new Word("rock"), new Word("metal"));
+        createCustomCombination(new Word("charcoal"), new Word("charcoal"), new Word("coal"));
+        createCustomCombination(new Word("island"), new Word("island"), new Word("continent"));
+
+        createCustomCombination(new Word("ocean"), new Word("continent"), new Word("planet"));
+        createCustomCombination(new Word("coal"), new Word("coal"), new Word("carbon"));
+
+        createCustomCombination(new Word("fire"), new Word("planet"), new Word("sun"));
+        createCustomCombination(new Word("carbon"), new Word("carbon"), new Word("diamond"));
+
+        createCustomCombination(new Word("water"), new Word("sun"), new Word("life"));
+        createCustomCombination(new Word("metal"), new Word("sun"), new Word("gold"));
+
+        createCustomCombination(new Word("air"), new Word("life"), new Word("animal"));
+        createCustomCombination(new Word("diamond"), new Word("gold"), new Word("swag"));
+
+        createCustomCombination(new Word("animal"), new Word("animal"), new Word("human"));
+
+        createCustomCombination(new Word("earth"), new Word("human"), new Word("man"));
+        createCustomCombination(new Word("human"), new Word("human"), new Word("family"));
+
+        createCustomCombination(new Word("man"), new Word("family"), new Word("father"));
+
+        createCustomCombination(new Word("fire"), new Word("father"), new Word("daddy"));
+
+        createCustomCombination(new Word("swag"), new Word("daddy"), new Word("zaddy"));
     }
 }

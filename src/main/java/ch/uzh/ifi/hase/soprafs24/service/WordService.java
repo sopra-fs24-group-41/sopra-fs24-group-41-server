@@ -17,6 +17,7 @@ import static java.util.function.Predicate.not;
 public class WordService {
     private final WordRepository wordRepository;
     private final CombinationService combinationService;
+    private final List<Word> forbiddenTargetWords = List.of(new Word("zaddy"), new Word("daddy"), new Word("swag"));
 
     @Autowired
     public WordService(@Qualifier("wordRepository") WordRepository wordRepository, @Lazy CombinationService combinationService) {
@@ -64,6 +65,7 @@ public class WordService {
                 .filter(w -> w.getReachability() <= maxReachability)
                 .filter(w -> w.getReachability() >= minReachability)
                 .filter(not(excludedWords::contains))
+                .filter(not(forbiddenTargetWords::contains))
                 .toList();
 
         if (words.isEmpty()) {
