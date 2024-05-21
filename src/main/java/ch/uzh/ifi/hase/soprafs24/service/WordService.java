@@ -2,10 +2,9 @@ package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.repository.WordRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
@@ -15,12 +14,13 @@ import static java.util.function.Predicate.not;
 @Service
 @Transactional
 public class WordService {
-    private final Logger log = LoggerFactory.getLogger(WordService.class);
     private final WordRepository wordRepository;
+    private final CombinationService combinationService;
 
     @Autowired
-    public WordService(@Qualifier("wordRepository") WordRepository wordRepository) {
+    public WordService(@Qualifier("wordRepository") WordRepository wordRepository, @Lazy CombinationService combinationService) {
         this.wordRepository = wordRepository;
+        this.combinationService = combinationService;
     }
 
     public Word getWord(Word word) {
@@ -65,7 +65,9 @@ public class WordService {
                 .filter(not(excludedWords::contains))
                 .toList();
 
-        if (words.isEmpty()) throw new RuntimeException("Could not find any words with desired reachability!");
+        if (words.isEmpty()) {
+            return combinationService.generateWordWithinReachability(minReachability, maxReachability);
+        }
 
         return pickRandom(words.subList(startIndex, endIndex));
     }
@@ -78,6 +80,10 @@ public class WordService {
         return pickRandom(wordRepository.findAllByReachabilityBetween(minReachability, maxReachability));
     }
 
+    public Word getRandomWordWithinDepth(int minDepth, int maxDepth) {
+        return pickRandom(wordRepository.findAllByDepthBetween(minDepth, maxDepth));
+    }
+
     private <T> T pickRandom(List<T> objects) {
         int count = objects.size();
         if (count == 0) return null;
@@ -87,5 +93,9 @@ public class WordService {
 
     private float clamp(float lower, float value, float upper) {
         return Math.max(lower, Math.min(value, upper));
+    }
+
+    public int depthFromReachability(double reachability) {
+        return (int) (Math.log(1.0 / reachability) / Math.log(2));
     }
 }

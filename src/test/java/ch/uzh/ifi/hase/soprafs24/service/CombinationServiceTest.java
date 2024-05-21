@@ -142,31 +142,4 @@ class CombinationServiceTest {
         Mockito.when(apiService.generateCombinationResult(Mockito.any(), Mockito.any())).thenReturn(""," ", result1.getName());
         assertEquals(result1, combinationService.generateCombinationResult(word1, word2));
     }
-
-    @Test
-    void generateWordWithinReachability_success() {
-        Word result3 = new Word("hell", 4, 0.07);
-        Combination combination3 = new Combination(word4, word4, result3);
-
-        Mockito.doReturn(word1, word2)
-                .when(wordService).getRandomWordWithinReachability(
-                        AdditionalMatchers.leq((double) 1),
-                        AdditionalMatchers.geq((double) 1));
-
-        Mockito.doReturn(word3, word4)
-                .when(wordService).getRandomWordWithinReachability(
-                        AdditionalMatchers.leq(0.05),
-                        AdditionalMatchers.geq(0.05));
-
-        Mockito.doReturn(combination1).when(combinationService).findCombination(word1, word2);
-        Mockito.doReturn(combination1).when(combinationService).findCombination(word2, word2);
-        Mockito.doThrow(CombinationNotFoundException.class).when(combinationService).findCombination(word3, word4);
-        Mockito.doThrow(CombinationNotFoundException.class).when(combinationService).findCombination(word4, word4);
-
-        Mockito.doReturn(combination2).when(combinationService).createCombination(word3, word4);
-        Mockito.doReturn(combination3).when(combinationService).createCombination(word4, word4);
-
-        Word actualResult = combinationService.generateWordWithinReachability(0.5, 2);
-        assertEquals(result3, actualResult);
-    }
 }

@@ -13,6 +13,8 @@ public interface WordRepository extends JpaRepository<Word, Long> {
 
     List<Word> findAllByReachabilityBetween(double start, double end);
 
+    List<Word> findAllByDepthBetween(int start, int end);
+
     @Query(value = "SELECT word FROM Word word WHERE word.reachability IS NOT NULL ORDER BY word.reachability DESC")
     List<Word> findAllSortedByDescendingReachability();
 }

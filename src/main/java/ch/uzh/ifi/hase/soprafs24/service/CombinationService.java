@@ -157,29 +157,24 @@ public class CombinationService {
     }
 
     public Word generateWordWithinReachability(double minReachability, double maxReachability) {
-        int maxIter = 1000;
-        int iter = 0;
-        while (true) {
-            minReachability *= 0.75;
-            maxReachability *= 1.25;
+        assert(minReachability < maxReachability);
 
-            Word word1 = wordService.getRandomWordWithinReachability(minReachability, maxReachability);
-            Word word2 = wordService.getRandomWordWithinReachability(minReachability, maxReachability);
+        int maxDepth = wordService.depthFromReachability(minReachability) + 1;  // since it's floor when casting to int
+        int minDepth = wordService.depthFromReachability(maxReachability);
 
+        for (int i = 0; i <= 100; i += 1) {
+            Word word1 = wordService.getRandomWordWithinDepth(minDepth - 1, maxDepth - 1);
+            Word word2 = wordService.getRandomWordWithinDepth(minDepth - 1, maxDepth - 1);
             try {
                 findCombination(word1, word2);
             }
             catch (CombinationNotFoundException e) {
                 Word result = createCombination(word1, word2).getResult();
-                if (minReachability <= result.getReachability() && result.getReachability() <= maxReachability) {
+                if (result.getReachability() != null && result.getReachability() >= minReachability && result.getReachability() <= maxReachability) {
                     return result;
                 }
             }
-
-            iter += 1;
-            if (iter >= maxIter) {
-                throw new RuntimeException("Maximum iteration exceeded");
-            }
         }
+        throw new RuntimeException("Maximum iteration exceeded");
     }
 }
