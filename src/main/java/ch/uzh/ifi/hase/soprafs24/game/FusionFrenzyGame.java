@@ -13,7 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 public class FusionFrenzyGame extends Game {
-    private float difficulty = 0.75f;
+    private float difficulty = 0.825f;
 
     public FusionFrenzyGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);

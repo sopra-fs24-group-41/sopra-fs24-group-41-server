@@ -15,7 +15,7 @@ import java.util.List;
 
 public class FiniteFusionGame extends Game {
     private static final Integer STARTING_USES = 10;
-    private float difficulty = 0.5f;
+    private float difficulty = 0.625f;
 
     public FiniteFusionGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
