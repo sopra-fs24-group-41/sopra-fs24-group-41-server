@@ -42,16 +42,12 @@ class CombinationServiceIntegrationTest {
 
     @Test
     void getCombination_manyCombinations_success() {
-        Combination combo1 = combinationService.getCombination(new Word("fire"), new Word("water"));
-        Combination combo2 = combinationService.getCombination(new Word("fire"), new Word("water"));
-        Combination combo3 = combinationService.getCombination(new Word("fire"), new Word("earth"));
+        Combination combo1 = combinationService.getCombination(new Word("fire", 0), new Word("water", 0));
+        Combination combo2 = combinationService.getCombination(new Word("fire", 0), new Word("water", 0));
+        Combination combo3 = combinationService.getCombination(new Word("fire", 0), new Word("earth", 0));
 
-        assertEquals(combo1.getWord1().getName(), combo2.getWord1().getName());
-        assertEquals(combo1.getWord2().getName(), combo2.getWord2().getName());
-        assertEquals(combo1.getResult().getName(), combo2.getResult().getName());
-
-        assertEquals(combo1.getWord1().getName(), combo3.getWord1().getName());
-        assertNotEquals(combo1.getWord2().getName(), combo3.getWord2().getName());
+        assertEquals(combo1, combo2);
+        assertNotEquals(combo1, combo3);
     }
 
     @Test

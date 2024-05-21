@@ -1,18 +1,16 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
-import ch.uzh.ifi.hase.soprafs24.exceptions.WordNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.repository.WordRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import java.util.ArrayList;
 import java.util.List;
+import static java.util.function.Predicate.not;
 
 @Service
 @Transactional
@@ -43,26 +41,51 @@ public class WordService {
         return wordRepository.findByName(word.getName());
     }
 
+    public Word selectTargetWord(float desiredDifficulty) {
+        return selectTargetWord(desiredDifficulty, new ArrayList<>());
+    }
+
+    public Word selectTargetWord(float desiredDifficulty, List<Word> excludedWords) {
+        List<Word> words = wordRepository.findAllSortedByDescendingReachability();
+
+        float margin = 0.05f;
+
+        float lowerPercentage = clamp(0, desiredDifficulty - margin, 1);
+        float upperPercentage = clamp(0, desiredDifficulty + margin, 1);
+
+        int startIndex = (int) Math.floor(lowerPercentage * words.size()) - 1;
+        int endIndex = (int) Math.ceil(upperPercentage * words.size());
+
+        double maxReachability = words.get(startIndex).getReachability();
+        double minReachability = words.get(endIndex).getReachability();
+
+        words = words.stream()
+                .filter(w -> w.getReachability() <= maxReachability)
+                .filter(w -> w.getReachability() >= minReachability)
+                .filter(not(excludedWords::contains))
+                .toList();
+
+        if (words.isEmpty()) throw new RuntimeException("Could not find any words with desired reachability!");
+
+        return pickRandom(words.subList(startIndex, endIndex));
+    }
+
     public Word getRandomWord() {
-        Long qty = wordRepository.count();
-        int idx = (int) (Math.random() * qty);
-        Page<Word> wordPage = wordRepository.findAll(PageRequest.of(idx, 1));
-        Word word = null;
-        if (wordPage.hasContent()) {
-            word = wordPage.getContent().get(0);
-        }
-        return word;
+        return pickRandom(wordRepository.findAll());
     }
 
     public Word getRandomWordWithinReachability(double minReachability, double maxReachability) {
-        List<Word> wordList = wordRepository.findAllByReachabilityBetween(minReachability, maxReachability);
-        int count = wordList.size();
-        if (count == 0) {
-            throw new WordNotFoundException("Couldn't find a word within the reachability");
-        }
+        return pickRandom(wordRepository.findAllByReachabilityBetween(minReachability, maxReachability));
+    }
 
+    private <T> T pickRandom(List<T> objects) {
+        int count = objects.size();
+        if (count == 0) return null;
         int idx = (int) (Math.random() * count);
+        return objects.get(idx);
+    }
 
-        return wordList.get(idx);
+    private float clamp(float lower, float value, float upper) {
+        return Math.max(lower, Math.min(value, upper));
     }
 }
