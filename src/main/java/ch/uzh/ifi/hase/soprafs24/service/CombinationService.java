@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs24.service;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.exceptions.CombinationNotFoundException;
+import ch.uzh.ifi.hase.soprafs24.exceptions.WordNotFoundException;
 import ch.uzh.ifi.hase.soprafs24.repository.CombinationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,7 +19,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 @Service
-@Transactional
+@Transactional(noRollbackFor = WordNotFoundException.class)
 public class CombinationService {
     private final CombinationRepository combinationRepository;
     private final APIService apiService;
@@ -33,13 +34,7 @@ public class CombinationService {
 
     @EventListener(ApplicationReadyEvent.class)
     public void setupCombinationDatabase() {
-        List<Word> startingWords = new ArrayList<Word>();
-        startingWords.add(new Word("water"));
-        startingWords.add(new Word("earth"));
-        startingWords.add(new Word("fire"));
-        startingWords.add(new Word("air"));
-
-        makeDefaultCombinations(startingWords);
+        makeDefaultCombinations();
         makeCombinations(20);
     }
 
@@ -77,15 +72,9 @@ public class CombinationService {
         catch (CombinationNotFoundException ignore) {
         }
 
-        Word word1 = combination.getWord1();
-        Word word2 = combination.getWord2();
-
-        int depth = max(word1.getDepth(), word2.getDepth()) + 1;
-        double reachability = 1.0 / (1L << depth);
-
         Word resultWord = combination.getResult();
-        resultWord.setDepth(min(resultWord.getDepth(), depth));
-        resultWord.setReachability(resultWord.getReachability() + reachability);
+        resultWord.updateDepth(combination.getWord1().getDepth(), combination.getWord2().getDepth());
+        resultWord.updateReachability();
 
         combinationRepository.saveAndFlush(combination);
         wordService.saveWord(resultWord);
@@ -125,24 +114,22 @@ public class CombinationService {
 
 
 
-    public void makeDefaultCombinations(List<Word> startingWords) {
-        for (Word word : startingWords) {
-            Word foundWord = wordService.getWord(word);
-            foundWord.setDepth(0);
-            foundWord.setReachability(1e6);
-            wordService.saveWord(foundWord);
-        }
+    public void makeDefaultCombinations() {
+        wordService.saveWord(new Word("water", 0, null));
+        wordService.saveWord(new Word("earth", 0, null));
+        wordService.saveWord(new Word("fire", 0, null));
+        wordService.saveWord(new Word("air", 0, null));
 
-        createCustomCombination(new Word("water"), new Word("water"), new Word("water"));
+        createCustomCombination(new Word("water"), new Word("water"), new Word("lake"));
         createCustomCombination(new Word("water"), new Word("earth"), new Word("mud"));
         createCustomCombination(new Word("water"), new Word("fire"), new Word("steam"));
         createCustomCombination(new Word("water"), new Word("air"), new Word("mist"));
-        createCustomCombination(new Word("earth"), new Word("earth"), new Word("earth"));
+        createCustomCombination(new Word("earth"), new Word("earth"), new Word("hill"));
         createCustomCombination(new Word("earth"), new Word("fire"), new Word("lava"));
         createCustomCombination(new Word("earth"), new Word("air"), new Word("dust"));
-        createCustomCombination(new Word("fire"), new Word("fire"), new Word("fire"));
+        createCustomCombination(new Word("fire"), new Word("fire"), new Word("wildfire"));
         createCustomCombination(new Word("fire"), new Word("air"), new Word("smoke"));
-        createCustomCombination(new Word("air"), new Word("air"), new Word("air"));
+        createCustomCombination(new Word("air"), new Word("air"), new Word("wind"));
     }
 
     public void makeCombinations(int numberOfCombinations) {
@@ -171,29 +158,24 @@ public class CombinationService {
     }
 
     public Word generateWordWithinReachability(double minReachability, double maxReachability) {
-        int maxIter = 1000;
-        int iter = 0;
-        while (true) {
-            minReachability *= 0.75;
-            maxReachability *= 1.25;
+        assert(minReachability < maxReachability);
 
-            Word word1 = wordService.getRandomWordWithinReachability(minReachability, maxReachability);
-            Word word2 = wordService.getRandomWordWithinReachability(minReachability, maxReachability);
+        int maxDepth = wordService.depthFromReachability(minReachability) + 1;  // since it's floor when casting to int
+        int minDepth = wordService.depthFromReachability(maxReachability);
 
+        for (int i = 0; i <= 100; i += 1) {
+            Word word1 = wordService.getRandomWordWithinDepth(minDepth - 1, maxDepth - 1);
+            Word word2 = wordService.getRandomWordWithinDepth(minDepth - 1, maxDepth - 1);
             try {
                 findCombination(word1, word2);
             }
             catch (CombinationNotFoundException e) {
                 Word result = createCombination(word1, word2).getResult();
-                if (minReachability <= result.getReachability() && result.getReachability() <= maxReachability) {
+                if (result.getReachability() != null && result.getReachability() >= minReachability && result.getReachability() <= maxReachability) {
                     return result;
                 }
             }
-
-            iter += 1;
-            if (iter >= maxIter) {
-                throw new RuntimeException("Maximum iteration exceeded");
-            }
         }
+        throw new WordNotFoundException("within reachability");
     }
 }

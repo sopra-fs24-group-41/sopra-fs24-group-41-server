@@ -68,8 +68,8 @@ class GameServiceIntegrationTest {
         testLobby.setStartTime(LocalDateTime.now());
         player.setLobby(testLobby);
 
-        Word word1 = new Word("water", 0, 100);
-        Word word2 = new Word("earth", 0, 100);
+        Word word1 = new Word("water", 0, 100.0);
+        Word word2 = new Word("earth", 0, 100.0);
 
         gameService.play(player, List.of(word1, word2));
 
