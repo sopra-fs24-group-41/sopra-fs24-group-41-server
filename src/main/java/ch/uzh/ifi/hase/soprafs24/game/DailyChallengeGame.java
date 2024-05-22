@@ -2,7 +2,6 @@ package ch.uzh.ifi.hase.soprafs24.game;
 
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
-import ch.uzh.ifi.hase.soprafs24.entity.DailyChallenge;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.Word;
 import ch.uzh.ifi.hase.soprafs24.service.CombinationService;
@@ -52,7 +51,6 @@ public class DailyChallengeGame extends Game {
 
     @Override
     public boolean winConditionReached(Player player) {
-        player.setStatus(PlayerStatus.WON);
         return player.getWords().contains(player.getTargetWord());
     }
 }

@@ -28,14 +28,19 @@ public class DailyChallengeRecord implements Serializable {
     @Column(nullable = false)
     private long numberOfCombinations = 10000;
 
+    public DailyChallengeRecord() {
+
+    }
+
+    public DailyChallengeRecord(DailyChallenge dailyChallenge, User user) {
+        this.dailyChallenge = dailyChallenge;
+        this.user = user;
+    }
+
     public DailyChallengeRecord(DailyChallenge dailyChallenge, User user, long numberOfCombinations) {
         this.dailyChallenge = dailyChallenge;
         this.user = user;
         this.numberOfCombinations = numberOfCombinations;
-    }
-
-    public DailyChallengeRecord() {
-
     }
 
     @Override

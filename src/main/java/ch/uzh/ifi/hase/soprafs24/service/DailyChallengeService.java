@@ -32,13 +32,13 @@ public class DailyChallengeService {
         this.wordService = wordService;
     }
 
-    public DailyChallengeRecord getDailyChallengeRecord(DailyChallengeRecord recordItem) {
+    public DailyChallengeRecord getDailyChallengeRecord(DailyChallenge dailyChallenge, User user) {
         Optional<DailyChallengeRecord> foundRecord = dailyChallengeRecordRepository
                 .findById(new DailyChallengeRecordId(
-                        recordItem.getDailyChallenge().getId(),
-                        recordItem.getUser().getId()));
+                        dailyChallenge.getId(),
+                        user.getId()));
 
-        return foundRecord.orElseGet(() -> dailyChallengeRecordRepository.saveAndFlush(recordItem));
+        return foundRecord.orElseGet(() -> dailyChallengeRecordRepository.saveAndFlush(new DailyChallengeRecord(dailyChallenge, user)));
     }
 
     public List<DailyChallengeRecord> getRecords() {
@@ -65,8 +65,10 @@ public class DailyChallengeService {
         DailyChallenge dailyChallenge = getDailyChallenge();
 
         for (Player player : lobby.getPlayers()) {
-            DailyChallengeRecord dailyChallengeRecord = getDailyChallengeRecord(new DailyChallengeRecord(dailyChallenge, player.getUser(), player.getPoints()));
-            dailyChallengeRecord.setNumberOfCombinations(min(dailyChallengeRecord.getNumberOfCombinations(), player.getPoints()));
+            if (player.getUser() != null) {
+                DailyChallengeRecord dailyChallengeRecord = getDailyChallengeRecord(dailyChallenge, player.getUser());
+                dailyChallengeRecord.setNumberOfCombinations(min(dailyChallengeRecord.getNumberOfCombinations(), player.getPoints()));
+            }
         }
     }
 }
