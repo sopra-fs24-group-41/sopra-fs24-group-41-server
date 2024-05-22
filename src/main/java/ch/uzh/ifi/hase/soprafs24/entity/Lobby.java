@@ -9,6 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -52,6 +53,18 @@ public class Lobby implements Serializable {
     @OneToMany(mappedBy = "lobby", cascade = CascadeType.ALL)
     private List<Player> players;
 
+    @Transient
+    private boolean updatedName = false;
+
+    @Transient
+    private boolean updatedMode = false;
+
+    @Transient
+    private boolean updatedPublicAccess = false;
+
+    @Transient
+    private boolean updatedGameTime = false;
+
     public Lobby() {}
 
     public Lobby(long code, String name) {
@@ -70,8 +83,8 @@ public class Lobby implements Serializable {
     public final boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         Lobby that = (Lobby) o;
         return Objects.equals(getCode(), that.getCode()) &&
@@ -87,39 +100,41 @@ public class Lobby implements Serializable {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+        return this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
     public long getCode() {
-    return code;
+        return code;
     }
 
     public void setCode(long code) {
-    this.code = code;
+        this.code = code;
     }
 
     public String getName() {
-    return name;
+        return name;
     }
 
     public void setName(String name) {
-    this.name = name;
+        this.updatedName = true;
+        this.name = name;
     }
 
     public Boolean getPublicAccess() {
-    return publicAccess;
+        return publicAccess;
     }
 
     public void setPublicAccess(Boolean publicAccess) {
-    this.publicAccess = publicAccess;
+        this.updatedPublicAccess = true;
+        this.publicAccess = publicAccess;
     }
 
     public LocalDateTime getStartTime() {
-    return startTime;
+        return startTime;
     }
 
     public void setStartTime(LocalDateTime startTime) {
-    this.startTime = startTime;
+        this.startTime = startTime;
     }
 
     public LocalDateTime getLastModified() {
@@ -131,27 +146,28 @@ public class Lobby implements Serializable {
     }
 
     public LobbyStatus getStatus() {
-    return status;
+        return status;
     }
 
     public void setStatus(LobbyStatus status) {
-    this.status = status;
+        this.status = status;
     }
 
     public GameMode getMode() {
-    return mode;
+        return mode;
     }
 
     public void setMode(GameMode mode) {
-    this.mode = mode;
+        this.updatedMode = true;
+        this.mode = mode;
     }
 
     public Player getOwner() {
-    return owner;
+        return owner;
     }
 
     public void setOwner(Player owner) {
-    this.owner = owner;
+        this.owner = owner;
     }
 
     public List<Player> getPlayers() {
@@ -166,7 +182,55 @@ public class Lobby implements Serializable {
         this.players.add(player);
     }
 
-    public void setGameTime(Integer gameTime) {this.gameTime = gameTime; }
+    public void setGameTime(Integer gameTime) {
+        this.gameTime = gameTime;
+        this.updatedGameTime = true;
+    }
 
-    public Integer getGameTime() {return gameTime;}
+    public Integer getGameTime() {
+        return gameTime;
+    }
+
+    public boolean isUpdatedName() {
+        return updatedName;
+    }
+
+    public void setUpdatedName(boolean updatedName) {
+        this.updatedName = updatedName;
+    }
+
+    public boolean isUpdatedMode() {
+        return updatedMode;
+    }
+
+    public void setUpdatedMode(boolean updatedMode) {
+        this.updatedMode = updatedMode;
+    }
+
+    public boolean isUpdatedPublicAccess() {
+        return updatedPublicAccess;
+    }
+
+    public void setUpdatedPublicAccess(boolean updatedPublicAccess) {
+        this.updatedPublicAccess = updatedPublicAccess;
+    }
+
+    public boolean isUpdatedGameTime() {
+        return updatedGameTime;
+    }
+
+    public void setUpdatedGameTime(boolean updatedGameTime) {
+        this.updatedGameTime = updatedGameTime;
+    }
+
+    public void resetUpdate() {
+        this.updatedName = false;
+        this.updatedMode = false;
+        this.updatedPublicAccess = false;
+        this.updatedGameTime = false;
+    }
+
+    public Map<String, Boolean> getUpdatedFields() {
+        return Map.of("name", updatedName, "mode", updatedMode, "publicAccess", updatedPublicAccess, "gameTime", updatedGameTime);
+    }
 }

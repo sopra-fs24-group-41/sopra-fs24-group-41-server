@@ -149,7 +149,8 @@ class LobbyServiceTest {
         lobbyPutDTO.setMode(GameMode.FUSIONFRENZY);
         lobbyPutDTO.setName("new name");
 
-        Map<String, Boolean> updates = lobbyService.updateLobby(testLobby, lobbyPutDTO);
+        Lobby lobby = lobbyService.updateLobby(testLobby, lobbyPutDTO);
+        Map<String, Boolean> updates = lobby.getUpdatedFields();
         assertEquals(true, updates.get("publicAccess"));
         assertEquals(true, updates.get("mode"));
         assertEquals(true, updates.get("name"));
@@ -161,7 +162,8 @@ class LobbyServiceTest {
     @Test
     void updateLobby_noUpdates_success() {
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
-        Map<String, Boolean> updates = lobbyService.updateLobby(testLobby, lobbyPutDTO);
+        Lobby lobby = lobbyService.updateLobby(testLobby, lobbyPutDTO);
+        Map<String, Boolean> updates = lobby.getUpdatedFields();
         assertFalse(updates.get("publicAccess"));
         assertFalse(updates.get("mode"));
         assertFalse(updates.get("name"));
@@ -309,5 +311,6 @@ class LobbyServiceTest {
         Mockito.doNothing().when(lobbyRepository).delete(Mockito.any());
         lobbyService.checkAndRemoveInactiveLobbies(1);
         verify(lobbyRepository, Mockito.times(1)).delete(testLobby);
+        verify(messagingTemplate, Mockito.times(2)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 }

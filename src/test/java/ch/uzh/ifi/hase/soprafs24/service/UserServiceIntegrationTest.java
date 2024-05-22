@@ -11,6 +11,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
@@ -20,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 @WebAppConfiguration
 @SpringBootTest
-public class UserServiceIntegrationTest {
+class UserServiceIntegrationTest {
 
     @Qualifier("userRepository")
     @Autowired
@@ -35,7 +37,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void createUser_validInputs_success() {
+    void createUser_validInputs_success() {
         // given
         assertNull(userRepository.findByUsername("testUsername"));
 
@@ -55,13 +57,13 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void createUser_duplicateUsername_throwsException() {
+    void createUser_duplicateUsername_throwsException() {
         assertNull(userRepository.findByUsername("testUsername"));
 
         User testUser = new User();
         testUser.setUsername("testUsername");
         testUser.setPassword("testPassword");
-        User createdUser = userService.createUser(testUser);
+        userService.createUser(testUser);
 
         // attempt to create second user with same username
         User testUser2 = new User();
@@ -74,11 +76,11 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void logInUser_validCredentials_success() {
+    void logInUser_validCredentials_success() {
         User testUser = new User();
         testUser.setUsername("testUsername");
         testUser.setPassword("testPassword");
-        User createdUser = userService.createUser(testUser);
+        userService.createUser(testUser);
 
         User userCredentials = new User();
         userCredentials.setUsername(testUser.getUsername());
@@ -92,11 +94,11 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void logInUser_nonExistingUsername_throwsException() {
+    void logInUser_nonExistingUsername_throwsException() {
         User testUser = new User();
         testUser.setUsername("testUsername");
         testUser.setPassword("testPassword");
-        User createdUser = userService.createUser(testUser);
+        userService.createUser(testUser);
 
         User userCredentials = new User();
         userCredentials.setUsername("non_existing_username");
@@ -106,11 +108,11 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void logInUser_wrongPassword_throwsException() {
+    void logInUser_wrongPassword_throwsException() {
         User testUser = new User();
         testUser.setUsername("testUsername");
         testUser.setPassword("testPassword");
-        User createdUser = userService.createUser(testUser);
+        userService.createUser(testUser);
 
         User userCredentials = new User();
         userCredentials.setUsername(testUser.getUsername());
@@ -120,7 +122,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void logOutUser_validToken_success() {
+    void logOutUser_validToken_success() {
         User testUser = new User();
         testUser.setUsername("testUsername");
         testUser.setPassword("testPassword");
@@ -138,7 +140,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void logOutUser_nonExistingToken_throwsException() throws Exception {
+    void logOutUser_nonExistingToken_throwsException() {
         User testUser = new User();
         testUser.setUsername("testUsername");
         testUser.setPassword("testPassword");
@@ -155,12 +157,13 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void checkToken_validToken_success() {
+    void checkToken_validToken_success() {
         User testUser = new User();
         testUser.setPassword("testPassword");
         testUser.setUsername("testUsername");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1234");
+        testUser.setCreationDate(LocalDate.now());
         userRepository.save(testUser);
 
         User checkedUser = userService.checkToken(testUser.getToken());
@@ -171,15 +174,17 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    public void checkToken_invalidToken_throwsUnauthorizedException() {
+    void checkToken_invalidToken_throwsUnauthorizedException() {
         User testUser = new User();
         testUser.setId(3L);
         testUser.setPassword("testPassword");
         testUser.setUsername("testUsername");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1234");
+        testUser.setCreationDate(LocalDate.now());
         userRepository.saveAndFlush(testUser);
 
-        assertThrows(ResponseStatusException.class, () -> userService.checkToken(testUser.getToken()+"2"));
+        String faultyToken = testUser.getToken() + "2";
+        assertThrows(ResponseStatusException.class, () -> userService.checkToken(faultyToken));
     }
 }

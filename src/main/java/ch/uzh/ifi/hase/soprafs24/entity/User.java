@@ -1,12 +1,15 @@
 package ch.uzh.ifi.hase.soprafs24.entity;
 
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.achievements.Achievement;
 import org.hibernate.proxy.HibernateProxy;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -32,7 +35,7 @@ public class User implements Serializable {
     @Column(nullable = false, unique = true)
     private String username;
 
-    @Column(nullable = true)
+    @Column
     private String favourite;
 
     @Column(nullable = false)
@@ -57,15 +60,28 @@ public class User implements Serializable {
     @Column
     private String profilePicture;
 
-    @Column(nullable = true, updatable = false)
+    @Column(nullable = false, updatable = false)
     private LocalDate creationDate;
+
+    @Column(nullable = false)
+    private int combinationsMade = 0;
+
+    // Number of new words that have been added to the word database as a result of combinations made by player.
+    @Column(nullable = false)
+    private int discoveredWords = 0;
+
+    @ManyToOne
+    private Word rarestWordFound = null;
+
+    @ManyToMany
+    private Set<Achievement> achievements = new HashSet<Achievement>();
 
     @Override
     public final boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         User user = (User) o;
         return getId() != null && Objects.equals(getId(), user.getId());
@@ -73,7 +89,7 @@ public class User implements Serializable {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+        return this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
     public Long getId() {
@@ -100,13 +116,29 @@ public class User implements Serializable {
         this.favourite = favourite;
     }
 
-    public void setWins(int wins){this.wins = wins;}
+    public void setWins(int wins) {
+        this.wins = wins;
+    }
 
-    public int getWins(){return this.wins;}
+    public int getWins() {
+        return this.wins;
+    }
 
-    public void setLosses(int losses){this.losses = losses;}
+    public void setLosses(int losses) {
+        this.losses = losses;
+    }
 
-    public int getLosses(){return this.losses;}
+    public void addWins(int wins) {
+        this.wins += wins;
+    }
+
+    public void addLosses(int losses) {
+        this.losses += losses;
+    }
+
+    public int getLosses() {
+        return this.losses;
+    }
 
     public String getPassword() {
         return password;
@@ -148,7 +180,47 @@ public class User implements Serializable {
         this.profilePicture = profilePicture;
     }
 
-    public LocalDate getCreationDate() {return creationDate;}
+    public LocalDate getCreationDate() {
+        return creationDate;
+    }
 
-    public void setCreationDate(LocalDate creationDate) {this.creationDate = creationDate;}
+    public void setCreationDate(LocalDate creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    public int getCombinationsMade() {
+        return combinationsMade;
+    }
+
+    public void setCombinationsMade(int combinationsMade) {
+        this.combinationsMade = combinationsMade;
+    }
+
+    public int getDiscoveredWords() {
+        return discoveredWords;
+    }
+
+    public void setDiscoveredWords(int discoveredWords) {
+        this.discoveredWords = discoveredWords;
+    }
+
+    public Word getRarestWordFound() {
+        return rarestWordFound;
+    }
+
+    public void setRarestWordFound(Word rarestFoundWord) {
+        this.rarestWordFound = rarestFoundWord;
+    }
+
+    public Set<Achievement> getAchievements() {
+        return new HashSet<Achievement>(this.achievements);
+    }
+
+    public void addAchievement (Achievement achievement) {
+        this.achievements.add(achievement);
+    }
+
+    public boolean hasAchievement(Achievement achievement) {
+        return this.achievements.contains(achievement);
+    }
 }

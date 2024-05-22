@@ -19,6 +19,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
@@ -60,6 +61,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
 
@@ -87,6 +89,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
 
@@ -144,6 +147,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User testUser2 = new User();
         testUser2.setId(2L);
@@ -151,6 +155,7 @@ class LobbyServiceIntegrationTest {
         testUser2.setUsername("firstname2@lastname2");
         testUser2.setStatus(UserStatus.OFFLINE);
         testUser2.setToken("2");
+        testUser2.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
         User savedTestUser2 = userRepository.saveAndFlush(testUser2);
@@ -194,6 +199,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
         Player testPlayer = lobbyService.createLobbyFromUser(savedTestUser, true);
@@ -216,6 +222,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
         Player testPlayer = lobbyService.createLobbyFromUser(savedTestUser, true);
@@ -251,6 +258,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
         Player testPlayer = lobbyService.createLobbyFromUser(savedTestUser, true);
@@ -274,6 +282,7 @@ class LobbyServiceIntegrationTest {
         testUser.setUsername("firstname@lastname");
         testUser.setStatus(UserStatus.OFFLINE);
         testUser.setToken("1");
+        testUser.setCreationDate(LocalDate.now());
 
         User savedTestUser = userRepository.saveAndFlush(testUser);
         Player testPlayer = lobbyService.createLobbyFromUser(savedTestUser, true);
@@ -345,7 +354,8 @@ class LobbyServiceIntegrationTest {
         lobbyPutDTO.setName("new name");
 
         // when
-        Map<String, Boolean> updates = lobbyService.updateLobby(savedLobby, lobbyPutDTO);
+        Lobby lobby = lobbyService.updateLobby(savedLobby, lobbyPutDTO);
+        Map<String, Boolean> updates = lobby.getUpdatedFields();
 
         assertEquals(true, updates.get("publicAccess"));
         assertEquals(true, updates.get("mode"));
@@ -376,7 +386,8 @@ class LobbyServiceIntegrationTest {
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
 
-        Map<String, Boolean> updates = lobbyService.updateLobby(savedLobby, lobbyPutDTO);
+        Lobby lobby = lobbyService.updateLobby(savedLobby, lobbyPutDTO);
+        Map<String, Boolean> updates = lobby.getUpdatedFields();
         assertFalse(updates.get("publicAccess"));
         assertFalse(updates.get("mode"));
         assertFalse(updates.get("name"));

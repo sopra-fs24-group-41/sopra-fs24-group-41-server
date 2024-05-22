@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @DataJpaTest
-public class CombinationRepositoryIntegrationTest {
+class CombinationRepositoryIntegrationTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -20,7 +20,7 @@ public class CombinationRepositoryIntegrationTest {
     private CombinationRepository combinationRepository;
 
     @Test
-    public void findByWord1AndWord2_success() {
+    void findByWord1AndWord2_success() {
         Word word1 = new Word("Water");
         Word word2 = new Word("Fire");
         Word result = new Word("Steam");

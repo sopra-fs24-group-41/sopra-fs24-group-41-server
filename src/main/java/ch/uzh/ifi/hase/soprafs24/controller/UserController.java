@@ -1,8 +1,10 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.entity.User;
+import ch.uzh.ifi.hase.soprafs24.entity.achievements.Achievement;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs24.service.AchievementService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -22,9 +24,11 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final AchievementService achievementService;
 
-    UserController(UserService userService) {
+    UserController(UserService userService, AchievementService achievementService) {
         this.userService = userService;
+        this.achievementService = achievementService;
     }
 
     @GetMapping("/users")
@@ -95,6 +99,14 @@ public class UserController {
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(user.getPlayer().getLobby());
     }
 
+    @DeleteMapping("users/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable String id, @RequestHeader String userToken) {
+        long userIdLong = parseUserId(id);
+        User user = userService.authUser(userIdLong, userToken);
+        userService.deleteUser(user);
+    }
+
     private long parseUserId(String idString) {
         try {
             return Long.parseLong(idString);
@@ -102,5 +114,11 @@ public class UserController {
         catch (NumberFormatException e) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Badly formatted lobby code. Full error message: " + e.getMessage());
         }
+    }
+
+    @GetMapping("/users/achievments")
+    @ResponseStatus(HttpStatus.OK)
+    public List<Achievement> getAchievements() {
+        return achievementService.getAchievements();
     }
 }

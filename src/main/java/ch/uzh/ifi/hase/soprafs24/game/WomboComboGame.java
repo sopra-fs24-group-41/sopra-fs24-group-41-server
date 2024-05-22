@@ -13,27 +13,26 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 public class WomboComboGame extends Game {
+    private float difficulty = 0.5f;
 
     public WomboComboGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
     }
 
-    void setupStartingWords() {
-        super.setupStartingWords();
-    }
-
+    @Override
     public void setupPlayers(List<Player> players) {
         setupStartingWords();
         for (Player player : players) {
             playerService.resetPlayer(player);
             player.addWords(startingWords);
-            Word targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
+            Word targetWord = wordService.selectTargetWord(difficulty);
             player.setTargetWord(targetWord);
             player.setStatus(PlayerStatus.PLAYING);
         }
     }
 
-    public Word makeCombination(Player player, List<Word> words) {
+    @Override
+    public Combination makeCombination(Player player, List<Word> words) {
         if (words.size() != 2) {
             String errorMessage = "Wombo Combo only allows combination of exactly two words!";
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
@@ -53,34 +52,17 @@ public class WomboComboGame extends Game {
             setNewTargetWord(player);
         }
 
-        return result;
+        return combination;
     }
 
-    private void setNewTargetWord(Player player) {
-        double minReachability = 0.1;
-        Word targetWord = wordService.getRandomWordWithinReachability(minReachability, 0.3);
-        int maxIter = 1000;
-        int iter = 0;
-        while (player.getWords().contains(targetWord)) {
-            minReachability *= 0.75;
-            targetWord = wordService.getRandomWordWithinReachability(minReachability, 0.3);
-            iter += 1;
-            if (iter >= maxIter) {
-                player.setTargetWord(null);
-                return;
-            }
-            if (iter >= maxIter / 2) {
-                targetWord = combinationService.generateWordWithinReachability(minReachability, 0.3);
-            }
-        }
+    void setNewTargetWord(Player player) {
+        difficulty += (float) (0.125f * Math.floor(player.getPoints()/10.0f));
+        Word targetWord = wordService.selectTargetWord(difficulty, player.getWords());
         player.setTargetWord(targetWord);
     }
 
+    @Override
     public boolean winConditionReached(Player player) {
-        if (player.getPoints() >= 50) {
-            player.setStatus(PlayerStatus.WON);
-            return true;
-        }
-        return false;
+        return player.getPoints() >= 50;
     }
 }

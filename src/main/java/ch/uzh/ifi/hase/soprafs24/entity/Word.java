@@ -22,24 +22,30 @@ public class Word implements Serializable {
     private String name;
 
     @OneToMany(mappedBy = "result")
-    private List<Combination> combinations;
+    private List<Combination> combinations = new ArrayList<>();
 
     @Column
-    private int depth;
+    private Integer depth;
 
     @Column
-    private double reachability;
+    private Double reachability;
+
+    @Transient
+    private boolean newlyDiscovered = false;
 
     public Word() {
     }
 
     public Word(String name) {
         setName(name);
-        this.depth = 1000;
-        this.reachability = 0.0;
     }
 
-    public Word(String name, int depth, double reachability) {
+    public Word(String name, Integer depth) {
+        setName(name);
+        this.depth = depth;
+    }
+
+    public Word(String name, Integer depth, Double reachability) {
         setName(name);
         this.depth = depth;
         this.reachability = reachability;
@@ -49,8 +55,8 @@ public class Word implements Serializable {
     public final boolean equals(Object o) {
         if (this == o) return true;
         if (o == null) return false;
-        Class<?> oEffectiveClass = o instanceof HibernateProxy ? ((HibernateProxy) o).getHibernateLazyInitializer().getPersistentClass() : o.getClass();
-        Class<?> thisEffectiveClass = this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+        Class<?> oEffectiveClass = o instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
         if (thisEffectiveClass != oEffectiveClass) return false;
         Word that = (Word) o;
         return Objects.equals(getName(), that.getName());
@@ -58,7 +64,7 @@ public class Word implements Serializable {
 
     @Override
     public final int hashCode() {
-        return this instanceof HibernateProxy ? ((HibernateProxy) this).getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
+        return this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
     public String getName() {
@@ -72,23 +78,58 @@ public class Word implements Serializable {
         this.name = name;
     }
 
-    public int getDepth() {
+    public Integer getDepth() {
         return depth;
     }
 
-    public void setDepth(int depth) {
+    public void setDepth(Integer depth) {
         this.depth = depth;
     }
 
-    public double getReachability() {
+    public void updateDepth(int depth1, int depth2) {
+        int newDepth = Math.max(depth1, depth2) + 1;
+        if (depth == null) {
+            depth = newDepth;
+        }
+        else {
+            depth = Math.min(depth, newDepth);
+        }
+    }
+
+    public Double getReachability() {
         return reachability;
     }
 
-    public void setReachability(double difficultyScore) {
-        this.reachability = difficultyScore;
+    public void setReachability(Double reachability) {
+        this.reachability = reachability;
     }
 
     public List<Combination> getCombinations() {
-        return combinations;
+        return List.copyOf(combinations);
+    }
+
+    public boolean isNewlyDiscovered() {
+        return newlyDiscovered;
+    }
+
+    public void setNewlyDiscovered(boolean newlyDiscovered) {
+        this.newlyDiscovered = newlyDiscovered;
+    }
+
+    public void updateReachability() {
+        if (depth == 0) {
+            reachability = null;
+            return;
+        }
+
+        double newReachability = 1.0 / (1L << depth);
+
+        if (reachability == null) {
+            reachability = newReachability;
+        }
+        else {
+            reachability += newReachability;
+        }
+
     }
 }

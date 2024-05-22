@@ -9,7 +9,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
-public class WordRepositoryIntegrationTest {
+class WordRepositoryIntegrationTest {
 
     @Autowired
     private TestEntityManager entityManager;
@@ -18,7 +18,7 @@ public class WordRepositoryIntegrationTest {
     private WordRepository wordRepository;
 
     @Test
-    public void findByName_success() {
+    void findByName_success() {
         Word word = new Word("Zaddy");
 
         entityManager.persist(word);

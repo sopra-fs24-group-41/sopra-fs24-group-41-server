@@ -16,9 +16,8 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 
-public class CombinationServiceTest {
+class CombinationServiceTest {
 
     private Word word1;
     private Word word2;
@@ -44,7 +43,7 @@ public class CombinationServiceTest {
     private CombinationService combinationService;
 
     @BeforeEach
-    public void setup() {
+    void setup() {
         MockitoAnnotations.openMocks(this);
 
         word1 = new Word("water");
@@ -66,30 +65,30 @@ public class CombinationServiceTest {
     }
 
     @Test
-    public void findCombination_success() {
+    void findCombination_success() {
         Combination foundCombination = combinationService.findCombination(word1, word2);
         assertEquals(combination1, foundCombination);
     }
 
     @Test
-    public void findSwappedCombination_success() {
+    void findSwappedCombination_success() {
         Combination foundCombination = combinationService.findCombination(word2, word1);  // swapped words
         assertEquals(combination1, foundCombination);
     }
 
     @Test
-    public void findCombination_throwsException() {
+    void findCombination_throwsException() {
         assertThrows(CombinationNotFoundException.class, () -> combinationService.findCombination(word1, word3));
     }
 
     @Test
-    public void getCombination_existingCombination_success() {
+    void getCombination_existingCombination_success() {
         Combination foundCombination = combinationService.getCombination(word1, word2);
         assertEquals(combination1, foundCombination);
     }
 
     @Test
-    public void getCombination_newCombination_success() {
+    void getCombination_newCombination_success() {
         Combination newCombination = combinationService.getCombination(word1, word2);
         assertEquals(combination1, newCombination);
     }

@@ -10,6 +10,8 @@ public class PlayerGetDTO {
 
     private String name;
 
+    private UserGetDTO user;
+
     private long points;
 
     private Set<PlayerWordDTO> playerWords;
@@ -64,5 +66,13 @@ public class PlayerGetDTO {
 
     public void setStatus(PlayerStatus status) {
         this.status = status;
+    }
+
+    public UserGetDTO getUser() {
+        return user;
+    }
+
+    public void setUser(UserGetDTO user) {
+        this.user = user;
     }
 }

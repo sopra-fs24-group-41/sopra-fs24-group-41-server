@@ -13,14 +13,16 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 public class FusionFrenzyGame extends Game {
+    private float difficulty = 0.825f;
 
     public FusionFrenzyGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
     }
 
+    @Override
     public void setupPlayers(List<Player> players) {
         setupStartingWords();
-        Word targetWord = wordService.getRandomWordWithinReachability(0.1, 0.3);
+        Word targetWord = wordService.selectTargetWord(difficulty);
         for (Player player : players) {
             playerService.resetPlayer(player);
             player.addWords(startingWords);
@@ -29,7 +31,8 @@ public class FusionFrenzyGame extends Game {
         }
     }
 
-    public Word makeCombination(Player player, List<Word> words) {
+    @Override
+    public Combination makeCombination(Player player, List<Word> words) {
         if (words.size() == 2) {
             Combination combination = combinationService.getCombination(words.get(0), words.get(1));
             Word result = combination.getResult();
@@ -37,18 +40,15 @@ public class FusionFrenzyGame extends Game {
                 player.addPoints(1);
                 player.addWord(result);
             }
-            return result;
+            return combination;
         }
 
         String errorMessage = "Fusion Frenzy only allows combination of exactly two words!";
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
     }
 
+    @Override
     public boolean winConditionReached(Player player) {
-        if (player.getWords().contains(player.getTargetWord())) {
-            player.setStatus(PlayerStatus.WON);
-            return true;
-        };
-        return false;
+        return player.getWords().contains(player.getTargetWord());
     }
 }

@@ -7,6 +7,7 @@ import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserTokenPostDTO;
+import ch.uzh.ifi.hase.soprafs24.service.AchievementService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -29,6 +30,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,18 +43,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * This tests if the UserController works.
  */
 @WebMvcTest(UserController.class)
-public class UserControllerTest {
+class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private AchievementService achievementService;
+
     @Autowired
     private UserController userController;
 
     @Test
-    public void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
+    void givenUsers_whenGetUsers_thenReturnJsonArray() throws Exception {
         // given
         User user = new User();
         user.setUsername("firstname@lastname");
@@ -72,7 +78,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUser_validInput_userCreated() throws Exception {
+    void createUser_validInput_userCreated() throws Exception {
         // given
         User user = new User();
         user.setId(1L);
@@ -95,7 +101,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUser_duplicateUser_throwExceptionConflict() throws Exception {
+    void createUser_duplicateUser_throwExceptionConflict() throws Exception {
         UserLoginPostDTO userLoginPostDTO = new UserLoginPostDTO();
         userLoginPostDTO.setPassword("test_password");
         userLoginPostDTO.setUsername("duplicate_username");
@@ -110,7 +116,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void logInUser_validInput_returnsUserToken() throws Exception {
+    void logInUser_validInput_returnsUserToken() throws Exception {
         User user = new User();
         user.setUsername("username");
         user.setPassword("password1234");
@@ -128,7 +134,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void logInUser_nonExistingUsername_throwsException() throws Exception {
+    void logInUser_nonExistingUsername_throwsException() throws Exception {
         UserLoginPostDTO userLoginPostDTO = new UserLoginPostDTO();
         userLoginPostDTO.setUsername("username");
         userLoginPostDTO.setPassword("password1234");
@@ -141,7 +147,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void logInUser_wrongPassword_throwsException() throws Exception {
+    void logInUser_wrongPassword_throwsException() throws Exception {
         UserLoginPostDTO userLoginPostDTO = new UserLoginPostDTO();
         userLoginPostDTO.setUsername("username");
         userLoginPostDTO.setPassword("wrong_password");
@@ -154,7 +160,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void logOutUser_validToken_success() throws Exception {
+    void logOutUser_validToken_success() throws Exception {
         UserTokenPostDTO userTokenPostDTO = new UserTokenPostDTO();
         userTokenPostDTO.setToken("1234");
 
@@ -164,7 +170,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void logOutUser_nonExistingToken_throwsException() throws Exception {
+    void logOutUser_nonExistingToken_throwsException() throws Exception {
         UserTokenPostDTO userTokenPostDTO = new UserTokenPostDTO();
         userTokenPostDTO.setToken("1234");
 
@@ -176,7 +182,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void updateUser_Success() throws Exception {
+    void updateUser_Success() throws Exception {
         UserPutDTO userPutDTO = new UserPutDTO();
         userPutDTO.setUsername("Okay");
         userPutDTO.setFavourite("Okay");
@@ -201,7 +207,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void updateUser_Failure_WrongUser() throws Exception {
+    void updateUser_Failure_WrongUser() throws Exception {
         UserPutDTO userPutDTO = new UserPutDTO();
         userPutDTO.setUsername("Okay");
         userPutDTO.setFavourite("Okay");
@@ -218,14 +224,13 @@ public class UserControllerTest {
         mockMvc.perform(putRequest).andExpect(status().isUnauthorized());
     }
     @Test
-    public void updateUser_Failure_NotFoundUser() throws Exception {
+    void updateUser_Failure_NotFoundUser() throws Exception {
         UserPutDTO userPutDTO = new UserPutDTO();
         userPutDTO.setUsername("Okay");
         userPutDTO.setFavourite("Okay");
         userPutDTO.setProfilePicture("BlueFrog");
 
-
-        doThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED)).when(userService).authUser(1L, "WrongToken");
+        doThrow(new ResponseStatusException(HttpStatus.NOT_FOUND)).when(userService).authUser(1L, "WrongToken");
 
         MockHttpServletRequestBuilder putRequest = put("/users/{id}", 1L)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -233,11 +238,11 @@ public class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(userPutDTO));
 
-        mockMvc.perform(putRequest).andExpect(status().isUnauthorized());
+        mockMvc.perform(putRequest).andExpect(status().isNotFound());
     }
 
     @Test
-    public void updateUser_inputValidation() throws Exception {
+    void updateUser_inputValidation() throws Exception {
         User user = new User();
         user.setId(1L);
         user.setUsername("base");
@@ -263,7 +268,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void updateUser_Conflict() throws Exception {
+    void updateUser_Conflict() throws Exception {
         User user = new User();
         user.setId(1L);
         user.setUsername("base");
@@ -338,12 +343,51 @@ public class UserControllerTest {
         mockMvc.perform(getRequest).andExpect(status().isNotFound());
     }
 
+    @Test
+    void deleteUserNoPlayer_validInput_success() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("username");
+        user.setToken("1");
+
+        given(userService.authUser(Mockito.anyLong(), Mockito.anyString())).willReturn(user);
+
+        MockHttpServletRequestBuilder deleteRequest = delete("/users/{id}", 1L)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header("userToken", "1");
+
+        mockMvc.perform(deleteRequest).andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteUserPlayer_validInput_success() throws Exception {
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("username");
+        user.setToken("1");
+
+        Lobby lobby = new Lobby(1234, "new lobby");
+        Player player = new Player("123", "player", lobby);
+        lobby.setPlayers(Collections.singletonList(player));
+        user.setPlayer(player);
+        player.setUser(user);
+
+        given(userService.authUser(Mockito.anyLong(), Mockito.anyString())).willReturn(user);
+        doNothing().when(userService).deleteUser(Mockito.any());
+
+        MockHttpServletRequestBuilder deleteRequest = delete("/users/{id}", 1L)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header("userToken", "1");
+
+        mockMvc.perform(deleteRequest).andExpect(status().isNoContent());
+    }
+
     /**
      * Helper Method to convert userPostDTO into a JSON string such that the input
      * can be processed
      * Input will look like this: {"name": "Test User", "username": "testUsername"}
      *
-     * @param object
+     * @param object the object to be converted
      * @return string
      */
     private String asJsonString(final Object object) {
@@ -351,7 +395,7 @@ public class UserControllerTest {
             return new ObjectMapper().writeValueAsString(object);
         }
         catch (JsonProcessingException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("The request body could not be created.%s", e.toString()));
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("The request body could not be created.%s", e));
         }
     }
 

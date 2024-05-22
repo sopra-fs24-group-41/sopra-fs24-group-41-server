@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.PlayerRepository;
@@ -36,7 +37,19 @@ public class PlayerService {
     public void resetPlayer(Player player) {
         player.setPoints(0);
         player.clearPlayerWords();
+        player.setTargetWord(null);
         playerRepository.flush();
+    }
+
+    public Player setWinnerAndLoser(Player winner) {
+        winner.setStatus(PlayerStatus.WON);
+        for (Player player : winner.getLobby().getPlayers()) {
+            if (player != winner) {
+                player.setStatus(PlayerStatus.LOST);
+            }
+        }
+        playerRepository.flush();
+        return winner;
     }
 
     public void removePlayer(Player player) {

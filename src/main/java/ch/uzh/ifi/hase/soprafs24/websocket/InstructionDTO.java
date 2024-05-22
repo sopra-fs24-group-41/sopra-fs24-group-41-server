@@ -8,14 +8,22 @@ public class InstructionDTO {
 
     private String reason;
 
+    private Object data;
+
     public InstructionDTO() {}
 
     public InstructionDTO(Instruction instruction) {
         this.instruction = instruction;
     }
 
-    public InstructionDTO(Instruction instruction, String reason) {
+    public InstructionDTO(Instruction instruction, Object data) {
         this.instruction = instruction;
+        this.data = data;
+    }
+
+    public InstructionDTO(Instruction instruction, Object data, String reason) {
+        this.instruction = instruction;
+        this.data = data;
         this.reason = reason;
     }
 
@@ -33,5 +41,13 @@ public class InstructionDTO {
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
     }
 }

@@ -1,4 +1,4 @@
-# M2
+# M4
 
 ## 25.3-07.04 Week 1 & 2 (Including Easter Break)
 
@@ -148,7 +148,7 @@ Worked on:
 
 ## 06.05 - 12.05 Week 7
 **Tmmn - Timon Leupp**
-- Lobbies are no deleted after 3 hours of inactivity. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/194)
+- Lobbies are now deleted after 3 hours of inactivity. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/194)
 - User can rejoin their lobby. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/195)
 - Set up logging [here](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/commit/560a80bc73cd0f29e03efe27f031f3512aa70108)
 - Refactored update lobby to using update booleans in lobby class and no longer passing a Map. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/196)
@@ -163,3 +163,34 @@ Worked on:
 - Added joining through URL functionality, for anonymous as well as registered Users. Added an intermediary page and implemented routing. [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/110)
 - Also worked on CSS Styling and bug fixing.
 
+**Aquamarine-12 - Alexandru-Mihai Hurjui**
+- Refactored statistics on back-end ([pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/187))
+- Added statistics on front-end ([pull request 1](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/117), [pull request 2](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/118))
+
+**JacquelineUlken - Jacqueline Ulken**
+- Implemented check for newly discovered words and sending that information in the Get requests [#178](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/178)
+- Implemented highlighting newly discovered words [#98](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/98)
+
+## 13.05 - 19.05 Week 8
+**Tmmn - Timon Leupp**
+- Resolved Mapper warnings [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/208)
+- cleaned up websocket code on [client](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/133) and [server (+ testing)](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/209)
+- Supported in [UI improvements](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/115) (=> [example](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/115/commits/580a4bef3a35acf9b295e84228183ddbbcf04f58), [example](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/commit/f18234a5c8d1fd97b20ae3e50d187ce02dfca5dd), [example](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/commit/9b0ca8648b35e53759df8b298c52a5dd0f72b978))
+- Introduced new endpoints to stop a game and delete a user [here](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/209)
+
+**na50r - Rosan Shanmuganathan**
+- Cleaned up most of the UI on Client side and adjusted on Server when needed, Biggest Changes were: Refactored the WordBoard such that it renders properly based on the width of the single Word css and not just the number of words, Used a Typewriter effect for the Timer popups (Refactored Timer on Server side because some bugs happened there), Fixed up Error Messages, Changed from simple `alert` to something more pleasant to look at.
+- Frontend [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/125)
+- Backend [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/199)
+
+**Grizzlytron - Lucas Timothy Leo Bär**
+- Fixed a Bug with playercount [Issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/108)
+- Created an Errorpopup that displays the errors received from server. Also added a check if the client tries to join a lobby which is already in game. [Issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/111)
+- Worked on achievements page and the underlying frame in client. [Issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/97)
+
+**Aquamarine - Alexandru-Mihai Hurjui**
+- Improved test coverage from 70% to 84%: [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/214)
+- Added support for daily challenges on the backend: [Link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/218)
+
+**JacquelineUlken - Jacqueline Ulken**
+- Implemented achievements [#175](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/175) [#176](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/176) [#177](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/177)

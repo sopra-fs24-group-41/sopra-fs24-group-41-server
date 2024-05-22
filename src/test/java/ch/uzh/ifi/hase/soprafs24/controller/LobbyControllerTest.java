@@ -1,6 +1,7 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
 import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
+import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.LobbyPostDTO;
@@ -25,6 +26,7 @@ import java.util.*;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -212,6 +214,22 @@ class LobbyControllerTest {
     }
 
     @Test
+    void givenLobby_validCode_thenLobbyStatusReturned() throws Exception {
+        // given
+        given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get(String.format("/lobbies/%s/status", testLobby.getCode()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is(testLobby.getStatus().toString())));
+    }
+
+    @Test
     void createLobbyByUser_validToken_thenLobbyAndPlayerTokenReturned() throws Exception {
         // given
         testUser1.setPlayer(null);
@@ -237,6 +255,7 @@ class LobbyControllerTest {
                 .andExpect(jsonPath("$.lobby.publicAccess", is(testPlayer1.getLobby().getPublicAccess())))
                 .andExpect(jsonPath("$.lobby.status", is(testPlayer1.getLobby().getStatus().toString())))
                 .andExpect(jsonPath("$.lobby.mode", is(testPlayer1.getLobby().getMode().toString())));
+        verify(messagingTemplate, Mockito.times(1)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -257,26 +276,26 @@ class LobbyControllerTest {
 
         //then
         mockMvc.perform(postRequest).andExpect(status().isUnauthorized());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
     void updateLobby_validInputs_thenUpdatedLobbyReturned() throws Exception {
         // given
         given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
-        Map<String, Boolean> updates = new HashMap<>();
-        updates.put("mode", true);
-        updates.put("name", true);
-        updates.put("publicAccess", true);
+        testLobby.setMode(GameMode.FUSIONFRENZY);
+        testLobby.setName("new name");
+        testLobby.setPublicAccess(false);
+        testLobby.setUpdatedMode(true);
+        testLobby.setUpdatedName(true);
+        testLobby.setUpdatedPublicAccess(true);
 
         LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
         lobbyPutDTO.setPublicAccess(false);
         lobbyPutDTO.setMode(GameMode.FUSIONFRENZY);
         lobbyPutDTO.setName("new name");
 
-        given(lobbyService.updateLobby(Mockito.any(), Mockito.any()))
-                .willAnswer(invocationOnMock -> {testLobby.setMode(lobbyPutDTO.getMode());
-                    testLobby.setPublicAccess(lobbyPutDTO.getPublicAccess()); testLobby.setName(lobbyPutDTO.getName());
-                    return updates;});
+        given(lobbyService.updateLobby(Mockito.any(), Mockito.any())).willReturn(testLobby);
 
         // when
         MockHttpServletRequestBuilder putRequest = put("/lobbies/"+testLobby.getCode())
@@ -290,7 +309,7 @@ class LobbyControllerTest {
                 .andExpect(jsonPath("$.name", is(lobbyPutDTO.getName())))
                 .andExpect(jsonPath("$.publicAccess", is(lobbyPutDTO.getPublicAccess())))
                 .andExpect(jsonPath("$.mode", is(lobbyPutDTO.getMode().toString())));
-
+        verify(messagingTemplate, Mockito.times(2)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -311,6 +330,7 @@ class LobbyControllerTest {
 
         //then
         mockMvc.perform(putRequest).andExpect(status().isForbidden());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -331,6 +351,7 @@ class LobbyControllerTest {
 
         //then
         mockMvc.perform(putRequest).andExpect(status().isBadRequest());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -351,6 +372,7 @@ class LobbyControllerTest {
 
         //then
         mockMvc.perform(putRequest).andExpect(status().isForbidden());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -368,6 +390,29 @@ class LobbyControllerTest {
 
         //then
         mockMvc.perform(putRequest).andExpect(status().isBadRequest());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
+    }
+
+    @Test
+    void updateLobby_LobbyIngame_throwsConflictException() throws Exception {
+        given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
+        testLobby.setStatus(LobbyStatus.INGAME);
+
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setPublicAccess(false);
+        lobbyPutDTO.setMode(GameMode.FUSIONFRENZY);
+        lobbyPutDTO.setName("new name");
+
+        // when
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/"+testLobby.getCode())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(lobbyPutDTO))
+                .header("playerToken", testPlayer1.getToken());
+
+        //then
+        mockMvc.perform(putRequest).andExpect(status().isConflict());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -396,6 +441,7 @@ class LobbyControllerTest {
                 .andExpect(jsonPath("$.lobby.publicAccess", is(testPlayer1.getLobby().getPublicAccess())))
                 .andExpect(jsonPath("$.lobby.status", is(testPlayer1.getLobby().getStatus().toString())))
                 .andExpect(jsonPath("$.lobby.mode", is(testPlayer1.getLobby().getMode().toString())));
+        verify(messagingTemplate, Mockito.times(1)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -418,6 +464,7 @@ class LobbyControllerTest {
 
         //then
         mockMvc.perform(postRequest).andExpect(status().isNotFound());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -436,10 +483,10 @@ class LobbyControllerTest {
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[*].id", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getId).map(Long::intValue).toArray())))
                 .andExpect(jsonPath("$[*].name", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getName).toArray())))
-                .andExpect(jsonPath("$[*].points", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getPoints).map(Long::intValue).toArray())));
-//                .andExpect(jsonPath("$[*].user.username", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getUser).map(User::getUsername).toArray())))
-//                .andExpect(jsonPath("$[*].user.status", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getUser).map(User::getStatus).map(UserStatus::toString).toArray())))
-//                .andExpect(jsonPath("$[*].user.profilePicture", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getUser).map(User::getProfilePicture).toArray())));
+                .andExpect(jsonPath("$[*].points", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getPoints).map(Long::intValue).toArray())))
+                .andExpect(jsonPath("$[*].user.username", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getUser).map(User::getUsername).toArray())))
+                .andExpect(jsonPath("$[*].user.status", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getUser).map(User::getStatus).map(UserStatus::toString).toArray())))
+                .andExpect(jsonPath("$[*].user.profilePicture", containsInAnyOrder(testLobby.getPlayers().stream().map(Player::getUser).map(User::getProfilePicture).toArray())));
     }
 
     @Test
@@ -458,10 +505,10 @@ class LobbyControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is((int)testPlayer1.getId())))
                 .andExpect(jsonPath("$.name", is(testPlayer1.getName())))
-                .andExpect(jsonPath("$.points", is((int)testPlayer1.getPoints())));
-//                .andExpect(jsonPath("$.user.username", is(testPlayer1.getUser().getUsername())))
-//                .andExpect(jsonPath("$.user.status", is(testPlayer1.getUser().getStatus().toString())))
-//                .andExpect(jsonPath("$.user.profilePicture", is(testPlayer1.getUser().getProfilePicture())));
+                .andExpect(jsonPath("$.points", is((int)testPlayer1.getPoints())))
+                .andExpect(jsonPath("$.user.username", is(testPlayer1.getUser().getUsername())))
+                .andExpect(jsonPath("$.user.status", is(testPlayer1.getUser().getStatus().toString())))
+                .andExpect(jsonPath("$.user.profilePicture", is(testPlayer1.getUser().getProfilePicture())));
     }
 
     @Test
@@ -478,6 +525,60 @@ class LobbyControllerTest {
         //then
         mockMvc.perform(postRequest)
                 .andExpect(status().isCreated());
+        verify(messagingTemplate, Mockito.times(2)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
+    }
+
+    @Test
+    void startGame_ongoingGame_throwsExceptionBadRequest() throws Exception {
+        // given
+        given(lobbyService.getLobbyByCode(testLobby.getCode())).willReturn(testLobby);
+        testLobby.setStatus(LobbyStatus.INGAME);
+
+        // when
+        MockHttpServletRequestBuilder postRequest = post(String.format("/lobbies/%s/games", testLobby.getCode()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("playerToken", testPlayer1.getToken());
+
+        //then
+        mockMvc.perform(postRequest)
+                .andExpect(status().isBadRequest());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
+    }
+
+    @Test
+    void stopGame_validInput_success() throws Exception {
+        // given
+        given(lobbyService.getLobbyByCode(testLobby.getCode())).willReturn(testLobby);
+        testLobby.setStatus(LobbyStatus.INGAME);
+
+        // when
+        MockHttpServletRequestBuilder deleteRequest = delete(String.format("/lobbies/%s/games", testLobby.getCode()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("playerToken", testPlayer1.getToken());
+
+        //then
+        mockMvc.perform(deleteRequest)
+                .andExpect(status().isNoContent());
+        verify(messagingTemplate, Mockito.times(2)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
+    }
+
+    @Test
+    void stopGame_noOngoingGame_throwsExceptionBadRequest() throws Exception {
+        // given
+        given(lobbyService.getLobbyByCode(testLobby.getCode())).willReturn(testLobby);
+
+        // when
+        MockHttpServletRequestBuilder deleteRequest = delete(String.format("/lobbies/%s/games", testLobby.getCode()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .header("playerToken", testPlayer1.getToken());
+
+        //then
+        mockMvc.perform(deleteRequest)
+                .andExpect(status().isBadRequest());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -504,6 +605,7 @@ class LobbyControllerTest {
                 .andExpect(jsonPath("$.points", is((int) testPlayer1.getPoints())))
                 .andExpect(jsonPath("$.playerWords[*].word.name", containsInAnyOrder(testPlayer1.getWords().stream().map(Word::getName).toArray(String[]::new))))
                 .andExpect(jsonPath("$.targetWord", is(testPlayer1.getTargetWord())));
+        verify(messagingTemplate, Mockito.times(1)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -521,6 +623,7 @@ class LobbyControllerTest {
         //then
         mockMvc.perform(putRequest)
                 .andExpect(status().isForbidden());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -557,8 +660,9 @@ class LobbyControllerTest {
         mockMvc.perform(deleteRequest)
                 .andExpect(status().isNoContent());
 
-        Mockito.verify(playerService, Mockito.times(1)).findPlayerByToken(Mockito.any());
-        Mockito.verify(playerService, Mockito.times(1)).removePlayer(Mockito.any());
+        verify(playerService, Mockito.times(1)).findPlayerByToken(Mockito.any());
+        verify(playerService, Mockito.times(1)).removePlayer(Mockito.any());
+        verify(messagingTemplate, Mockito.times(1)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -579,6 +683,7 @@ class LobbyControllerTest {
 
         Mockito.verify(playerService, Mockito.times(1)).findPlayerByToken(Mockito.any());
         Mockito.verify(lobbyService, Mockito.times(1)).removeLobby(Mockito.any());
+        verify(messagingTemplate, Mockito.times(2)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -594,6 +699,7 @@ class LobbyControllerTest {
         //then
         mockMvc.perform(deleteRequest)
                 .andExpect(status().isBadRequest());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -610,6 +716,7 @@ class LobbyControllerTest {
         //then
         mockMvc.perform(deleteRequest)
                 .andExpect(status().isBadRequest());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -626,6 +733,7 @@ class LobbyControllerTest {
         //then
         mockMvc.perform(deleteRequest)
                 .andExpect(status().isBadRequest());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -642,6 +750,7 @@ class LobbyControllerTest {
         //then
         mockMvc.perform(deleteRequest)
                 .andExpect(status().isForbidden());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     @Test
@@ -658,6 +767,7 @@ class LobbyControllerTest {
         //then
         mockMvc.perform(deleteRequest)
                 .andExpect(status().isBadRequest());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
     /**

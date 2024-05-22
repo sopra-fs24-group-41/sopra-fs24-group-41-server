@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.constant.GameMode;
 import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
@@ -81,7 +82,7 @@ public class LobbyService {
                     if (minutesDifference >= thresholdMinutes) {
                         removeLobby(lobby);
                         messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()),
-                                new InstructionDTO(Instruction.KICK, "The lobby was closed due to inactivity"));
+                                new InstructionDTO(Instruction.KICK, null, "The lobby was closed due to inactivity"));
                         log.debug("Lobby with code {} was last active on {} and was closed due to inactivity", lobby.getCode(), lobby.getLastModified());
                     }
                 }
@@ -89,7 +90,8 @@ public class LobbyService {
             });
             transactionTemplate = new TransactionTemplate(transactionManager);
             transactionTemplate.execute(status -> {
-                messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE, getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList());
+                messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE,
+                        new InstructionDTO(Instruction.UPDATE_LOBBY_LIST, getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList()));
                 return null;
             });
         } catch(Exception e) {
@@ -101,10 +103,12 @@ public class LobbyService {
         return lobbyRepository.findAllByPublicAccess(true);
     }
 
+    // TODO: decide if we want to remove this method
     public boolean allPlayersReady(Lobby lobby) {
         return lobby.getPlayers().stream().allMatch(player -> player.getStatus() == PlayerStatus.READY);
     }
 
+    // TODO: decide if we want to remove this method
     public boolean allPlayersLost(Lobby lobby) {
         return lobby.getPlayers().stream().allMatch(player -> player.getStatus() == PlayerStatus.LOST);
     }
@@ -128,6 +132,7 @@ public class LobbyService {
         lobby.setPlayers(List.of(player));
         lobby.setPublicAccess(Objects.requireNonNullElse(publicAccess, true));
         lobby.setGameTime(0);
+        lobby.setMode(GameMode.WOMBOCOMBO);
 
         Lobby savedLobby = lobbyRepository.saveAndFlush(lobby);
         user.setPlayer(savedLobby.getOwner());
@@ -155,7 +160,7 @@ public class LobbyService {
         else {
             if (foundLobby.getStatus() != LobbyStatus.PREGAME) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                        "this lobby does not accept new players, wait until the game is finished");
+                        "This lobby does not accept new players, wait until the game is finished");
             }
 
             player = new Player(UUID.randomUUID().toString(), user.getUsername(), foundLobby);
@@ -178,7 +183,7 @@ public class LobbyService {
         Lobby foundLobby = getLobbyByCode(lobbyCode);
         if (foundLobby.getStatus() != LobbyStatus.PREGAME) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN,
-                    "this lobby does not accept new players, wait until the game is finished");
+                    "This lobby does not accept new players, wait until the game is finished");
         }
 
         if (foundLobby.getPlayers().stream().anyMatch(player -> player.getName().equals(playerName))) {
@@ -193,31 +198,33 @@ public class LobbyService {
         return player;
     }
 
-    public Map<String, Boolean> updateLobby(Lobby lobby, LobbyPutDTO lobbyPutDTO) {
-        Map<String, Boolean> updates = new HashMap<>();
-        updates.put("mode", false);
-        updates.put("name", false);
-        updates.put("publicAccess", false);
-        updates.put("gameTime", false);
+    public Lobby updateLobby(Lobby lobby, LobbyPutDTO lobbyPutDTO) {
+        List<Integer> validGameTimes = List.of(0, 60, 90, 120, 150, 180, 210, 240, 270, 300);
+        if (lobbyPutDTO.getName() != null && lobbyPutDTO.getName().length() > 20) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The lobby name is too long, please choose a name with 20 characters or less");
+        }
+        else if (lobbyPutDTO.getName() != null && lobbyPutDTO.getName().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The lobby name cannot be empty");
+        }
+        else if (lobbyPutDTO.getGameTime() != null && !validGameTimes.contains(lobbyPutDTO.getGameTime())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The game time is invalid, please choose a valid game time");
+        }
+
+        lobby.resetUpdate();
 
         if (lobbyPutDTO.getMode() != null && !lobbyPutDTO.getMode().equals(lobby.getMode())) {
             lobby.setMode(lobbyPutDTO.getMode());
-            updates.put("mode", true);
         }
         if (lobbyPutDTO.getName() != null && !Objects.equals(lobbyPutDTO.getName(), lobby.getName())) {
-            lobby.setName(lobbyPutDTO.getName());
-            updates.put("name", true);
+            lobby.setName(lobbyPutDTO.getName().strip());
         }
         if (lobbyPutDTO.getPublicAccess() != null && !Objects.equals(lobbyPutDTO.getPublicAccess(), lobby.getPublicAccess())) {
             lobby.setPublicAccess(lobbyPutDTO.getPublicAccess());
-            updates.put("publicAccess", true);
         }
-
         if (lobbyPutDTO.getGameTime()!=null && !Objects.equals(lobbyPutDTO.getGameTime(), lobby.getGameTime())) {
             lobby.setGameTime(lobbyPutDTO.getGameTime());
-            updates.put("gameTime", true);
         }
-        return updates;
+        return lobby;
     }
 
     public void removeLobby(Lobby lobby) {
@@ -242,4 +249,5 @@ public class LobbyService {
         }
         return code;
     }
+
 }

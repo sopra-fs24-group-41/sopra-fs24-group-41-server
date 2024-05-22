@@ -1,13 +1,19 @@
 package ch.uzh.ifi.hase.soprafs24.service;
 
+import ch.uzh.ifi.hase.soprafs24.constant.Instruction;
 import ch.uzh.ifi.hase.soprafs24.constant.UserStatus;
+import ch.uzh.ifi.hase.soprafs24.entity.Lobby;
+import ch.uzh.ifi.hase.soprafs24.entity.Player;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
+import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
@@ -33,10 +39,20 @@ public class UserService {
     private final Logger log = LoggerFactory.getLogger(UserService.class);
 
     private final UserRepository userRepository;
+    private final PlayerService playerService;
+    private final SimpMessagingTemplate messagingTemplate;
+    private final LobbyService lobbyService;
+
+    private static final String MESSAGE_LOBBY_BASE = "/topic/lobbies";
+    private static final String MESSAGE_LOBBY_CODE = "/topic/lobbies/%d";
+    private static final String MESSAGE_LOBBY_GAME = "/topic/lobbies/%d/game";
 
     @Autowired
-    public UserService(@Qualifier("userRepository") UserRepository userRepository) {
+    public UserService(@Qualifier("userRepository") UserRepository userRepository, PlayerService playerService, SimpMessagingTemplate messagingTemplate, LobbyService lobbyService) {
         this.userRepository = userRepository;
+        this.playerService = playerService;
+        this.messagingTemplate = messagingTemplate;
+        this.lobbyService = lobbyService;
     }
 
     public List<User> getUsers() {
@@ -52,9 +68,10 @@ public class UserService {
     }
 
     public User createUser(User newUser) {
+        usernameValidation(newUser.getUsername());
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
-        newUser.setProfilePicture("BlueFrog");
+        newUser.setProfilePicture("bluefrog");
         newUser.setCreationDate(LocalDate.now());
         checkDuplicateUser(newUser);
         newUser = userRepository.save(newUser);
@@ -106,8 +123,8 @@ public class UserService {
      * defined in the User entity. The method will do nothing if the input is unique
      * and throw an error otherwise.
      *
-     * @param userToBeCreated
-     * @throws org.springframework.web.server.ResponseStatusException
+     * @param userToBeCreated a User object that should be checked for uniqueness
+     * @throws org.springframework.web.server.ResponseStatusException ResponseStatusException
      * @see User
      */
     private void checkDuplicateUser(User userToBeCreated) {
@@ -119,35 +136,34 @@ public class UserService {
         }
     }
 
-    public User authUser(Long id, String token){
+    public User authUser(Long id, String token) {
         User foundUser = userRepository.findByToken(token);
         if (foundUser == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found");
         }
-        if (!Objects.equals(foundUser.getId(), id)){
+        if (!Objects.equals(foundUser.getId(), id)) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "You do not have permission to access this user's data");
         }
         return foundUser;
     }
 
-    public void usernameValidation(String username){
+    public void usernameValidation(String username) {
         if(username != null && username.isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username may not be left empty");
         }
 
-        if(username != null && username.contains(" ")){
+        if(username != null && username.contains(" ")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username may not contain blank spaces");
         }
     }
 
-    public void favouriteValidation(String favourite){
-        if(favourite != null && favourite.contains(" ")){
+    public void favouriteValidation(String favourite) {
+        if(favourite != null && favourite.contains(" ")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Favourite word may not contain blank spaces");
         }
     }
 
-
-    public User editUser(String token, User updatedUser){
+    public User editUser(String token, User updatedUser) {
         User foundUser = userRepository.findByToken(token);
 
         //Input validation
@@ -173,5 +189,25 @@ public class UserService {
             foundUser.setProfilePicture(updatedUser.getProfilePicture());
         }
         return foundUser;
+    }
+
+    public void deleteUser(User user) {
+        Player player = user.getPlayer();
+        if (player != null) {
+            if (player.getOwnedLobby() == null) {
+                Lobby lobby = player.getLobby();
+                playerService.removePlayer(player);
+                messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_CODE, lobby.getCode()),
+                        new InstructionDTO(Instruction.UPDATE_LOBBY, DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby)));
+            }
+            else {
+                lobbyService.removeLobby(player.getOwnedLobby());
+                messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE,
+                        new InstructionDTO(Instruction.UPDATE_LOBBY_LIST, lobbyService.getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList()));
+                messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, player.getOwnedLobby().getCode()),
+                        new InstructionDTO(Instruction.KICK, null, "The lobby was closed by the owner"));
+            }
+        }
+        userRepository.delete(user);
     }
 }
