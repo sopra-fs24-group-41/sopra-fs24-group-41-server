@@ -33,14 +33,18 @@ public class DailyChallengeService {
     }
 
     public DailyChallengeRecord getDailyChallengeRecord(DailyChallenge dailyChallenge, User user) {
-        Optional<DailyChallengeRecord> foundRecord = dailyChallengeRecordRepository
-                .findById(new DailyChallengeRecordId(
-                        dailyChallenge.getId(),
-                        user.getId()));
+        Optional<DailyChallengeRecord> foundRecord = findRecord(dailyChallenge, user);
 
-        return foundRecord.orElseGet(() -> dailyChallengeRecordRepository.saveAndFlush(new DailyChallengeRecord(dailyChallenge, user)));
+        return foundRecord.orElseGet(() -> saveRecord(dailyChallenge, user));
     }
 
+    private DailyChallengeRecord saveRecord(DailyChallenge dailyChallenge, User user) {
+        return dailyChallengeRecordRepository.saveAndFlush(new DailyChallengeRecord(dailyChallenge, user));
+    }
+
+    public Optional<DailyChallengeRecord> findRecord(DailyChallenge dailyChallenge, User user) {
+        return dailyChallengeRecordRepository.findById(new DailyChallengeRecordId(dailyChallenge.getId(), user.getId()));
+    }
     public List<DailyChallengeRecord> getRecords() {
         return dailyChallengeRecordRepository.findAll();
     }
