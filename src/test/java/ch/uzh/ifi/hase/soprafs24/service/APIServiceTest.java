@@ -25,7 +25,6 @@ class APIServiceTest {
 
         assertNotNull(result);
         assertNotEquals("", result);
-        System.out.println(result);
     }
 
     @Test

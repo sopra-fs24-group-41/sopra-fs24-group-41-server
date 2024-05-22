@@ -47,4 +47,13 @@ class WordServiceTest {
 
         assertEquals(testWord.getName(), foundWord.getName());
     }
+
+    @Test
+    void depthFromReachability_correct() {
+        for (int expectedDepth = 0; expectedDepth <= 10; expectedDepth++) {
+            double reachability = 1.0 / (1L << expectedDepth);
+            int actualDepth = wordService.depthFromReachability(reachability);
+            assertEquals(expectedDepth, actualDepth);
+        }
+    }
 }

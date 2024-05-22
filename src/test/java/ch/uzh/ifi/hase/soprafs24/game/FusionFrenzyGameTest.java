@@ -88,8 +88,7 @@ class FusionFrenzyGameTest {
     void setupPlayers_success() {
         Mockito.doNothing().when(playerService).resetPlayer(Mockito.any());
         Word testWord = new Word("testWord", 3, 0.125);
-        Mockito.doReturn(testWord)
-                .when(wordService).getRandomWordWithinReachability(Mockito.anyDouble(), Mockito.anyDouble());
+        Mockito.when(wordService.selectTargetWord(Mockito.anyFloat())).thenReturn(testWord);
         game.setupPlayers(players);
 
         assertEquals(4, player1.getWords().size());

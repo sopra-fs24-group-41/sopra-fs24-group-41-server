@@ -39,36 +39,38 @@ class CombinationServiceIntegrationTest {
     public void setup() {
         combinationRepository.deleteAll();
         wordRepository.deleteAll();
+        combinationService.setupCombinationDatabase();
     }
 
     @Test
     void getCombination_manyCombinations_success() {
-        Combination combo1 = combinationService.getCombination(new Word("fire"), new Word("water"));
-        Combination combo2 = combinationService.getCombination(new Word("fire"), new Word("water"));
-        Combination combo3 = combinationService.getCombination(new Word("fire"), new Word("earth"));
+        Combination combo1 = combinationService.getCombination(new Word("fire", 0), new Word("water", 0));
+        Combination combo2 = combinationService.getCombination(new Word("fire", 0), new Word("water", 0));
+        Combination combo3 = combinationService.getCombination(new Word("fire", 0), new Word("earth", 0));
 
-        assertEquals(combo1.getWord1().getName(), combo2.getWord1().getName());
-        assertEquals(combo1.getWord2().getName(), combo2.getWord2().getName());
-        assertEquals(combo1.getResult().getName(), combo2.getResult().getName());
-
-        assertEquals(combo1.getWord1().getName(), combo3.getWord1().getName());
-        assertNotEquals(combo1.getWord2().getName(), combo3.getWord2().getName());
+        assertEquals(combo1, combo2);
+        assertNotEquals(combo1, combo3);
     }
 
     @Test
     void makeCombinations_multipleCombinations_success() {
-        ArrayList<Word> startingWords = new ArrayList<>(Arrays.asList(new Word("water"), new Word("earth"),
-                new Word("fire"), new Word("air")));
-
-        for (Word word : startingWords) {
-            Word foundWord = wordService.getWord(word);
-            foundWord.setDepth(0);
-            foundWord.setReachability(1e6);
-            wordService.saveWord(foundWord);
-        }
-
+        int beforeCount = combinationRepository.findAll().size();
         combinationService.makeCombinations(5);
+        int afterCount = combinationRepository.findAll().size();
 
-        assertEquals(5, combinationRepository.findAll().size());
+        assertEquals(beforeCount + 5, afterCount);
+    }
+
+    @Test
+    void generateWordWithinReachability_success() {
+        for (double reachability = 0.25; reachability <= 0.625; reachability += 0.125) {
+            double minReachability = reachability - 0.125;
+            double maxReachability = reachability + 0.125;
+
+            Word word = combinationService.generateWordWithinReachability(minReachability, maxReachability);
+
+            assertTrue(word.getReachability() >= minReachability);
+            assertTrue(word.getReachability() <= maxReachability);
+        }
     }
 }

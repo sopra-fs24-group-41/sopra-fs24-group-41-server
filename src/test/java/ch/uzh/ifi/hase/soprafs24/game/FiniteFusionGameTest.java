@@ -59,8 +59,7 @@ class FiniteFusionGameTest {
     void setupPlayers_success() {
         Mockito.doNothing().when(playerService).resetPlayer(Mockito.any());
         Word testWord = new Word("testWord", 3, 0.125);
-        Mockito.doReturn(testWord)
-                .when(wordService).getRandomWordWithinReachability(Mockito.anyDouble(), Mockito.anyDouble());
+        Mockito.when(wordService.selectTargetWord(Mockito.anyFloat())).thenReturn(testWord);
 
         game.setupPlayers(players);
 
@@ -89,9 +88,9 @@ class FiniteFusionGameTest {
         player1.setStatus(PlayerStatus.PLAYING);
 
         Mockito.doReturn(new Combination(water, fire, steam)).when(combinationService).getCombination(water, fire);
-        Mockito.doReturn(steam).when(game).playFiniteFusion(Mockito.any(), Mockito.any());
+        Mockito.doReturn(new Combination(water, fire, steam)).when(game).playFiniteFusion(Mockito.any(), Mockito.any());
 
-        Word result = game.makeCombination(player1, List.of(water, fire));
+        Word result = game.makeCombination(player1, List.of(water, fire)).getResult();
 
         assertEquals(steam, result);
     }

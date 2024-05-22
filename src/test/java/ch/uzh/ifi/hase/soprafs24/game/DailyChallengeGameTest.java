@@ -73,7 +73,7 @@ class DailyChallengeGameTest {
 
         Mockito.doReturn(new Combination(water, fire, steam)).when(combinationService).getCombination(water, fire);
 
-        Word result = game.makeCombination(player, List.of(water, fire));
+        Word result = game.makeCombination(player, List.of(water, fire)).getResult();
 
         assertEquals(steam, result);
     }

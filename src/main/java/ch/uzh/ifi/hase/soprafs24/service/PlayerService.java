@@ -37,6 +37,7 @@ public class PlayerService {
     public void resetPlayer(Player player) {
         player.setPoints(0);
         player.clearPlayerWords();
+        player.setTargetWord(null);
         playerRepository.flush();
     }
 

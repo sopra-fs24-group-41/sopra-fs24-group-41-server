@@ -57,10 +57,18 @@ public class LobbyController {
     }
 
     @GetMapping("/lobbies/{code}")
+    @ResponseStatus(HttpStatus.OK)
     public LobbyGetDTO getLobbyByCode(@PathVariable String code) {
         long parsedLobbyCode = parseLobbyCode(code);
         Lobby lobby = lobbyService.getLobbyByCode(parsedLobbyCode);
         return DTOMapper.INSTANCE.convertEntityToLobbyGetDTO(lobby);
+    }
+
+    @GetMapping("/lobbies/{code}/status")
+    public LobbyStatusGetDTO getLobbyStatus(@PathVariable String code) {
+        long parsedLobbyCode = parseLobbyCode(code);
+        Lobby lobby = lobbyService.getLobbyByCode(parsedLobbyCode);
+        return DTOMapper.INSTANCE.convertEntityToLobbyStatusGetDTO(lobby);
     }
 
     @PostMapping("/lobbies")
@@ -111,6 +119,10 @@ public class LobbyController {
     @ResponseStatus(HttpStatus.OK)
     public LobbyGetDTO updateLobby(@PathVariable String code, @RequestBody LobbyPutDTO lobbyPutDTO, @RequestHeader String playerToken) {
         Lobby lobby = getAuthenticatedLobby(code, playerToken);
+        if (lobby.getStatus() != LobbyStatus.PREGAME) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "There is an ongoing game in this lobby, you are not allowed to change the lobby settings before the game has ended");
+        }
 
         lobby = lobbyService.updateLobby(lobby, lobbyPutDTO);
         Map<String, Boolean> updates = lobby.getUpdatedFields();
@@ -168,7 +180,6 @@ public class LobbyController {
         Word result = gameService.play(player, words);
         messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobbyCodeLong),
                 new InstructionDTO(Instruction.UPDATE_PLAYERS, player.getLobby().getPlayers().stream().map(DTOMapper.INSTANCE::convertEntityToPlayerGetDTO).toList()));
-
         PlayerPlayedDTO playerPlayedDTO = DTOMapper.INSTANCE.convertEntityToPlayerPlayedDTO(player);
         playerPlayedDTO.setResultWord(DTOMapper.INSTANCE.convertEntityToWordDTO(result));
         return playerPlayedDTO;

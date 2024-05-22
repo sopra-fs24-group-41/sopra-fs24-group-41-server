@@ -50,6 +50,9 @@ class GameServiceTest {
     private SimpMessagingTemplate messagingTemplate;
 
     @Mock
+    private AchievementService achievementService;
+
+    @Mock
     private PlatformTransactionManager transactionManager;
 
     @InjectMocks

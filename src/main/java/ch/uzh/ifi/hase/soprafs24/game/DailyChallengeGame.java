@@ -34,7 +34,7 @@ public class DailyChallengeGame extends Game {
     }
 
     @Override
-    public Word makeCombination(Player player, List<Word> words) {
+    public Combination makeCombination(Player player, List<Word> words) {
         if (words.size() == 2) {
             Combination combination = combinationService.getCombination(words.get(0), words.get(1));
             Word result = combination.getResult();
@@ -42,7 +42,7 @@ public class DailyChallengeGame extends Game {
             if (!player.getWords().contains(result)) {
                 player.addWord(result);
             }
-            return combination.getResult();
+            return combination;
         }
 
         String errorMessage = "Daily challenge only allows combination of exactly two words!";

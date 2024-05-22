@@ -214,6 +214,22 @@ class LobbyControllerTest {
     }
 
     @Test
+    void givenLobby_validCode_thenLobbyStatusReturned() throws Exception {
+        // given
+        given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
+
+        // when
+        MockHttpServletRequestBuilder getRequest = get(String.format("/lobbies/%s/status", testLobby.getCode()))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
+
+        // then
+        mockMvc.perform(getRequest)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status", is(testLobby.getStatus().toString())));
+    }
+
+    @Test
     void createLobbyByUser_validToken_thenLobbyAndPlayerTokenReturned() throws Exception {
         // given
         testUser1.setPlayer(null);
@@ -374,6 +390,28 @@ class LobbyControllerTest {
 
         //then
         mockMvc.perform(putRequest).andExpect(status().isBadRequest());
+        verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
+    }
+
+    @Test
+    void updateLobby_LobbyIngame_throwsConflictException() throws Exception {
+        given(lobbyService.getLobbyByCode(Mockito.anyLong())).willReturn(testLobby);
+        testLobby.setStatus(LobbyStatus.INGAME);
+
+        LobbyPutDTO lobbyPutDTO = new LobbyPutDTO();
+        lobbyPutDTO.setPublicAccess(false);
+        lobbyPutDTO.setMode(GameMode.FUSIONFRENZY);
+        lobbyPutDTO.setName("new name");
+
+        // when
+        MockHttpServletRequestBuilder putRequest = put("/lobbies/"+testLobby.getCode())
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(asJsonString(lobbyPutDTO))
+                .header("playerToken", testPlayer1.getToken());
+
+        //then
+        mockMvc.perform(putRequest).andExpect(status().isConflict());
         verify(messagingTemplate, Mockito.times(0)).convertAndSend(Mockito.anyString(), (Object) Mockito.any());
     }
 
