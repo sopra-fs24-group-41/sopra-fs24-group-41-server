@@ -33,8 +33,8 @@ public class Combination implements Serializable {
     @JoinColumn(name = "result", nullable = false)
     private Word result;
 
-    @Column(nullable = false)
-    private int depth = 1000;
+    @Column
+    private Integer depth;
 
     public Combination() {
     }
@@ -43,7 +43,9 @@ public class Combination implements Serializable {
         this.word1 = word1;
         this.word2 = word2;
         this.result = result;
-        this.depth = max(word1.getDepth(), word2.getDepth()) + 1;
+        if (word1.getDepth() != null && word2.getDepth() != null) {
+            this.depth = max(word1.getDepth(), word2.getDepth()) + 1;
+        }
     }
 
     @Override
@@ -93,11 +95,11 @@ public class Combination implements Serializable {
         this.word2 = word2;
     }
 
-    public int getDepth() {
+    public Integer getDepth() {
         return depth;
     }
 
-    public void setDepth(int depth) {
+    public void setDepth(Integer depth) {
         this.depth = depth;
     }
 }

@@ -12,13 +12,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
 import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 @Service
 @Transactional(noRollbackFor = WordNotFoundException.class)
@@ -79,20 +77,14 @@ public class CombinationService {
             isNewCombination = true;
         }
 
-        Word word1 = combination.getWord1();
-        Word word2 = combination.getWord2();
-
-        int depth = max(word1.getDepth(), word2.getDepth()) + 1;
-        double reachability = 1.0 / (1L << depth);
-
         Word resultWord = combination.getResult();
-        resultWord.setDepth(min(resultWord.getDepth(), depth));
-        if (!isNewCombination) {
-            // subtract the reachability added by the combination with the old depths
+        resultWord.updateDepth(combination.getWord1().getDepth(), combination.getWord2().getDepth());
+        if (!isNewCombination && resultWord.getDepth() != 0) {
+            // Subtract the reachability previously added by the combination with the old depth
             double oldReachability = 1.0 / (1L << combination.getDepth());
             resultWord.setReachability(resultWord.getReachability() - oldReachability);
         }
-        resultWord.setReachability(resultWord.getReachability() + reachability);
+        resultWord.updateReachability();
 
         combination.setDepth(resultWord.getDepth());
 
