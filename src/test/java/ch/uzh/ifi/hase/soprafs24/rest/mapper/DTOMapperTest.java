@@ -182,6 +182,7 @@ class DTOMapperTest {
         assertEquals(testPlayerWord.getWord().getName(), playerWordDTO.getWord().getName());
         assertEquals(testPlayerWord.getUses(), playerWordDTO.getUses());
         assertEquals(testPlayerWord.getTimestamp(), playerWordDTO.getTimestamp());
+        assertEquals(testPlayerWord.isNewlyDiscovered(), playerWordDTO.isNewlyDiscovered());
     }
 
     // tests convertEntityToWordDTO
