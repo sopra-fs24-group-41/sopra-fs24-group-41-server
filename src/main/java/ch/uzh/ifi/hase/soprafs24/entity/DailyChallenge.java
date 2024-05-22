@@ -24,7 +24,6 @@ public class DailyChallenge implements Serializable {
     @OneToMany(mappedBy = "dailyChallenge", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DailyChallengeRecord> challengeRecords = new ArrayList<>();
 
-
     public DailyChallenge() {
 
     }

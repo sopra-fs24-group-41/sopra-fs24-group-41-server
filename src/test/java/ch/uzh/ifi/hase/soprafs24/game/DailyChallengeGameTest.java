@@ -53,8 +53,8 @@ class DailyChallengeGameTest {
     void setUpPlayer_success() {
         Mockito.doNothing().when(playerService).resetPlayer(Mockito.any());
         Word testWord = new Word("testWord", 3, 0.125);
-        Mockito.doReturn(testWord)
-                .when(wordService).getRandomWordWithinReachability(Mockito.anyDouble(), Mockito.anyDouble());
+        Mockito.when(wordService.getRandomWordWithinReachability(Mockito.anyDouble(), Mockito.anyDouble()))
+                .thenReturn(testWord);
 
         game.setupPlayers(List.of(player));
 

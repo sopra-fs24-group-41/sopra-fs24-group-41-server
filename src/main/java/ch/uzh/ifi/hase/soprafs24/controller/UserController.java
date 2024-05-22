@@ -1,10 +1,12 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.entity.DailyChallengeRecord;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.achievements.Achievement;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.*;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.service.AchievementService;
+import ch.uzh.ifi.hase.soprafs24.service.DailyChallengeService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -26,9 +28,12 @@ public class UserController {
     private final UserService userService;
     private final AchievementService achievementService;
 
-    UserController(UserService userService, AchievementService achievementService) {
+    private final DailyChallengeService dailyChallengeService;
+
+    UserController(UserService userService, AchievementService achievementService, DailyChallengeService dailyChallengeService) {
         this.userService = userService;
         this.achievementService = achievementService;
+        this.dailyChallengeService = dailyChallengeService;
     }
 
     @GetMapping("/users")
@@ -120,5 +125,18 @@ public class UserController {
     @ResponseStatus(HttpStatus.OK)
     public List<Achievement> getAchievements() {
         return achievementService.getAchievements();
+    }
+
+    @GetMapping("/users/challenges")
+    @ResponseStatus(HttpStatus.OK)
+    public List<DailyChallengeRecordGetDTO> getAllRecordDTOs() {
+        List<DailyChallengeRecord> records = dailyChallengeService.getRecords();
+        List<DailyChallengeRecordGetDTO> recordDTOs = new ArrayList<>();
+
+        for (DailyChallengeRecord recordItem : records) {
+            recordDTOs.add(DTOMapper.INSTANCE.convertEntityToDailyChallengeRecordGetDTO(recordItem));
+        }
+
+        return recordDTOs;
     }
 }

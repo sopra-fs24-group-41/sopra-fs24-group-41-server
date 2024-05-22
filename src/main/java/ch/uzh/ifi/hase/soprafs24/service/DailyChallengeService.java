@@ -55,7 +55,7 @@ public class DailyChallengeService {
         dailyChallengeRepository.deleteAll();
 
         DailyChallenge dailyChallenge = new DailyChallenge();
-        dailyChallenge.setTargetWord(wordService.getRandomWordWithinReachability(0.1, 0.4));
+        dailyChallenge.setTargetWord(wordService.selectTargetWord(0.9F));
         dailyChallengeRepository.saveAndFlush(dailyChallenge);
     }
 
