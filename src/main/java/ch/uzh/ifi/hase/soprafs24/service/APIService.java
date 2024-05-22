@@ -32,33 +32,45 @@ public class APIService {
     //This code works as long as you use a working environment variable called GOOGLE_APPLICATION_CREDENTIALS
     public String getVertexAIWord(String word1, String word2) throws IOException {
         String instance = String.format("""
-                        {
-                            "context":  "You are an AI assistant that is tasked with creating the outputs for an element combination game. You receive 2 objects that are formatted with the '+' symbol. For example: 'Earth + Water'. You have to return what element would make the most sense to be created by combining these two objects. You can create any object, person, or thing, as long as it is from reality or well-known fiction and makes sense for the two inputted objects to equal the new object. Consult the examples for further clarification. Try to not exceed a word length over 10 characters. Avoid making just concatenations of two words or using adjectives, instead, return a synonym or one of the two input words",
-                            "examples": [
-                                {
-                                    "input": {"content": "Earth + Water"},
-                                    "output": {"content": "Steam"}
-                                },
-                                {
-                                    "input": {"content": "Earth + Lava"},
-                                    "output": {"content": "Stone"}
-                                },
-                                {
-                                    "input": {"content": "Earth + Water"},
-                                    "output": {"content": "Plant"}
-                                },
-                                {
-                                    "input": {"content": "Plant + Steam"},
-                                    "output": {"content": "Tea"}
-                                }
-                            ],
-                            "messages": [
-                                {
-                                    "author": "user",
-                                    "content": "%s + %s"
-                                }
-                            ]
-                        }""",
+        {
+            "context": "You are a powerful alchemist with unparalleled knowledge in combining items to create new ones. In fact, you were so powerful, they decided to seal you and thus you can only respond with one word. Always respond with a single word representing the resulting item, thing, object, or living being. Never describe the formula or process, and never include special characters in your responses. Only provide names that are sensible and around 10 characters long. Avoid using prefixes like 'super' or 'mega' unless they are commonly associated with the resulting item. You can create both animate and inanimate objects. Always make an effort to respond with a word that is never a concatenation of the previous ones. Always make sure that the word you respond with exists in reality and is not invented by you. Never make up your own words. Before you reply, attend, think, and remember all the instructions set here.",
+            "examples": [
+                {
+                    "input": {"content": "Fire + Water"},
+                    "output": {"content": "Steam"}
+                },
+                {
+                    "input": {"content": "Earth + Water"},
+                    "output": {"content": "Mud"}
+                },
+                {
+                    "input": {"content": "Sun + Moon"},
+                    "output": {"content": "Eclipse"}
+                },
+                {
+                    "input": {"content": "Book + Light"},
+                    "output": {"content": "Read"}
+                },
+                {
+                    "input": {"content": "Earth + Life"},
+                    "output": {"content": "Human"}
+                },
+                {
+                    "input": {"content": "Bird + Metal"},
+                    "output": {"content": "Airplane"}
+                },
+                {
+                    "input": {"content": "Swamp + Smoke"},
+                    "output": {"content": "Dragon"}
+                }
+            ],
+            "messages": [
+                {
+                    "author": "user",
+                    "content": "%s + %s"
+                }
+            ]
+        }""",
                 word1, word2);
 
         String parameters = """
