@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @WebAppConfiguration
 @SpringBootTest
-public class CombinationServiceIntegrationTest {
+class CombinationServiceIntegrationTest {
 
     @Qualifier("combinationRepository")
     @Autowired
@@ -96,9 +96,6 @@ public class CombinationServiceIntegrationTest {
         // Setup
 
         wordService.saveWord(earth);
-        wordService.saveWord(volcano);
-        wordService.saveWord(earthquake_initial);
-        wordService.saveWord(apocalypse_initial);
 
         combinationService.saveCombination(
                 new Combination(wordService.getWord(earthquake_initial),
@@ -107,17 +104,15 @@ public class CombinationServiceIntegrationTest {
 
         // Execution
 
-        CombinationService spy = Mockito.spy(combinationService);
-
         Word earthquake_new = new Word("earthquake", 1, 1.0 / (1L << 1));
         Combination firstCombination = new Combination(earth, earth, earthquake_new);
 
-        Mockito.doReturn(earthquake_new.getName()).when(apiService).generateCombinationResult(earth.getName(), earth.getName());
+        Mockito.when(apiService.generateCombinationResult(earth.getName(), earth.getName())).thenReturn(earthquake_new.getName());
 
         Word apocalypse_new = new Word("apocalypse", 4, 1.0 / (1L << 4));
         Combination secondCombination = new Combination(earthquake_new, volcano, apocalypse_new);
 
-        spy.createCombination(earth, earth);
+        combinationService.createCombination(earth, earth);
 
         assertEquals(wordService.getWord(earthquake_new), earthquake_new);
         assertEquals(wordService.getWord(apocalypse_new), apocalypse_new);
