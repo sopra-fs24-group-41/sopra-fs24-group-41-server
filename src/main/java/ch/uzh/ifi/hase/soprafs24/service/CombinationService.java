@@ -12,11 +12,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-
-import static java.lang.Math.max;
-import static java.lang.Math.min;
 
 @Service
 @Transactional(noRollbackFor = WordNotFoundException.class)
@@ -111,7 +107,7 @@ public class CombinationService {
 
     public Boolean validResult(Word result) {
         // might add some more validation later, therefore separate method
-        return result.getName().trim().length() > 1;
+        return result.getName().trim().length() > 1 && result.getName().trim().length() <= 20;
     }
 
     public void makeCombinations(int numberOfCombinations) {
