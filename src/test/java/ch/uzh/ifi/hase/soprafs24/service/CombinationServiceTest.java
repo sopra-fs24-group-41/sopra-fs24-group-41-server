@@ -100,7 +100,7 @@ class CombinationServiceTest {
     }
 
     @Test
-    void generateResultWord_whenResultWordSeenBefore_updatesDepthAndScore() {
+    void generateResultWord_whenResultWordSeenBefore_addsReachability() {
         Word updatedResultWord = new Word("apocalypse", 5, (double) 1 / (1L << 5) + (double) 1 / (1L << 6));
         Combination expectedCombination = new Combination(word3, word4, updatedResultWord);
         Mockito.when(apiService.generateCombinationResult(word3.getName(), word4.getName())).thenReturn(result2.getName());

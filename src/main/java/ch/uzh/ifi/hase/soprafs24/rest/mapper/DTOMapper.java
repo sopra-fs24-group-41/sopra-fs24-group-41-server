@@ -92,6 +92,7 @@ public interface DTOMapper {
 
     @Mapping(source = "word", target = "word")
     @Mapping(source = "timestamp", target = "timestamp")
+    @Mapping(source = "newlyDiscovered", target = "newlyDiscovered")
     PlayerWordDTO convertEntityToPlayerWordDTO(PlayerWord playerWord);
 
     @Mapping(source = "name", target = "name")

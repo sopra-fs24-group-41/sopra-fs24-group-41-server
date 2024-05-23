@@ -6,6 +6,9 @@ import ch.uzh.ifi.hase.soprafs24.repository.CombinationRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.WordRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,7 +31,11 @@ class CombinationServiceIntegrationTest {
     @Autowired
     private WordService wordService;
 
+    @Mock
+    private APIService apiService;
+
     @Autowired
+    @InjectMocks
     private CombinationService combinationService;
 
     @BeforeEach
@@ -69,4 +76,41 @@ class CombinationServiceIntegrationTest {
             assertTrue(word.getReachability() <= maxReachability);
         }
     }
+
+    @Test
+    void propagateWordUpdates_whenResultWordSeenBeforeAndBiggerDepthOnOldCombination_propagatesDepthAndUpdatesReachability() {
+        // Assume that we already have the combination "earthquake" + "volcano" == "apocalypse" (depth 5).
+        // Then, we discover that "earth" + "earth" == "earthquake" (so, "earthquake" now has depth 1)
+        // and now "apocalypse" should also have a smaller depth (depth 4) and its reachability updated.
+
+        Word earth = new Word("earth",0,1e6);
+        Word volcano = new Word("volcano", 3, (double) 1 / (1L << 3));
+        Word earthquake_initial = new Word("earthquake", 4, (double) 1 / (1L << 4));
+        Word apocalypse_initial = new Word("apocalypse", 5, (double) 1 / (1L << 5));
+
+        // Setup
+
+        wordService.saveWord(earth);
+
+        combinationService.saveCombination(
+                new Combination(wordService.getWord(earthquake_initial),
+                wordService.getWord(volcano),
+                wordService.getWord(apocalypse_initial)));
+
+        // Execution
+
+        Word earthquake_new = new Word("earthquake", 1, 1.0 / (1L << 1));
+        Combination firstCombination = new Combination(earth, earth, earthquake_new);
+
+        Mockito.when(apiService.generateCombinationResult(earth.getName(), earth.getName())).thenReturn(earthquake_new.getName());
+
+        Word apocalypse_new = new Word("apocalypse", 4, 1.0 / (1L << 4));
+        Combination secondCombination = new Combination(earthquake_new, volcano, apocalypse_new);
+
+        combinationService.createCombination(earth, earth);
+
+        assertEquals(wordService.getWord(earthquake_new), earthquake_new);
+        assertEquals(wordService.getWord(apocalypse_new), apocalypse_new);
+    }
+
 }
