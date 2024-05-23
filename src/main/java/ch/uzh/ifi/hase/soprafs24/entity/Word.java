@@ -30,6 +30,9 @@ public class Word implements Serializable {
     @Column
     private Double reachability;
 
+    @OneToMany(mappedBy = "targetWord", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DailyChallenge> dailyChallenges = new ArrayList<>();
+
     @Transient
     private boolean newlyDiscovered = false;
 
@@ -114,6 +117,14 @@ public class Word implements Serializable {
 
     public void setNewlyDiscovered(boolean newlyDiscovered) {
         this.newlyDiscovered = newlyDiscovered;
+    }
+
+    public List<DailyChallenge> getDailyChallenges() {
+        return dailyChallenges;
+    }
+
+    public void setDailyChallenges(List<DailyChallenge> dailyChallenges) {
+        this.dailyChallenges = dailyChallenges;
     }
 
     public void updateReachability() {

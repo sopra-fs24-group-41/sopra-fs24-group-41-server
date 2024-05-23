@@ -6,13 +6,10 @@ import ch.uzh.ifi.hase.soprafs24.constant.LobbyStatus;
 import ch.uzh.ifi.hase.soprafs24.constant.PlayerStatus;
 import ch.uzh.ifi.hase.soprafs24.entity.*;
 import ch.uzh.ifi.hase.soprafs24.entity.Combination;
-import ch.uzh.ifi.hase.soprafs24.game.FiniteFusionGame;
-import ch.uzh.ifi.hase.soprafs24.game.WomboComboGame;
+import ch.uzh.ifi.hase.soprafs24.game.*;
 import ch.uzh.ifi.hase.soprafs24.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs24.websocket.TimeDTO;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import ch.uzh.ifi.hase.soprafs24.game.FusionFrenzyGame;
-import ch.uzh.ifi.hase.soprafs24.game.Game;
 import ch.uzh.ifi.hase.soprafs24.websocket.InstructionDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,6 +38,8 @@ public class GameService {
     private final PlatformTransactionManager transactionManager;
     private final LobbyService lobbyService;
 
+    private final DailyChallengeService dailyChallengeService;
+
     private final Map<Long, Timer> timers;
     private static final String MESSAGE_LOBBY_BASE = "/topic/lobbies";
     private static final String MESSAGE_LOBBY_GAME = "/topic/lobbies/%d/game";
@@ -49,7 +48,8 @@ public class GameService {
     @Autowired
     public GameService(PlayerService playerService, CombinationService combinationService, WordService wordService,
                        SimpMessagingTemplate messagingTemplate, PlatformTransactionManager transactionManager,
-                       LobbyService lobbyService, AchievementService achievementService) {
+                       LobbyService lobbyService, DailyChallengeService dailyChallengeService,
+                       AchievementService achievementService) {
         this.playerService = playerService;
         this.combinationService = combinationService;
         this.wordService = wordService;
@@ -57,6 +57,7 @@ public class GameService {
         this.timers = new HashMap<>();
         this.transactionManager = transactionManager;
         this.lobbyService = lobbyService;
+        this.dailyChallengeService = dailyChallengeService;
         this.achievementService = achievementService;
         setupGameModes();
     }
@@ -66,6 +67,7 @@ public class GameService {
         gameModes.put(GameMode.FUSIONFRENZY, FusionFrenzyGame.class);
         gameModes.put(GameMode.WOMBOCOMBO, WomboComboGame.class);
         gameModes.put(GameMode.FINITEFUSION, FiniteFusionGame.class);
+        gameModes.put(GameMode.DAILYCHALLENGE, DailyChallengeGame.class);
     }
 
     public void createNewGame(Lobby lobby) {
@@ -136,7 +138,11 @@ public class GameService {
         Class<? extends Game> gameClass = gameModes.get(gameMode);
         Class[] parameterTypes = {PlayerService.class, CombinationService.class, WordService.class};
         try {
-            return gameClass.getDeclaredConstructor(parameterTypes).newInstance(playerService, combinationService, wordService);
+            if (gameMode != GameMode.DAILYCHALLENGE) {
+                return gameClass.getDeclaredConstructor(parameterTypes).newInstance(playerService, combinationService, wordService);
+            }
+            parameterTypes = new Class[]{PlayerService.class, CombinationService.class, WordService.class, DailyChallengeService.class};
+            return gameClass.getDeclaredConstructor(parameterTypes).newInstance(playerService, combinationService, wordService, dailyChallengeService);
         }
         catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
             String errorMessage = String.format("Game mode %s could not be instantiated! Exception: %s", gameMode.name(), e);
@@ -151,6 +157,9 @@ public class GameService {
         lobby.setGameTime(0);
 
         updateWinsAndLosses(lobby);
+        if (lobby.getMode() == GameMode.DAILYCHALLENGE)
+            dailyChallengeService.updateRecords(lobby);
+
         messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobby.getCode()), new InstructionDTO(Instruction.STOP, null, reason));
         messagingTemplate.convertAndSend(MESSAGE_LOBBY_BASE,
                 new InstructionDTO(Instruction.UPDATE_LOBBY_LIST, lobbyService.getPublicLobbies().stream().map(DTOMapper.INSTANCE::convertEntityToLobbyGetDTO).toList()));

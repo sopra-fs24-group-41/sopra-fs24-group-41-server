@@ -8,6 +8,7 @@ import ch.uzh.ifi.hase.soprafs24.rest.dto.UserLoginPostDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserPutDTO;
 import ch.uzh.ifi.hase.soprafs24.rest.dto.UserTokenPostDTO;
 import ch.uzh.ifi.hase.soprafs24.service.AchievementService;
+import ch.uzh.ifi.hase.soprafs24.service.DailyChallengeService;
 import ch.uzh.ifi.hase.soprafs24.service.UserService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -53,6 +54,9 @@ class UserControllerTest {
 
     @MockBean
     private AchievementService achievementService;
+
+    @MockBean
+    private DailyChallengeService dailyChallengeService;
 
     @Autowired
     private UserController userController;

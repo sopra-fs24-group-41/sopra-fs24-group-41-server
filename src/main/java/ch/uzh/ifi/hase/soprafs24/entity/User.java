@@ -7,6 +7,8 @@ import org.hibernate.proxy.HibernateProxy;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -72,6 +74,9 @@ public class User implements Serializable {
 
     @ManyToOne
     private Word rarestWordFound = null;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DailyChallengeRecord> challengeRecords = new ArrayList<>();
 
     @ManyToMany
     private Set<Achievement> achievements = new HashSet<Achievement>();
@@ -210,6 +215,14 @@ public class User implements Serializable {
 
     public void setRarestWordFound(Word rarestFoundWord) {
         this.rarestWordFound = rarestFoundWord;
+    }
+
+    public List<DailyChallengeRecord> getChallengeRecords() {
+        return challengeRecords;
+    }
+
+    public void setChallengeRecords(List<DailyChallengeRecord> records) {
+        this.challengeRecords = records;
     }
 
     public Set<Achievement> getAchievements() {
