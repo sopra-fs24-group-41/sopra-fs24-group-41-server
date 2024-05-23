@@ -10,13 +10,10 @@ import com.google.protobuf.util.JsonFormat;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.json.JSONObject;
-import io.github.cdimascio.dotenv.Dotenv;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 
 @Service
 public class APIService {
