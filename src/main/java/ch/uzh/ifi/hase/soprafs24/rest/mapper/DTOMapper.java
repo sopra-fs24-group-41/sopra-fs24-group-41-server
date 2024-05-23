@@ -135,4 +135,6 @@ public interface DTOMapper {
     @Mapping(source = "numberOfCombinations", target = "numberOfCombinations")
     DailyChallengeRecordGetDTO convertEntityToDailyChallengeRecordGetDTO(DailyChallengeRecord dailyChallengeRecord);
 
+    @Mapping(source = "targetWord", target = "targetWord")
+    DailyChallengeGetDTO convertEntityToDailyChallengeDTO(DailyChallenge dailyChallenge);
 }

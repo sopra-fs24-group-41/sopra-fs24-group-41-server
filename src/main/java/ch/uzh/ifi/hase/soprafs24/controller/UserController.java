@@ -1,5 +1,6 @@
 package ch.uzh.ifi.hase.soprafs24.controller;
 
+import ch.uzh.ifi.hase.soprafs24.entity.DailyChallenge;
 import ch.uzh.ifi.hase.soprafs24.entity.DailyChallengeRecord;
 import ch.uzh.ifi.hase.soprafs24.entity.User;
 import ch.uzh.ifi.hase.soprafs24.entity.achievements.Achievement;
@@ -128,6 +129,13 @@ public class UserController {
     }
 
     @GetMapping("/users/challenges")
+    @ResponseStatus(HttpStatus.OK)
+    public DailyChallengeGetDTO getDailyChallenge() {
+        DailyChallenge dailyChallenge = dailyChallengeService.getDailyChallenge();
+        return DTOMapper.INSTANCE.convertEntityToDailyChallengeDTO(dailyChallenge);
+    }
+
+    @GetMapping("/users/challenges/records")
     @ResponseStatus(HttpStatus.OK)
     public List<DailyChallengeRecordGetDTO> getAllRecordDTOs() {
         List<DailyChallengeRecord> records = dailyChallengeService.getRecords();
