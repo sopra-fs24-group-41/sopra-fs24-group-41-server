@@ -7,6 +7,8 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
+import static java.lang.Math.max;
+
 
 @Entity
 @Table(name = "COMBINATION", uniqueConstraints = {@UniqueConstraint(columnNames = {"word1", "word2"})})
@@ -31,6 +33,9 @@ public class Combination implements Serializable {
     @JoinColumn(name = "result", nullable = false)
     private Word result;
 
+    @Column
+    private Integer depth;
+
     public Combination() {
     }
 
@@ -38,6 +43,9 @@ public class Combination implements Serializable {
         this.word1 = word1;
         this.word2 = word2;
         this.result = result;
+        if (word1.getDepth() != null && word2.getDepth() != null) {
+            this.depth = max(word1.getDepth(), word2.getDepth()) + 1;
+        }
     }
 
     @Override
@@ -49,9 +57,9 @@ public class Combination implements Serializable {
         if (thisEffectiveClass != oEffectiveClass) return false;
         Combination that = (Combination) o;
         return Objects.equals(getId(), that.getId()) &&
-               Objects.equals(getWord1(), that.getWord1()) &&
-               Objects.equals(getWord2(), that.getWord2()) &&
-               Objects.equals(getResult(), that.getResult());
+                Objects.equals(getWord1(), that.getWord1()) &&
+                Objects.equals(getWord2(), that.getWord2()) &&
+                Objects.equals(getResult(), that.getResult());
     }
 
     @Override
@@ -85,5 +93,13 @@ public class Combination implements Serializable {
 
     public void setWord2(Word word2) {
         this.word2 = word2;
+    }
+
+    public Integer getDepth() {
+        return depth;
+    }
+
+    public void setDepth(Integer depth) {
+        this.depth = depth;
     }
 }

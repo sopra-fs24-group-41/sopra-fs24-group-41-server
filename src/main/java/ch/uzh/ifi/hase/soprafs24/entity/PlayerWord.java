@@ -36,6 +36,9 @@ public class PlayerWord implements Serializable {
     @Column
     private LocalDateTime timestamp;
 
+    @Column
+    private boolean newlyDiscovered = false;
+
     @PrePersist
     void timestamp() {
         this.timestamp = LocalDateTime.now();
@@ -47,11 +50,13 @@ public class PlayerWord implements Serializable {
     public PlayerWord(Player player, Word word) {
         this.player = player;
         this.word = word;
+        if (word.isNewlyDiscovered()) this.newlyDiscovered = true;
     }
 
     public PlayerWord(Player player, Word word, int uses) {
         this.player = player;
         this.word = word;
+        if (word.isNewlyDiscovered()) this.newlyDiscovered = true;
         this.uses = uses;
     }
 
@@ -106,5 +111,13 @@ public class PlayerWord implements Serializable {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public boolean isNewlyDiscovered() {
+        return newlyDiscovered;
+    }
+
+    public void setNewlyDiscovered(boolean newlyDiscovered) {
+        this.newlyDiscovered = newlyDiscovered;
     }
 }

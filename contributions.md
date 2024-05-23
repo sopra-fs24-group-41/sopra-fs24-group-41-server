@@ -194,3 +194,17 @@ Worked on:
 
 **JacquelineUlken - Jacqueline Ulken**
 - Implemented achievements [#175](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/175) [#176](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/176) [#177](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/177)
+
+## 20.05 - 24.05 Week 9
+**Tmmn - Timon Leupp**
+- More websocket [work](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/217)
+- Fixed bugs:
+    - [Improve the usage of instance of](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/215)
+    - [Introduces new endpoint which returns the lobby status + tests](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/223)
+    - [Introduced error when editing lobby settings when there is an ongoing game](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/233)
+- Made the words in the word board to stay glowing after you newly discovered them. [client changes](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/147) & [server changes](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/239)
+
+**Grizzlytron - Lucas Timothy Leo Bär**
+- Added functionality to abort games and close lobbies / remove players whenever tab is closed [Pull](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/137)
+- Adjusted Websocket to support aborting games [Issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/240/commits/ab70287b2598a938029aeaf9ff8bd86ee46ebb5c)
+- Fixed a bunch of bugs  [#139](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/139), [#138](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/138), [#101](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/101)

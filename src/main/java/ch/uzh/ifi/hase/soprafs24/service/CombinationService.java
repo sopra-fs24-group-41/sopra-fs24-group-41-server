@@ -12,7 +12,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+
+import static java.lang.Math.max;
 
 @Service
 @Transactional(noRollbackFor = WordNotFoundException.class)
@@ -64,20 +68,57 @@ public class CombinationService {
     }
 
     public Combination saveCombination(Combination combination) {
+        boolean isNewCombination;
         try {
             combination = findCombination(combination.getWord1(), combination.getWord2());
+            isNewCombination = false;
         }
-        catch (CombinationNotFoundException ignore) {
+        catch (CombinationNotFoundException ignored) {
+            isNewCombination = true;
         }
 
         Word resultWord = combination.getResult();
         resultWord.updateDepth(combination.getWord1().getDepth(), combination.getWord2().getDepth());
+        if (!isNewCombination && resultWord.getDepth() != 0) {
+            // Subtract the reachability previously added by the combination with the old depth
+            double oldReachability = 1.0 / (1L << combination.getDepth());
+            resultWord.setReachability(resultWord.getReachability() - oldReachability);
+        }
         resultWord.updateReachability();
+
+        combination.setDepth(resultWord.getDepth());
 
         combinationRepository.saveAndFlush(combination);
         wordService.saveWord(resultWord);
 
+        propagateWordUpdates(resultWord);
+
         return combination;
+    }
+
+    void propagateWordUpdates(Word startingWord) {
+        Queue<Word> queue = new LinkedList<>();
+        queue.add(startingWord);
+
+        Word firstWord;
+        Word secondWord;
+        Word resultWord;
+        List<Combination> adjacencyList;
+        while (!queue.isEmpty()) {
+            firstWord = queue.remove();
+            adjacencyList = new LinkedList<>();
+            adjacencyList.addAll(combinationRepository.findByWord1(firstWord));
+            adjacencyList.addAll(combinationRepository.findByWord2(firstWord));
+
+            for (Combination combination : adjacencyList) {
+                secondWord = (firstWord == combination.getWord1()) ? combination.getWord2() : combination.getWord1();
+                resultWord = combination.getResult();
+                if (max(firstWord.getDepth(), secondWord.getDepth()) + 1 < resultWord.getDepth()) {
+                    saveCombination(combination);
+                    queue.add(resultWord);
+                }
+            }
+        }
     }
 
     public Combination createCustomCombination(Word word1, Word word2, Word result) {
