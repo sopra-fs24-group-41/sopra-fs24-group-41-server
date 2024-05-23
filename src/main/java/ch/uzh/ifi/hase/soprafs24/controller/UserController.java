@@ -122,7 +122,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/users/achievments")
+    @GetMapping("/users/achievements")
     @ResponseStatus(HttpStatus.OK)
     public List<Achievement> getAchievements() {
         return achievementService.getAchievements();
