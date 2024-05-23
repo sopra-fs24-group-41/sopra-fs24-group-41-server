@@ -1,7 +1,5 @@
 package ch.uzh.ifi.hase.soprafs24.rest.dto;
 
-import ch.uzh.ifi.hase.soprafs24.entity.Word;
-
 import java.time.LocalDateTime;
 
 public class PlayerWordDTO {
@@ -10,6 +8,8 @@ public class PlayerWordDTO {
     private Integer uses;
 
     private LocalDateTime timestamp;
+
+    private boolean newlyDiscovered;
 
     public WordDTO getWord() {
         return word;
@@ -33,5 +33,13 @@ public class PlayerWordDTO {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    public boolean isNewlyDiscovered() {
+        return newlyDiscovered;
+    }
+
+    public void setNewlyDiscovered(boolean newlyDiscovered) {
+        this.newlyDiscovered = newlyDiscovered;
     }
 }
