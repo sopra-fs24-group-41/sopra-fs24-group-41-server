@@ -5,6 +5,8 @@ import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRecordRepository;
 import ch.uzh.ifi.hase.soprafs24.repository.DailyChallengeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -49,15 +51,29 @@ public class DailyChallengeService {
         return dailyChallengeRecordRepository.findAll();
     }
 
-    @Scheduled(cron = "0 0 0 * * *")
     void createNewDailyChallenge() {
-        dailyChallengeRecordRepository.deleteAll();
-        dailyChallengeRepository.deleteAll();
-
         DailyChallenge dailyChallenge = new DailyChallenge();
         dailyChallenge.setTargetWord(wordService.selectTargetWord(0.9F));
         dailyChallengeRepository.saveAndFlush(dailyChallenge);
     }
+
+    @EventListener(ApplicationReadyEvent.class)
+    void setUpDailyChallenge() {
+        if (dailyChallengeRepository.count() == 0) {
+            createNewDailyChallenge();
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 * * *")
+    void updateDailyChallenge() {
+        if (dailyChallengeRepository.count() != 0) {
+            dailyChallengeRecordRepository.deleteAll();
+            dailyChallengeRepository.deleteAll();
+        }
+
+        createNewDailyChallenge();
+    }
+
 
     public DailyChallenge getDailyChallenge() { return dailyChallengeRepository.findAll().get(0); }
 
