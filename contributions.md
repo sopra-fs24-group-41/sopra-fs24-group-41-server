@@ -202,7 +202,9 @@ Worked on:
     - [Improve the usage of instance of](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/215)
     - [Introduces new endpoint which returns the lobby status + tests](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/223)
     - [Introduced error when editing lobby settings when there is an ongoing game](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/233)
+    - [Only allow play moves when there is an active game in the lobby](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/243)
 - Made the words in the word board to stay glowing after you newly discovered them. [client changes](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/147) & [server changes](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/239)
+    - Introduced bug with this change, fixed [here](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/150)
 
 **Grizzlytron - Lucas Timothy Leo Bär**
 - Added functionality to abort games and close lobbies / remove players whenever tab is closed [Pull](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/137)
