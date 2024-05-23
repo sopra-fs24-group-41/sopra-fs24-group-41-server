@@ -14,7 +14,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 public class FiniteFusionGame extends Game {
-    private float difficulty = 0.75f;
+    private final double minReachability = 0.075;
+    private final double maxReachability = 0.125;
 
     public FiniteFusionGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
@@ -23,7 +24,7 @@ public class FiniteFusionGame extends Game {
     @Override
     public void setupPlayers(List<Player> players) {
         setupStartingWords();
-        Word targetWord = wordService.selectTargetWord(difficulty);
+        Word targetWord = wordService.selectTargetWord(minReachability, maxReachability);
         int starting_uses = targetWord.getDepth() * 2;
         for (Player player : players) {
             playerService.resetPlayer(player);

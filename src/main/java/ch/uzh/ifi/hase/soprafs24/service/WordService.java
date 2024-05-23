@@ -43,27 +43,14 @@ public class WordService {
         return wordRepository.findByName(word.getName());
     }
 
-    public Word selectTargetWord(float desiredDifficulty) {
-        return selectTargetWord(desiredDifficulty, new ArrayList<>());
+    public Word selectTargetWord(double minReachability, double maxReachability) {
+        return selectTargetWord(minReachability, maxReachability, new ArrayList<>());
     }
 
-    public Word selectTargetWord(float desiredDifficulty, List<Word> excludedWords) {
-        List<Word> words = wordRepository.findAllSortedByDescendingReachability();
-
-        float margin = 0.05f;
-
-        float lowerPercentage = clamp(0, desiredDifficulty - margin, 1);
-        float upperPercentage = clamp(0, desiredDifficulty + margin, 1);
-
-        int startIndex = (int) Math.floor(lowerPercentage * (words.size() - 1));
-        int endIndex = (int) Math.ceil(upperPercentage * (words.size() - 1));
-
-        double maxReachability = words.get(startIndex).getReachability();
-        double minReachability = words.get(endIndex).getReachability();
+    public Word selectTargetWord(double minReachability, double maxReachability, List<Word> excludedWords) {
+        List<Word> words = wordRepository.findAllByReachabilityBetween(minReachability, maxReachability);
 
         words = words.stream()
-                .filter(w -> w.getReachability() <= maxReachability)
-                .filter(w -> w.getReachability() >= minReachability)
                 .filter(not(excludedWords::contains))
                 .filter(not(forbiddenTargetWords::contains))
                 .toList();
@@ -81,10 +68,6 @@ public class WordService {
 
     public Word getRandomWord() {
         return pickRandom(wordRepository.findAll());
-    }
-
-    public Word getRandomWordWithinReachability(double minReachability, double maxReachability) {
-        return pickRandom(wordRepository.findAllByReachabilityBetween(minReachability, maxReachability));
     }
 
     public Word getRandomWordWithinDepth(int minDepth, int maxDepth) {
