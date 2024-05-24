@@ -188,7 +188,7 @@ Worked on:
 - Created an Errorpopup that displays the errors received from server. Also added a check if the client tries to join a lobby which is already in game. [Issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/111)
 - Worked on achievements page and the underlying frame in client. [Issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/issues/97)
 
-**Aquamarine - Alexandru-Mihai Hurjui**
+**Aquamarine-12 - Alexandru-Mihai Hurjui**
 - Improved test coverage from 70% to 84%: [Pull request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/214)
 - Added support for daily challenges on the backend: [Link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/218)
 
@@ -210,3 +210,10 @@ Worked on:
 - Added functionality to abort games and close lobbies / remove players whenever tab is closed [Pull](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/137)
 - Adjusted Websocket to support aborting games [Issue](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/240/commits/ab70287b2598a938029aeaf9ff8bd86ee46ebb5c)
 - Fixed a bunch of bugs  [#139](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/139), [#138](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/138), [#101](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/101)
+
+**Aquamarine-12 - Alexandru-Mihai Hurjui**
+- worked on daily challenges - refactoring and bug fixing (see newer commits): [link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/218/commits)
+- realized that I also worked on issue [#170](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/170) for daily challenges
+- fixed bug: [#246](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/247)
+- added profile pictures for achievements: [server](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/250), [client](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/153)
+- improved the reachability/depth propagation when a word's depth is updated (see newer commits): [link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/189)
