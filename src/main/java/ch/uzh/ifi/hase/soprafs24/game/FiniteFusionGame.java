@@ -26,7 +26,7 @@ public class FiniteFusionGame extends Game {
     public void setupPlayers(List<Player> players) {
         setupStartingWords();
         Word targetWord = wordService.selectTargetWord(minReachability, maxReachability, maxDepth);
-        int starting_uses = targetWord.getDepth() * 2;
+        int starting_uses = 2 + targetWord.getDepth() * 2;
         for (Player player : players) {
             playerService.resetPlayer(player);
             player.addWords(startingWords, starting_uses);
