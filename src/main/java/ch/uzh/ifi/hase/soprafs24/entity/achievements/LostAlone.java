@@ -13,7 +13,7 @@ public class LostAlone extends Achievement {
     public LostAlone() {
         setTitle("I've tried nothing and I'm all out of ideas");
         setDescription("Lose a single player game.");
-        setProfilePicture("anonpenguin");
+        setProfilePicture("sad_bear");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {

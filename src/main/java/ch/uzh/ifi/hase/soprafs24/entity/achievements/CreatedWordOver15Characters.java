@@ -12,7 +12,7 @@ public class CreatedWordOver15Characters extends Achievement {
     public CreatedWordOver15Characters() {
         setTitle("Lexical Magician");
         setDescription("Create a word at least 15 characters long.");
-        setProfilePicture("wizard");
+        setProfilePicture("gandalf");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {

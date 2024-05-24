@@ -12,7 +12,7 @@ public class Merged100Words extends Achievement {
     public Merged100Words() {
         setTitle("Womboed 100 Combos");
         setDescription("Make 100 combinations.");
-        setProfilePicture("gamer");
+        setProfilePicture("wombo_combo_one_hundred");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {

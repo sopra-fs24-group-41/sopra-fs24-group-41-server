@@ -12,7 +12,7 @@ public class CreatedZaddy extends Achievement {
     public CreatedZaddy() {
         setTitle("...how?");
         setDescription("Create zaddy through any combination.");
-        setProfilePicture("zaddy");
+        setProfilePicture("aquaman");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {

@@ -14,7 +14,7 @@ public class WonWomboComboWithoutTarget extends Achievement {
     public WonWomboComboWithoutTarget() {
         setTitle("I won... I guess?");
         setDescription("Win a game of Wombo Combo without actually reaching a target word.");
-        setProfilePicture("puppy");
+        setProfilePicture("pikachu");
         setHidden(true);
     }
 

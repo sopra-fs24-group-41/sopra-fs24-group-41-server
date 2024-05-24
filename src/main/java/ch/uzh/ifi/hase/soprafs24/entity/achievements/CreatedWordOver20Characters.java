@@ -12,7 +12,7 @@ public class CreatedWordOver20Characters extends Achievement {
     public CreatedWordOver20Characters() {
         setTitle("Supercalifragilisticexpialidocious");
         setDescription("Create a word at least 20 characters long.");
-        setProfilePicture("marypoppins");
+        setProfilePicture("mary_poppins");
         setHidden(true);
     }
 

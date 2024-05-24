@@ -16,7 +16,7 @@ public class SpentTimeInSandbox extends Achievement {
     public SpentTimeInSandbox() {
         setTitle("Building sandcastles by myself");
         setDescription("Spend at least 10 minutes alone playing in sandbox mode.");
-        setProfilePicture("sandcastle");
+        setProfilePicture("sandcastle_v2");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {

@@ -13,7 +13,7 @@ public class MadeNoNewWords extends Achievement {
     public MadeNoNewWords() {
         setTitle("Whole lot of nothing");
         setDescription("Play a game with other people, make at least one combination, and loose without adding any new words to the word board.");
-        setProfilePicture("platypus");
+        setProfilePicture("blank_page");
         setHidden(true);
     }
 
