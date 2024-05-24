@@ -12,7 +12,7 @@ public class CreatedWordOver11Characters extends Achievement {
     public CreatedWordOver11Characters() {
         setTitle("Supercalifragilisticexpialidocious");
         setDescription("Unlock this achievement by creating a word almost as long as Mary Poppins' favorite. That's right, a word longer than 11 characters!");
-        setProfilePicture("marypoppins");
+        setProfilePicture("mary_poppins");
         setHidden(true);
     }
 
