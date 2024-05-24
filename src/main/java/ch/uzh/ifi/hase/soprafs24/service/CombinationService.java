@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Random;
 
 import static java.lang.Math.max;
 
@@ -139,7 +140,7 @@ public class CombinationService {
 
             iter += 1;
             if (iter >= maxIter) {
-                throw new RuntimeException("Maximum iteration exceeded, couldn't generate a valid result word!");
+                return new Random().nextBoolean() ? word1 : word2;
             }
         }
 
