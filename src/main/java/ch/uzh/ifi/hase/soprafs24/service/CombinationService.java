@@ -184,7 +184,13 @@ public class CombinationService {
 
         for (int i = 0; i <= 100; i += 1) {
             Word word1 = wordService.getRandomWordWithinDepth(minDepth - 1, maxDepth - 1);
+            if (word1 == null) {
+                word1 = wordService.getRandomWord();
+            }
             Word word2 = wordService.getRandomWordWithinDepth(minDepth - 1, maxDepth - 1);
+            if (word2 == null) {
+                word2 = wordService.getRandomWord();
+            }
             try {
                 findCombination(word1, word2);
             }

@@ -16,6 +16,7 @@ import java.util.List;
 public class FiniteFusionGame extends Game {
     private final double minReachability = 0.075;
     private final double maxReachability = 0.125;
+    private final int maxDepth = 6;
 
     public FiniteFusionGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
@@ -24,7 +25,7 @@ public class FiniteFusionGame extends Game {
     @Override
     public void setupPlayers(List<Player> players) {
         setupStartingWords();
-        Word targetWord = wordService.selectTargetWord(minReachability, maxReachability);
+        Word targetWord = wordService.selectTargetWord(minReachability, maxReachability, maxDepth);
         int starting_uses = targetWord.getDepth() * 2;
         for (Player player : players) {
             playerService.resetPlayer(player);

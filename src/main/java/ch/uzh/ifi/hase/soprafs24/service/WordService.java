@@ -44,22 +44,31 @@ public class WordService {
     }
 
     public Word selectTargetWord(double minReachability, double maxReachability) {
-        return selectTargetWord(minReachability, maxReachability, new ArrayList<>());
+        return selectTargetWord(minReachability, maxReachability, new ArrayList<>(), 10);
+    }
+
+    public Word selectTargetWord(double minReachability, double maxReachability, int maxDepth) {
+        return selectTargetWord(minReachability, maxReachability, new ArrayList<>(), maxDepth);
     }
 
     public Word selectTargetWord(double minReachability, double maxReachability, List<Word> excludedWords) {
+        return selectTargetWord(minReachability, maxReachability, new ArrayList<>(), 10);
+    }
+
+    public Word selectTargetWord(double minReachability, double maxReachability, List<Word> excludedWords, int maxDepth) {
         List<Word> words = wordRepository.findAllByReachabilityBetween(minReachability, maxReachability);
 
         words = words.stream()
                 .filter(not(excludedWords::contains))
                 .filter(not(forbiddenTargetWords::contains))
+                .filter(w -> w.getDepth() <= maxDepth)
                 .toList();
 
         if (words.isEmpty()) {
             try {
                 return combinationService.generateWordWithinReachability(minReachability, maxReachability);
             } catch (WordNotFoundException e) {
-                return null;
+                return getRandomWord();
             }
         }
 
