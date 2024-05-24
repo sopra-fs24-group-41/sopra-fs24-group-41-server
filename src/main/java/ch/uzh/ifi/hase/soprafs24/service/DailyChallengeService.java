@@ -53,7 +53,7 @@ public class DailyChallengeService {
 
     void createNewDailyChallenge() {
         DailyChallenge dailyChallenge = new DailyChallenge();
-        dailyChallenge.setTargetWord(wordService.selectTargetWord(0.9F));
+        dailyChallenge.setTargetWord(wordService.selectTargetWord(0.001, 0.03));
         dailyChallengeRepository.saveAndFlush(dailyChallenge);
     }
 

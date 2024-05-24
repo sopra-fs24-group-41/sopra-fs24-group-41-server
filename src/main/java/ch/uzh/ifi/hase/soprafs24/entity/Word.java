@@ -75,7 +75,7 @@ public class Word implements Serializable {
     }
 
     public void setName(String name) {
-        name = name.replaceAll("[^A-Za-z0-9]", "");
+        name = name.replaceAll("[^ A-Za-z0-9]", "");
         name = name.toLowerCase();
         name = name.trim();
         this.name = name;

@@ -13,8 +13,7 @@ import org.mockito.stubbing.Answer;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class CombinationServiceTest {
 
@@ -131,9 +130,10 @@ class CombinationServiceTest {
     }
 
     @Test
-    void generateCombinationResult_invalidResult_throwsException() {
+    void generateCombinationResult_invalidResult_picksInput() {
         Mockito.when(apiService.generateCombinationResult(Mockito.any(), Mockito.any())).thenReturn("          ");
-        assertThrows(RuntimeException.class, () -> combinationService.generateCombinationResult(word1, word2));
+        Word result = combinationService.generateCombinationResult(word1, word2);
+        assertTrue(result == word1 || result == word2);
     }
 
     @Test

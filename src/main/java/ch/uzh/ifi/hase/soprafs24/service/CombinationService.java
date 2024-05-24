@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.Random;
 
 import static java.lang.Math.max;
 
@@ -37,6 +38,7 @@ public class CombinationService {
     public void setupCombinationDatabase() {
         makeDefaultCombinations();
         makeZaddyChain();
+        makeExtraCombinations();
         makeCombinations(20);
     }
 
@@ -139,7 +141,7 @@ public class CombinationService {
 
             iter += 1;
             if (iter >= maxIter) {
-                throw new RuntimeException("Maximum iteration exceeded, couldn't generate a valid result word!");
+                return new Random().nextBoolean() ? word1 : word2;
             }
         }
 
@@ -184,7 +186,13 @@ public class CombinationService {
 
         for (int i = 0; i <= 100; i += 1) {
             Word word1 = wordService.getRandomWordWithinDepth(minDepth - 1, maxDepth - 1);
+            if (word1 == null) {
+                word1 = wordService.getRandomWord();
+            }
             Word word2 = wordService.getRandomWordWithinDepth(minDepth - 1, maxDepth - 1);
+            if (word2 == null) {
+                word2 = wordService.getRandomWord();
+            }
             try {
                 findCombination(word1, word2);
             }
@@ -249,8 +257,33 @@ public class CombinationService {
 
         createCustomCombination(new Word("man"), new Word("family"), new Word("father"));
 
-        createCustomCombination(new Word("fire"), new Word("father"), new Word("daddy"));
+        createCustomCombination(new Word("man"), new Word("father"), new Word("dad"));
+
+        createCustomCombination(new Word("dad"), new Word("dad"), new Word("daddy"));
 
         createCustomCombination(new Word("swag"), new Word("daddy"), new Word("zaddy"));
+    }
+
+    private void makeExtraCombinations() {
+        createCustomCombination(new Word("earth"), new Word("mud"), new Word("soil"));
+        createCustomCombination(new Word("steam"), new Word("steam"), new Word("fog"));
+
+        createCustomCombination(new Word("air"), new Word("soil"), new Word("plant"));
+        createCustomCombination(new Word("water"), new Word("soil"), new Word("plant"));
+        createCustomCombination(new Word("soil"), new Word("soil"), new Word("plant"));
+
+        createCustomCombination(new Word("water"), new Word("plant"), new Word("growth"));
+        createCustomCombination(new Word("plant"), new Word("sun"), new Word("growth"));
+
+        createCustomCombination(new Word("earth"), new Word("growth"), new Word("life"));
+        createCustomCombination(new Word("growth"), new Word("growth"), new Word("life"));
+
+        createCustomCombination(new Word("earth"), new Word("life"), new Word("animal"));
+
+        createCustomCombination(new Word("fog"), new Word("planet"), new Word("venus"));
+        createCustomCombination(new Word("smoke"), new Word("planet"), new Word("venus"));
+        createCustomCombination(new Word("human"), new Word("venus"), new Word("woman"));
+        createCustomCombination(new Word("venus"), new Word("venus"), new Word("woman"));
+
     }
 }

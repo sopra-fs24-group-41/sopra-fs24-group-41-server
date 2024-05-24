@@ -40,39 +40,35 @@ public class WordService {
     }
 
     public Word findWord(Word word) {
-        return wordRepository.findByName(word.getName());
+        return wordRepository.findBySimilarName(processNameForSearching(word.getName()));
     }
 
-    public Word selectTargetWord(float desiredDifficulty) {
-        return selectTargetWord(desiredDifficulty, new ArrayList<>());
+    public Word selectTargetWord(double minReachability, double maxReachability) {
+        return selectTargetWord(minReachability, maxReachability, new ArrayList<>(), 10);
     }
 
-    public Word selectTargetWord(float desiredDifficulty, List<Word> excludedWords) {
-        List<Word> words = wordRepository.findAllSortedByDescendingReachability();
+    public Word selectTargetWord(double minReachability, double maxReachability, int maxDepth) {
+        return selectTargetWord(minReachability, maxReachability, new ArrayList<>(), maxDepth);
+    }
 
-        float margin = 0.05f;
+    public Word selectTargetWord(double minReachability, double maxReachability, List<Word> excludedWords) {
+        return selectTargetWord(minReachability, maxReachability, new ArrayList<>(), 10);
+    }
 
-        float lowerPercentage = clamp(0, desiredDifficulty - margin, 1);
-        float upperPercentage = clamp(0, desiredDifficulty + margin, 1);
-
-        int startIndex = (int) Math.floor(lowerPercentage * (words.size() - 1));
-        int endIndex = (int) Math.ceil(upperPercentage * (words.size() - 1));
-
-        double maxReachability = words.get(startIndex).getReachability();
-        double minReachability = words.get(endIndex).getReachability();
+    public Word selectTargetWord(double minReachability, double maxReachability, List<Word> excludedWords, int maxDepth) {
+        List<Word> words = wordRepository.findAllByReachabilityBetween(minReachability, maxReachability);
 
         words = words.stream()
-                .filter(w -> w.getReachability() <= maxReachability)
-                .filter(w -> w.getReachability() >= minReachability)
                 .filter(not(excludedWords::contains))
                 .filter(not(forbiddenTargetWords::contains))
+                .filter(w -> w.getDepth() <= maxDepth)
                 .toList();
 
         if (words.isEmpty()) {
             try {
                 return combinationService.generateWordWithinReachability(minReachability, maxReachability);
             } catch (WordNotFoundException e) {
-                return null;
+                return getRandomWord();
             }
         }
 
@@ -81,10 +77,6 @@ public class WordService {
 
     public Word getRandomWord() {
         return pickRandom(wordRepository.findAll());
-    }
-
-    public Word getRandomWordWithinReachability(double minReachability, double maxReachability) {
-        return pickRandom(wordRepository.findAllByReachabilityBetween(minReachability, maxReachability));
     }
 
     public Word getRandomWordWithinDepth(int minDepth, int maxDepth) {
@@ -104,5 +96,21 @@ public class WordService {
 
     public int depthFromReachability(double reachability) {
         return (int) (Math.log(1.0 / reachability) / Math.log(2));
+    }
+
+    private static String processNameForSearching(String input) {
+        if (input == null) {
+            return null;
+        }
+
+        String result = input.toLowerCase().replaceAll("\\s", "");
+
+        if (result.endsWith("s")) {
+            result = result.substring(0, result.length() - 1);
+        } else if (result.endsWith("es")) {
+            result = result.substring(0, result.length() - 2);
+        }
+
+        return result;
     }
 }

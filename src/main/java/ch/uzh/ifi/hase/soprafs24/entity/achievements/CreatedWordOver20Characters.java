@@ -7,16 +7,16 @@ import javax.persistence.Entity;
 
 
 @Entity
-public class CreatedWordOver11Characters extends Achievement {
+public class CreatedWordOver20Characters extends Achievement {
 
-    public CreatedWordOver11Characters() {
+    public CreatedWordOver20Characters() {
         setTitle("Supercalifragilisticexpialidocious");
-        setDescription("Unlock this achievement by creating a word almost as long as Mary Poppins' favorite. That's right, a word longer than 11 characters!");
+        setDescription("Create a word at least 20 characters long.");
         setProfilePicture("marypoppins");
         setHidden(true);
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {
-        return combination.getResult().getName().length() > 11;
+        return combination.getResult().getName().length() >= 20;
     }
 }

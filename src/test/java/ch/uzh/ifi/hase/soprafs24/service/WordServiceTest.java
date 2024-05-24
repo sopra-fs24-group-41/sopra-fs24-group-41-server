@@ -32,7 +32,7 @@ class WordServiceTest {
 
     @Test
     void getWord_foundWord() {
-        Mockito.when(wordRepository.findByName(Mockito.any())).thenReturn(testWord);
+        Mockito.when(wordRepository.findBySimilarName(Mockito.any())).thenReturn(testWord);
 
         Word foundWord = wordService.getWord(testWord);
 
@@ -41,7 +41,7 @@ class WordServiceTest {
 
     @Test
     void getWord_newWord() {
-        Mockito.when(wordRepository.findByName(Mockito.any())).thenReturn(null);
+        Mockito.when(wordRepository.findBySimilarName(Mockito.any())).thenReturn(null);
 
         Word foundWord = wordService.getWord(testWord);
 

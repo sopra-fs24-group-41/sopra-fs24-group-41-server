@@ -13,7 +13,8 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 
 public class FusionFrenzyGame extends Game {
-    private float difficulty = 0.825f;
+    private final double minReachability = 0.0125;
+    private final double maxReachability = 0.0625;
 
     public FusionFrenzyGame(PlayerService playerService, CombinationService combinationService, WordService wordService) {
         super(playerService, combinationService, wordService);
@@ -22,7 +23,7 @@ public class FusionFrenzyGame extends Game {
     @Override
     public void setupPlayers(List<Player> players) {
         setupStartingWords();
-        Word targetWord = wordService.selectTargetWord(difficulty);
+        Word targetWord = wordService.selectTargetWord(minReachability, maxReachability);
         for (Player player : players) {
             playerService.resetPlayer(player);
             player.addWords(startingWords);
