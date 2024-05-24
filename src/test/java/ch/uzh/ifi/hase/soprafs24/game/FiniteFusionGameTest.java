@@ -59,7 +59,7 @@ class FiniteFusionGameTest {
     void setupPlayers_success() {
         Mockito.doNothing().when(playerService).resetPlayer(Mockito.any());
         Word testWord = new Word("testWord", 3, 0.125);
-        Mockito.when(wordService.selectTargetWord(Mockito.anyFloat())).thenReturn(testWord);
+        Mockito.when(wordService.selectTargetWord(Mockito.anyDouble(), Mockito.anyDouble(), Mockito.anyInt())).thenReturn(testWord);
 
         game.setupPlayers(players);
 

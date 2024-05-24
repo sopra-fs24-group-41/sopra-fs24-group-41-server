@@ -57,7 +57,7 @@ class WomboComboGameTest {
     void setupPlayers_success() {
         Mockito.doNothing().when(playerService).resetPlayer(Mockito.any());
         Word testWord = new Word("testWord", 3, 0.125);
-        Mockito.when(wordService.selectTargetWord(Mockito.anyFloat())).thenReturn(testWord);
+        Mockito.when(wordService.selectTargetWord(Mockito.anyDouble(), Mockito.anyDouble())).thenReturn(testWord);
         game.setupPlayers(players);
 
         assertEquals(4, player1.getWords().size());
@@ -117,7 +117,7 @@ class WomboComboGameTest {
     void setNewTargetWord_success() {
         Word rareWord = new Word("adamantium", 5, 0.05);
 
-        Mockito.when(wordService.selectTargetWord(Mockito.anyFloat(), Mockito.any())).thenReturn(rareWord);
+        Mockito.when(wordService.selectTargetWord(Mockito.anyDouble(),Mockito.anyDouble(), Mockito.any())).thenReturn(rareWord);
 
         game.setNewTargetWord(player1);
 

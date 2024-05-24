@@ -7,15 +7,15 @@ import javax.persistence.Entity;
 
 
 @Entity
-public class CreatedWordOver9Characters extends Achievement {
+public class CreatedWordOver15Characters extends Achievement {
 
-    public CreatedWordOver9Characters() {
+    public CreatedWordOver15Characters() {
         setTitle("Lexical Magician");
-        setDescription("Step into the spotlight as a wizard of words, conjuring a spellbinding creation exceeding 20 characters.");
+        setDescription("Create a word at least 15 characters long.");
         setProfilePicture("gandalf");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {
-        return combination.getResult().getName().length() > 9;
+        return combination.getResult().getName().length() >= 15;
     }
 }
