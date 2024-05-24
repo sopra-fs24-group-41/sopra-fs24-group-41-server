@@ -72,6 +72,8 @@ Other important classes:
 * CombinationService: Generates word combinations (e.g., `word1` + `word2` = `resultWord`), saves them to the database.
 * APIService: Manages calls to the external API for determining the resulting word for a combination (e.g., fetches the result "steam" for "water" + "fire").
 
+These three components work together to allow for playing games: LobbyService manages the players and triggers the game start; GameService initializes the player information relevant for the gameplay; GameService processes the higher-level logic (such as the `play` primitive), which uses lower-level logic implemented using WordService and CombinationService. Registered users are managed with UserService, and they have statistics tracking how many wins and losses they have after games, as well as achievements triggered during gameplay.
+
 ## Launch & Deployment
 
 ### Prerequisites
@@ -89,15 +91,20 @@ Getting started with Spring Boot:
 #### Google Vertex API
 
 Google Cloud and Vertex API:
-* Set up a Google Cloud Account.
-* Google Vertex API guide: [Link](https://cloud.google.com/vertex-ai/docs/start/introduction-unified-platform), [getting started](https://cloud.google.com/vertex-ai/docs/start/client-libraries#java).
-* LLM used by our app: [Link](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/text-chat). Note: the LLM used by our application can be changed in `APIService.java`.
-* Downloading Service account credentials: [Link](https://cloud.google.com/iam/docs/service-account-creds). These credentials have to be added to the environment variables of the runtime.
+* Set up a Google Cloud Account to use Google's VertexAI API
+* [Here a guide for the setup](https://cloud.google.com/vertex-ai/docs/start/introduction-unified-platform)
+* [Here documentation on VertexAI](https://cloud.google.com/vertex-ai/generative-ai/docs/model-reference/text-chat)
+* In general, you have to first setup a Google Cloud Service Account, which you have to anyway whenever you do projects with Google Cloud. Setup your service account and download the required credentials. [Guide](https://cloud.google.com/iam/docs/service-account-creds). It will be a JSON file that you will have to store as an environment variable. If that is done, then you can treat VertexAI like any other library you import for Java, add the depedency in your `build.gradle` with:
+```java
+implementation 'com.google.cloud:google-cloud-aiplatform:3.35.0'
+```
+Then the relevant methods will automatically verify your credentials in your environment and run. If you this for deployment, set it up via GitHub secrets and the `main.yml`
 
+Note: the LLM used by our application can be changed in `APIService.java`.
 
 ### Development
 
-After setting up the Vertex API, you can now build and run the application.
+After setting up the Vertex API credentials, you can now build and run the application.
 
 #### Build
 
