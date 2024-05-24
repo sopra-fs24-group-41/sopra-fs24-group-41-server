@@ -11,7 +11,7 @@ public class CreatedWordOver20Characters extends Achievement {
 
     public CreatedWordOver20Characters() {
         setTitle("Supercalifragilisticexpialidocious");
-        setDescription("Unlock this achievement by creating a word almost as long as Mary Poppins' favorite. That's right, a word with at least 20 characters!");
+        setDescription("Create a word at least 20 characters long.");
         setProfilePicture("marypoppins");
         setHidden(true);
     }

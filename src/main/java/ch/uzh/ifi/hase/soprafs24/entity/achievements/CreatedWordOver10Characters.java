@@ -11,7 +11,7 @@ public class CreatedWordOver10Characters extends Achievement {
 
     public CreatedWordOver10Characters() {
         setTitle("Word Architect");
-        setDescription("Craft a mega-sized word by joining lots of letters together, turning your word into a skyscraper of language with at least 10 characters!");
+        setDescription("Create a word at least 10 characters long.");
         setProfilePicture("architect");
     }
 
