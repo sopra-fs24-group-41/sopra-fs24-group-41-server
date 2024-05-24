@@ -7,15 +7,15 @@ import javax.persistence.Entity;
 
 
 @Entity
-public class CreatedWordOver7Characters extends Achievement {
+public class CreatedWordOver10Characters extends Achievement {
 
-    public CreatedWordOver7Characters() {
+    public CreatedWordOver10Characters() {
         setTitle("Word Architect");
-        setDescription("Craft a mega-sized word by joining lots of letters together, turning your word into a skyscraper of language bigger than 7 characters!");
+        setDescription("Craft a mega-sized word by joining lots of letters together, turning your word into a skyscraper of language with at least 10 characters!");
         setProfilePicture("architect");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {
-        return combination.getResult().getName().length() > 7;
+        return combination.getResult().getName().length() >= 10;
     }
 }
