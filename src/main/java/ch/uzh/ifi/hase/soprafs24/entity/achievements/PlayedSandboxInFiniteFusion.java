@@ -14,7 +14,7 @@ public class PlayedSandboxInFiniteFusion extends Achievement {
     public PlayedSandboxInFiniteFusion() {
         setTitle("Never give up!");
         setDescription("Make at least 5 new words while having already lost Finite Fusion.");
-        setProfilePicture("coolpenguin");
+        setProfilePicture("get_over_it");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {

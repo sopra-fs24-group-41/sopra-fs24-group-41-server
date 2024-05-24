@@ -12,7 +12,7 @@ public class Discovered20Words extends Achievement {
     public Discovered20Words() {
         setTitle("One small step for man - one giant leap for Wombo");
         setDescription("Discover 20 new words.");
-        setProfilePicture("spacedude");
+        setProfilePicture("moon");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {

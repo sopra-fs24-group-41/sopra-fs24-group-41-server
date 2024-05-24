@@ -15,7 +15,7 @@ public class MadeCombination3SecondsLeft extends Achievement {
     public MadeCombination3SecondsLeft() {
         setTitle("Just. One. More!");
         setDescription("Make a combination with less than 3 seconds remaining.");
-        setProfilePicture("cat");
+        setProfilePicture("speedrunner");
     }
 
     public boolean unlockConditionFulfilled(Player player, Combination combination) {
