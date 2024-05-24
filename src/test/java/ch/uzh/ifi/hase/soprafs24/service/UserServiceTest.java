@@ -94,6 +94,12 @@ class UserServiceTest {
     }
 
     @Test
+    void createUser_usernameTooLong_throwsException() {
+        testUser.setUsername("Peter_Piper_picked_a_peck_of_pickled_peppers");
+        assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
+    }
+
+    @Test
     void logInUser_validInputs_returnsUser() {
         userService.createUser(testUser);
         User userCredentials = testUser;
