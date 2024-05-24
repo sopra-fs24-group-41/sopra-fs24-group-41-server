@@ -11,6 +11,17 @@ import java.util.List;
 public interface WordRepository extends JpaRepository<Word, Long> {
     Word findByName(String name);
 
+
+    @Query(
+            "SELECT word FROM Word word " +
+            "WHERE LOWER(REPLACE(CASE " +
+            "WHEN word.name LIKE '%es' THEN SUBSTRING(word.name, 1, LENGTH(word.name) - 2) " +
+            "WHEN word.name LIKE '%s' THEN SUBSTRING(word.name, 1, LENGTH(word.name) - 1) " +
+            "ELSE word.name END, ' ', '')) " +
+            "LIKE LOWER(:name)"
+    )
+    Word findBySimilarName(String name);
+
     List<Word> findAllByReachabilityBetween(double start, double end);
 
     List<Word> findAllByDepthBetween(int start, int end);

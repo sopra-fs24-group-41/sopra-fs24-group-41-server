@@ -40,7 +40,7 @@ public class WordService {
     }
 
     public Word findWord(Word word) {
-        return wordRepository.findByName(word.getName());
+        return wordRepository.findBySimilarName(processNameForSearching(word.getName()));
     }
 
     public Word selectTargetWord(double minReachability, double maxReachability) {
@@ -96,5 +96,21 @@ public class WordService {
 
     public int depthFromReachability(double reachability) {
         return (int) (Math.log(1.0 / reachability) / Math.log(2));
+    }
+
+    private static String processNameForSearching(String input) {
+        if (input == null) {
+            return null;
+        }
+
+        String result = input.toLowerCase().replaceAll("\\s", "");
+
+        if (result.endsWith("s")) {
+            result = result.substring(0, result.length() - 1);
+        } else if (result.endsWith("es")) {
+            result = result.substring(0, result.length() - 2);
+        }
+
+        return result;
     }
 }
