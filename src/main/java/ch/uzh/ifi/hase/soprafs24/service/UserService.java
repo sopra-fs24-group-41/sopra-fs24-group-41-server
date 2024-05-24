@@ -68,12 +68,11 @@ public class UserService {
     }
 
     public User createUser(User newUser) {
-        usernameValidation(newUser.getUsername());
+        validateUsername(newUser.getUsername());
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
         newUser.setProfilePicture("bluefrog");
         newUser.setCreationDate(LocalDate.now());
-        checkUsername(newUser);
         newUser = userRepository.save(newUser);
         userRepository.flush();
 
@@ -117,20 +116,6 @@ public class UserService {
         return userByToken;
     }
 
-    private void checkUsername(User userToBeCreated) {
-        if (userToBeCreated.getUsername().length() > 20) {
-            String errorMessage = "Username cannot be more than 20 characters.";
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
-        }
-
-        User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-
-        if (userByUsername != null) {
-            String errorMessage = "The username provided is not unique. Therefore, the user could not be created!";
-            throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
-        }
-    }
-
     public User authUser(Long id, String token) {
         User foundUser = userRepository.findByToken(token);
         if (foundUser == null) {
@@ -142,13 +127,22 @@ public class UserService {
         return foundUser;
     }
 
-    public void usernameValidation(String username) {
-        if(username != null && username.isEmpty()){
+    public void validateUsername(String username) {
+        if (username == null || username.isEmpty()){
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username may not be left empty");
         }
 
-        if(username != null && username.contains(" ")) {
+        if (username.contains(" ")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username may not contain blank spaces");
+        }
+
+        if (username.length() > 20) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username cannot be more than 20 characters.");
+        }
+
+        User userByUsername = userRepository.findByUsername(username);
+        if (userByUsername != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "The username provided is not unique!");
         }
     }
 
@@ -162,13 +156,8 @@ public class UserService {
         User foundUser = userRepository.findByToken(token);
 
         //Input validation
-        usernameValidation(updatedUser.getUsername());
+        validateUsername(updatedUser.getUsername());
         favouriteValidation(updatedUser.getFavourite());
-
-        User conflictUser = userRepository.findByUsername(updatedUser.getUsername());
-        if(conflictUser != null && conflictUser!=foundUser){
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already taken, please choose a different one");
-        }
 
         //Update data
         if(updatedUser.getUsername()!=null && !Objects.equals(foundUser.getUsername(), updatedUser.getUsername())){
