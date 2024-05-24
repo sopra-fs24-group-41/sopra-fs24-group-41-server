@@ -69,6 +69,8 @@ public class UserService {
 
     public User createUser(User newUser) {
         validateUsername(newUser.getUsername());
+        checkDuplicateUser(newUser);
+
         newUser.setToken(UUID.randomUUID().toString());
         newUser.setStatus(UserStatus.OFFLINE);
         newUser.setProfilePicture("bluefrog");
@@ -139,14 +141,18 @@ public class UserService {
         if (username.length() > 20) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Username cannot be more than 20 characters.");
         }
+    }
 
-        User userByUsername = userRepository.findByUsername(username);
+    private void checkDuplicateUser(User userToBeCreated) {
+        User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
+
+        String errorMessage = "The username provided is not unique. Therefore, the user could not be created!";
         if (userByUsername != null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "The username provided is not unique!");
+            throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
         }
     }
 
-    public void favouriteValidation(String favourite) {
+    public void validateFavourite(String favourite) {
         if(favourite != null && favourite.contains(" ")) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Favourite word may not contain blank spaces");
         }
@@ -157,7 +163,12 @@ public class UserService {
 
         //Input validation
         validateUsername(updatedUser.getUsername());
-        favouriteValidation(updatedUser.getFavourite());
+        validateFavourite(updatedUser.getFavourite());
+
+        User conflictUser = userRepository.findByUsername(updatedUser.getUsername());
+        if(conflictUser != null && conflictUser != foundUser){
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already taken, please choose a different one");
+        }
 
         //Update data
         if(updatedUser.getUsername()!=null && !Objects.equals(foundUser.getUsername(), updatedUser.getUsername())){
