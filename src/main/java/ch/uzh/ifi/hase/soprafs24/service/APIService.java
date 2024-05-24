@@ -72,7 +72,7 @@ public class APIService {
 
         String parameters = """
                 {
-                    "maxOutputTokens" : 3,
+                    "maxOutputTokens" : 5,
                     "temperature": 0.3,
                     "maxDecodeSteps": 200,
                     "topP": 0.8,
