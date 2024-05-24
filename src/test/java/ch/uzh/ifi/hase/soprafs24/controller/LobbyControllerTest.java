@@ -591,6 +591,7 @@ class LobbyControllerTest {
         words.add(new Word("fire"));
 
         testPlayer1.addWords(words);
+        testLobby.setStatus(LobbyStatus.INGAME);
 
         // when
         MockHttpServletRequestBuilder putRequest = put(String.format("/lobbies/%s/players/%s", testLobby.getCode(), testPlayer1.getId()))

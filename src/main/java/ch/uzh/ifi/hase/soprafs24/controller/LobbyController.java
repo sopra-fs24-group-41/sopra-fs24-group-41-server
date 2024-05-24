@@ -177,6 +177,9 @@ public class LobbyController {
                                 @RequestHeader String playerToken, @RequestBody List<Word> words) {
         long lobbyCodeLong = parseLobbyCode(lobbyCode);
         Player player = getAuthenticatedPlayer(lobbyCode, playerId, playerToken);
+        if (player.getLobby().getStatus() != LobbyStatus.INGAME) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No active game found that you can play in. Start a game and try again.");
+        }
         Word result = gameService.play(player, words);
         messagingTemplate.convertAndSend(String.format(MESSAGE_LOBBY_GAME, lobbyCodeLong),
                 new InstructionDTO(Instruction.UPDATE_PLAYERS, player.getLobby().getPlayers().stream().map(DTOMapper.INSTANCE::convertEntityToPlayerGetDTO).toList()));
