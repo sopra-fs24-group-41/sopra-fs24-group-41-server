@@ -217,3 +217,7 @@ Worked on:
 - fixed bug: [#246](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/247)
 - added profile pictures for achievements: [server](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/250), [client](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/153)
 - improved the reachability/depth propagation when a word's depth is updated (see newer commits): [link](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/pull/189)
+
+**JacquelineUlken - Jacqueline Ulken**
+- Fixed various bugs [#225](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#225), [#234](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#234), [#249](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#249), [#252](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#252)
+- Adjusted target word selection and general difficulty balancing [#221](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#221), [#227](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#227), [#228](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#228), [#230](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#230), [#236](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#236), [#242](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#242), 
