@@ -220,4 +220,10 @@ Worked on:
 
 **JacquelineUlken - Jacqueline Ulken**
 - Fixed various bugs [#225](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#225), [#234](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#234), [#249](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#249), [#252](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#252)
-- Adjusted target word selection and general difficulty balancing [#221](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#221), [#227](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#227), [#228](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#228), [#230](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#230), [#236](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#236), [#242](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#242), 
+- Adjusted target word selection and general difficulty balancing [#221](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#221), [#227](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#227), [#228](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#228), [#230](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#230), [#236](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#236), [#242](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-server/issues/#242),
+
+**na50r - Rosan Shanmuganathan**
+- Implemented Frontend for the Achivement page together with @Grizzlytron and @Jackie [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/135)
+- Implemented most of the frontend related to Daily challenges [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/144)
+- Did a rehaul of the UI and a bunch of CSS fixups [Pull Request](https://github.com/sopra-fs24-group-41/sopra-fs24-group-41-client/pull/148)
+- In general, continously performed bug fixes whenever I was messaged about them. 
