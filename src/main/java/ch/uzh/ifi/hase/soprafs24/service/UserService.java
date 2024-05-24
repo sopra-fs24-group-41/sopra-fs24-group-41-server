@@ -73,7 +73,7 @@ public class UserService {
         newUser.setStatus(UserStatus.OFFLINE);
         newUser.setProfilePicture("bluefrog");
         newUser.setCreationDate(LocalDate.now());
-        checkDuplicateUser(newUser);
+        checkUsername(newUser);
         newUser = userRepository.save(newUser);
         userRepository.flush();
 
@@ -117,21 +117,16 @@ public class UserService {
         return userByToken;
     }
 
-    /**
-     * This is a helper method that will check the uniqueness criteria of the
-     * username and the name
-     * defined in the User entity. The method will do nothing if the input is unique
-     * and throw an error otherwise.
-     *
-     * @param userToBeCreated a User object that should be checked for uniqueness
-     * @throws org.springframework.web.server.ResponseStatusException ResponseStatusException
-     * @see User
-     */
-    private void checkDuplicateUser(User userToBeCreated) {
+    private void checkUsername(User userToBeCreated) {
+        if (userToBeCreated.getUsername().length() > 20) {
+            String errorMessage = "Username cannot be more than 20 characters.";
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, errorMessage);
+        }
+
         User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
 
-        String errorMessage = "The username provided is not unique. Therefore, the user could not be created!";
         if (userByUsername != null) {
+            String errorMessage = "The username provided is not unique. Therefore, the user could not be created!";
             throw new ResponseStatusException(HttpStatus.CONFLICT, errorMessage);
         }
     }

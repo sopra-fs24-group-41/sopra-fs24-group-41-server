@@ -94,6 +94,16 @@ class UserServiceTest {
     }
 
     @Test
+    void createUser_usernameTooLong_throwsException() {
+        // given -> a first user has already been created
+        testUser.setUsername("Peter_Piper_picked_a_peck_of_pickled_peppers");
+
+        // then -> attempt to create second user with same user -> check that an error
+        // is thrown
+        assertThrows(ResponseStatusException.class, () -> userService.createUser(testUser));
+    }
+
+    @Test
     void logInUser_validInputs_returnsUser() {
         userService.createUser(testUser);
         User userCredentials = testUser;
